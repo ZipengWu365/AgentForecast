@@ -8,6 +8,7 @@ import math
 import numpy as np
 import pandas as pd
 
+from .conformal import ConformalSpec, attach_conformal_intervals, build_river_jackknife_wrappers, resolve_conformal_spec
 from .errors import AgentForecastError, ensure
 from .features import build_supervised_matrix, future_exog_map, infer_season_length, make_feature_row
 
@@ -70,9 +71,9 @@ _REGISTRY: dict[str, BackendSpec] = {
     # streaming / online learning
     "stream_ewm": BackendSpec("stream_ewm", "streaming", "agentforecast", "Lightweight online exponential smoothing forecaster.", "base", ["streaming", "fast", "low_data"]),
     "stream_sgd": BackendSpec("stream_sgd", "streaming", "scikit-learn", "Online SGD regression with lag features.", "ml", ["streaming", "accurate", "tabular"]),
-    "river_linear": BackendSpec("river_linear", "streaming", "River", "Online linear regression with lag features in River.", "stream", ["streaming", "fast"], runtime="adapter"),
-    "river_snarimax": BackendSpec("river_snarimax", "streaming", "River", "Online SNARIMAX forecaster in River.", "stream", ["streaming", "accurate"], runtime="adapter"),
-    "river_holtwinters": BackendSpec("river_holtwinters", "streaming", "River", "Online Holt-Winters forecaster in River.", "stream", ["streaming", "long_horizon"], runtime="adapter"),
+    "river_linear": BackendSpec("river_linear", "streaming", "River", "Online linear regression with lag features in River.", "stream", ["streaming", "fast", "supports_conformal_native"], runtime="adapter"),
+    "river_snarimax": BackendSpec("river_snarimax", "streaming", "River", "Online SNARIMAX forecaster in River.", "stream", ["streaming", "accurate", "supports_conformal_residual", "supports_conformal_horizon"], runtime="adapter"),
+    "river_holtwinters": BackendSpec("river_holtwinters", "streaming", "River", "Online Holt-Winters forecaster in River.", "stream", ["streaming", "long_horizon", "supports_conformal_residual", "supports_conformal_horizon"], runtime="adapter"),
     # high-end optional adapters
     "neural_nhits": BackendSpec("neural_nhits", "deep", "NeuralForecast", "NHITS adapter for long-horizon deep forecasting.", "deep", ["deep", "long_horizon"], runtime="adapter", notes="Optional adapter."),
     "automl_autogluon": BackendSpec("automl_autogluon", "automl", "AutoGluon", "AutoGluon TimeSeries adapter.", "automl", ["automl", "accurate"], runtime="adapter", notes="Optional adapter."),
@@ -227,19 +228,21 @@ def _freq_alias(history: pd.DataFrame) -> str:
     return "D"
 
 
-def _attach_intervals(forecast: pd.DataFrame, residuals: np.ndarray, series_kind: str) -> pd.DataFrame:
-    forecast = forecast.copy()
-    scale = float(np.std(residuals, ddof=1)) if residuals.size > 1 else float(np.abs(residuals).mean() if residuals.size else max(abs(float(forecast["yhat"].iloc[0])) * 0.05, 1.0))
-    scale = max(scale, 1.0)
-    steps = np.sqrt(np.arange(1, len(forecast) + 1))
-    for level, z in ((80, 1.2816), (90, 1.6449)):
-        width = z * scale * steps
-        forecast[f"lower_{level}"] = forecast["yhat"] - width
-        forecast[f"upper_{level}"] = forecast["yhat"] + width
-    if series_kind == "cumulative":
-        for col in [c for c in forecast.columns if c.startswith(("yhat", "lower_", "upper_"))]:
-            forecast[col] = np.maximum.accumulate(np.maximum(forecast[col].to_numpy(dtype=float), 0.0))
-    return forecast
+def _attach_intervals(
+    forecast: pd.DataFrame,
+    residuals: np.ndarray,
+    series_kind: str,
+    *,
+    backend_id: str,
+    conformal: ConformalSpec | None,
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    return attach_conformal_intervals(
+        forecast,
+        spec=conformal,
+        residuals=residuals,
+        series_kind=series_kind,
+        backend_id=backend_id,
+    )
 
 
 def _seasonal_length(history: pd.DataFrame) -> int | None:
@@ -472,6 +475,7 @@ def _forecast_river(
     horizon: int,
     backend_id: str,
     feature_spec: dict[str, Any],
+    conformal: ConformalSpec | None = None,
 ) -> pd.DataFrame:
     from river import linear_model, preprocessing, optim, time_series
 
@@ -483,22 +487,56 @@ def _forecast_river(
     exog_future = future_exog_map(history, future_features_df, horizon=horizon, step=step, exogenous_cols=exog_cols)
 
     if backend_id == "river_linear":
-        model = preprocessing.StandardScaler() | linear_model.LinearRegression(optimizer=optim.Adam(0.001))
+        effective_spec = resolve_conformal_spec(conformal, preserve_legacy_levels=conformal is None)
+
+        def _regressor_factory():
+            return preprocessing.StandardScaler() | linear_model.LinearRegression(optimizer=optim.Adam(0.001))
+
+        use_jackknife = effective_spec.enabled and effective_spec.method in {"auto", "river_jackknife"}
+        model = _regressor_factory()
+        jackknife_models = (
+            build_river_jackknife_wrappers(
+                regressor_factory=_regressor_factory,
+                levels=effective_spec.levels,
+                calibration_window=effective_spec.calibration_window,
+            )
+            if use_jackknife
+            else {}
+        )
         y_history: list[float] = []
+        trained_examples = 0
         for ds_i, y_i, row in zip(ds, y, history.to_dict("records")):
             if len(y_history) >= max(feature_spec.get("lags", [1])):
                 exog = {col: float(row[col]) for col in exog_cols}
                 feats = make_feature_row(pd.Timestamp(ds_i), y_history, feature_spec=feature_spec, exog_values=exog)
                 model.learn_one(feats, y_i)
+                for wrapped in jackknife_models.values():
+                    wrapped.learn_one(feats, y_i)
+                trained_examples += 1
             y_history.append(float(y_i))
         preds: list[float] = []
+        interval_bounds: dict[int, tuple[list[float], list[float]]] = {
+            level: ([], []) for level in effective_spec.levels
+        }
         full_history = y.copy()
         for ds_i, exog in zip(future_ds, exog_future):
             feats = make_feature_row(pd.Timestamp(ds_i), full_history, feature_spec=feature_spec, exog_values=exog)
             yhat = float(model.predict_one(feats) or full_history[-1])
             preds.append(yhat)
+            if jackknife_models and trained_examples >= effective_spec.warmup_min:
+                for level, wrapped in jackknife_models.items():
+                    interval = wrapped.predict_one(feats, with_interval=True)
+                    lower = float(interval.lower) if interval is not None else yhat
+                    upper = float(interval.upper) if interval is not None else yhat
+                    interval_bounds[level][0].append(lower)
+                    interval_bounds[level][1].append(upper)
             full_history.append(yhat)
-        return pd.DataFrame({"ds": future_ds, "yhat": np.asarray(preds, dtype=float)})
+        forecast = pd.DataFrame({"ds": future_ds, "yhat": np.asarray(preds, dtype=float)})
+        for level, (lowers, uppers) in interval_bounds.items():
+            if lowers and uppers:
+                forecast[f"lower_{level}"] = np.asarray(lowers, dtype=float)
+                forecast[f"upper_{level}"] = np.asarray(uppers, dtype=float)
+        return forecast
 
     if backend_id == "river_snarimax":
         regressor = preprocessing.StandardScaler() | linear_model.LinearRegression(optimizer=optim.Adam(0.001))
@@ -570,6 +608,7 @@ def forecast_with_backend(
     backend_id: str,
     feature_spec: dict[str, Any],
     series_kind: str,
+    conformal: ConformalSpec | None = None,
 ) -> pd.DataFrame:
     if not is_backend_available(backend_id):
         raise AgentForecastError(
@@ -590,7 +629,7 @@ def forecast_with_backend(
     elif backend_id.startswith("stream_"):
         forecast = _forecast_stream_builtin(history, future_features_df, horizon, backend_id, feature_spec)
     elif backend_id.startswith("river_"):
-        forecast = _forecast_river(history, future_features_df, horizon, backend_id, feature_spec)
+        forecast = _forecast_river(history, future_features_df, horizon, backend_id, feature_spec, conformal=conformal)
     elif backend_id == "tabpfn_regression":
         forecast = _forecast_tabpfn(history, future_features_df, horizon, feature_spec)
     else:
@@ -600,7 +639,8 @@ def forecast_with_backend(
             help_text="This backend is intentionally optional and not shipped in the lean base path.",
         )
     if series_kind == "cumulative":
-        forecast["yhat"] = np.maximum.accumulate(np.maximum(forecast["yhat"].to_numpy(dtype=float), 0.0))
+        for col in [item for item in forecast.columns if item.startswith(("yhat", "lower_", "upper_"))]:
+            forecast[col] = np.maximum.accumulate(np.maximum(forecast[col].to_numpy(dtype=float), 0.0))
     return forecast
 
 
@@ -616,6 +656,71 @@ def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, float]:
     return {"mae": round(mae, 6), "rmse": round(rmse, 6), "mape": round(mape, 6), "smape": round(smape, 6)}
 
 
+def _calibration_residuals(
+    history: pd.DataFrame,
+    future_features_df: pd.DataFrame,
+    *,
+    backend_id: str,
+    horizon: int,
+    feature_spec: dict[str, Any],
+    series_kind: str,
+) -> np.ndarray:
+    max_lag = max(feature_spec.get("lags", [1]))
+    min_train_size = max(max_lag + 2, 8)
+    if len(history) <= min_train_size:
+        return np.asarray([], dtype=float)
+
+    calibration_horizon = min(max(3, horizon), max(3, len(history) // 5))
+    calibration_horizon = min(calibration_horizon, len(history) - min_train_size)
+    if calibration_horizon <= 0:
+        return np.asarray([], dtype=float)
+
+    calibration_train = history.iloc[:-calibration_horizon].reset_index(drop=True)
+    calibration_test = history.iloc[-calibration_horizon:].reset_index(drop=True)
+    try:
+        calibration_pred = forecast_with_backend(
+            calibration_train,
+            pd.DataFrame(columns=future_features_df.columns),
+            horizon=calibration_horizon,
+            backend_id=backend_id,
+            feature_spec=feature_spec,
+            series_kind=series_kind,
+            conformal=None,
+        )
+    except Exception:  # noqa: BLE001
+        return np.asarray([], dtype=float)
+    return calibration_test["y"].to_numpy(dtype=float) - calibration_pred["yhat"].to_numpy(dtype=float)
+
+
+def _interval_metric_payload(y_true: np.ndarray, forecast: pd.DataFrame) -> dict[str, Any]:
+    payload: dict[str, Any] = {"metrics": {}, "coverage": {}, "avg_width": {}, "wnc": {}}
+    levels = sorted(
+        {
+            int(column.split("_", 1)[1])
+            for column in forecast.columns
+            if column.startswith("lower_") and f"upper_{column.split('_', 1)[1]}" in forecast.columns
+        }
+    )
+    if not levels:
+        return payload
+
+    y_true = np.asarray(y_true, dtype=float)
+    scale = max(float(np.mean(np.abs(y_true))), 1e-8)
+    for level in levels:
+        lower = forecast[f"lower_{level}"].to_numpy(dtype=float)
+        upper = forecast[f"upper_{level}"].to_numpy(dtype=float)
+        coverage = float(np.mean((y_true >= lower) & (y_true <= upper)))
+        avg_width = float(np.mean(upper - lower))
+        wnc = float(coverage / max(avg_width / scale, 1e-8))
+        payload["metrics"][f"coverage_{level}"] = round(coverage, 6)
+        payload["metrics"][f"avg_width_{level}"] = round(avg_width, 6)
+        payload["metrics"][f"wnc_{level}"] = round(wnc, 6)
+        payload["coverage"][str(level)] = round(coverage, 6)
+        payload["avg_width"][str(level)] = round(avg_width, 6)
+        payload["wnc"][str(level)] = round(wnc, 6)
+    return payload
+
+
 def score_backend(
     history: pd.DataFrame,
     future_features_df: pd.DataFrame,
@@ -624,17 +729,71 @@ def score_backend(
     horizon: int,
     feature_spec: dict[str, Any],
     series_kind: str,
+    conformal: ConformalSpec | None = None,
 ) -> dict[str, Any]:
     if len(history) < 12:
         raise AgentForecastError(code="SERIES_TOO_SHORT", message="Need at least 12 points to compare backends robustly.")
+    try:
+        conformal_spec = resolve_conformal_spec(conformal, preserve_legacy_levels=conformal is None)
+    except ValueError as exc:
+        raise AgentForecastError(code="INVALID_CONFORMAL_SPEC", message=str(exc)) from exc
     back_h = min(max(3, horizon), max(3, len(history) // 5))
     train = history.iloc[:-back_h].reset_index(drop=True)
     test = history.iloc[-back_h:].reset_index(drop=True)
-    test_pred = forecast_with_backend(train, pd.DataFrame(columns=future_features_df.columns), horizon=back_h, backend_id=backend_id, feature_spec=feature_spec, series_kind=series_kind)
+    calibration_residuals = _calibration_residuals(
+        train,
+        future_features_df,
+        backend_id=backend_id,
+        horizon=back_h,
+        feature_spec=feature_spec,
+        series_kind=series_kind,
+    )
+    test_pred = forecast_with_backend(
+        train,
+        pd.DataFrame(columns=future_features_df.columns),
+        horizon=back_h,
+        backend_id=backend_id,
+        feature_spec=feature_spec,
+        series_kind=series_kind,
+        conformal=conformal_spec,
+    )
     metrics = compute_metrics(test["y"].to_numpy(dtype=float), test_pred["yhat"].to_numpy(dtype=float))
+    test_pred, test_conformal = _attach_intervals(
+        test_pred,
+        calibration_residuals,
+        series_kind,
+        backend_id=backend_id,
+        conformal=conformal_spec,
+    )
     residuals = test["y"].to_numpy(dtype=float) - test_pred["yhat"].to_numpy(dtype=float)
-    future_pred = forecast_with_backend(history, future_features_df, horizon=horizon, backend_id=backend_id, feature_spec=feature_spec, series_kind=series_kind)
-    future_pred = _attach_intervals(future_pred, residuals, series_kind)
+    interval_metrics = _interval_metric_payload(test["y"].to_numpy(dtype=float), test_pred)
+    metrics.update(interval_metrics["metrics"])
+    future_pred = forecast_with_backend(
+        history,
+        future_features_df,
+        horizon=horizon,
+        backend_id=backend_id,
+        feature_spec=feature_spec,
+        series_kind=series_kind,
+        conformal=conformal_spec,
+    )
+    future_pred, future_conformal = _attach_intervals(
+        future_pred,
+        calibration_residuals,
+        series_kind,
+        backend_id=backend_id,
+        conformal=conformal_spec,
+    )
+    conformal_payload = {
+        **future_conformal,
+        "coverage_backtest": interval_metrics["coverage"],
+        "mean_interval_width": interval_metrics["avg_width"],
+        "width_normalized_coverage": interval_metrics["wnc"],
+        "calibration_size": int(calibration_residuals.size),
+        "backend_tags": get_backend_spec(backend_id).tags,
+    }
+    if future_conformal["method"] != test_conformal["method"]:
+        conformal_payload["backtest_method"] = test_conformal["method"]
     return {
         "backend_id": backend_id,
         "forecast": future_pred,
@@ -642,4 +801,5 @@ def score_backend(
         "residuals": residuals,
         "backtest_horizon": back_h,
         "backend_spec": get_backend_spec(backend_id).to_dict(),
+        "conformal": conformal_payload,
     }

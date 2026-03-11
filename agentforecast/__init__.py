@@ -1,5 +1,6 @@
 """agentforecast: turn a time series into a publishable forecast pack."""
 
+from .conformal import ConformalSpec
 from .version import __version__
 from .local import (
     shoot,
@@ -27,6 +28,7 @@ def vibe(*args, **kwargs):
 
 __all__ = [
     "__version__",
+    "ConformalSpec",
     "shoot",
     "snap",
     "vibe",

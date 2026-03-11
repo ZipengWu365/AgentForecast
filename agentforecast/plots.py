@@ -7,16 +7,42 @@ import numpy as np
 import pandas as pd
 
 
+def _interval_levels(forecast: pd.DataFrame) -> list[int]:
+    levels = []
+    for column in forecast.columns:
+        if not column.startswith("lower_"):
+            continue
+        try:
+            level = int(column.split("_", 1)[1])
+        except ValueError:
+            continue
+        if f"upper_{level}" in forecast.columns:
+            levels.append(level)
+    return sorted(set(levels), reverse=True)
+
+
+def _shade_intervals(ax, forecast: pd.DataFrame, x_fcst: np.ndarray, *, add_labels: bool) -> None:
+    levels = _interval_levels(forecast)
+    if not levels:
+        return
+    alphas = np.linspace(0.12, 0.28, num=len(levels))
+    for alpha, level in zip(alphas, levels):
+        ax.fill_between(
+            x_fcst,
+            np.asarray(forecast[f"lower_{level}"], dtype=float),
+            np.asarray(forecast[f"upper_{level}"], dtype=float),
+            alpha=float(alpha),
+            label=f"{level}% interval" if add_labels else None,
+        )
+
+
 def plot_forecast(history: pd.DataFrame, forecast: pd.DataFrame, *, title: str, output_path: str | Path) -> None:
     fig, ax = plt.subplots(figsize=(9, 4.8))
     x_hist = pd.to_datetime(history["ds"]).to_numpy()
     x_fcst = pd.to_datetime(forecast["ds"]).to_numpy()
     ax.plot(x_hist, np.asarray(history["y"], dtype=float), label="history", linewidth=2)
     ax.plot(x_fcst, np.asarray(forecast["yhat"], dtype=float), label="forecast", linewidth=2)
-    if "lower_90" in forecast.columns and "upper_90" in forecast.columns:
-        ax.fill_between(x_fcst, np.asarray(forecast["lower_90"], dtype=float), np.asarray(forecast["upper_90"], dtype=float), alpha=0.18, label="90% interval")
-    if "lower_80" in forecast.columns and "upper_80" in forecast.columns:
-        ax.fill_between(x_fcst, np.asarray(forecast["lower_80"], dtype=float), np.asarray(forecast["upper_80"], dtype=float), alpha=0.25, label="80% interval")
+    _shade_intervals(ax, forecast, x_fcst, add_labels=True)
     ax.set_title(title)
     ax.set_xlabel("time")
     ax.set_ylabel("value")
@@ -34,8 +60,7 @@ def plot_forecast_card(history: pd.DataFrame, forecast: pd.DataFrame, *, title: 
     x_fcst = pd.to_datetime(forecast["ds"]).to_numpy()
     ax.plot(x_hist, np.asarray(history["y"], dtype=float), linewidth=2)
     ax.plot(x_fcst, np.asarray(forecast["yhat"], dtype=float), linewidth=2)
-    if "lower_90" in forecast.columns and "upper_90" in forecast.columns:
-        ax.fill_between(x_fcst, np.asarray(forecast["lower_90"], dtype=float), np.asarray(forecast["upper_90"], dtype=float), alpha=0.18)
+    _shade_intervals(ax, forecast, x_fcst, add_labels=False)
     latest = float(history["y"].iloc[-1])
     end = float(forecast["yhat"].iloc[-1])
     delta = end - latest

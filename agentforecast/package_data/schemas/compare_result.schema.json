@@ -19,5 +19,43 @@
     "artifacts",
     "warnings",
     "used_live_data"
-  ]
+  ],
+  "properties": {
+    "diagnostics": {
+      "type": "object",
+      "properties": {
+        "conformal": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "method": {
+              "type": "string"
+            },
+            "levels": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "coverage_backtest": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              }
+            },
+            "mean_interval_width": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              }
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    }
+  }
 }

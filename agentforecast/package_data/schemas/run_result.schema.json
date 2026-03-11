@@ -54,7 +54,61 @@
       "type": "object"
     },
     "diagnostics": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "conformal": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "requested_method": {
+              "type": "string"
+            },
+            "method": {
+              "type": "string"
+            },
+            "levels": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "calibration_window": {
+              "type": "integer"
+            },
+            "warmup_min": {
+              "type": "integer"
+            },
+            "horizon_aware": {
+              "type": "boolean"
+            },
+            "effective_horizon_aware": {
+              "type": "boolean"
+            },
+            "coverage_backtest": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              }
+            },
+            "mean_interval_width": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              }
+            },
+            "width_normalized_coverage": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              }
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
     },
     "metrics": {
       "type": "object"
