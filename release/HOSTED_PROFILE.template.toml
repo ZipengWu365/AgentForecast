@@ -1,0 +1,8 @@
+[project]
+repo_url = "https://github.com/<org>/<repo>"
+docs_url = "https://<org>.github.io/<repo>/"
+gallery_url = "https://<org>.github.io/<repo>/public_gallery/site/"
+
+[branding]
+project_name = "agentforecast"
+hero_tagline = "One command routes your series to the right forecaster and returns a publishable pack."

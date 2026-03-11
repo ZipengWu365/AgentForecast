@@ -1,0 +1,27 @@
+name: publish-gallery
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *'
+
+jobs:
+  build-gallery:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install .[stats,ml]
+      - run: python -m pip wheel . -w dist --no-deps
+      - run: python scripts/smoke_test_wheel.py
+      - run: python scripts/build_benchmarks.py
+      - run: python scripts/build_demo_gallery.py
+      - run: python scripts/build_gallery_preview.py
+      - run: python scripts/validate_v1_7.py
+      - name: Upload gallery artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-gallery-site
+          path: public_gallery/site

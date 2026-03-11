@@ -1,0 +1,11 @@
+name,kind,url,notes
+Monash / ForecastingData repository,dataset hub,https://forecastingdata.org/,Public repository of time-series datasets plus baseline evaluation pages.
+Monash baseline evaluation results,baseline results,https://forecastingdata.org/RMSSE.html,Baseline evaluation page hosted by the Monash forecasting repository.
+M4 competition,competition,https://www.unic.ac.cy/iff/research/forecasting/m-competitions/m4/,Classic multi-domain forecasting competition.
+M5 competition,competition,https://www.unic.ac.cy/iff/research/forecasting/m-competitions/m5/,Retail forecasting benchmark with exogenous structure and hierarchy.
+OpenTS-Bench / OpenTS,leaderboard hub,https://decisionintelligence.github.io/OpenTS/,OpenTS benchmark and leaderboard surface for time-series forecasting and related tasks.
+TFB repository,benchmark codebase,https://github.com/decisionintelligence/TFB,Comprehensive and fair benchmarking toolkit for time-series forecasting methods.
+GIFT-Eval repository,benchmark,https://github.com/SalesforceAIResearch/gift-eval,Foundation-model oriented time-series benchmark with code and data.
+GIFT-Eval public leaderboard,leaderboard,https://huggingface.co/spaces/Salesforce/GIFT-Eval,Interactive public leaderboard for GIFT-Eval.
+ForecastBench baseline leaderboard,leaderboard,https://www.forecastbench.org/baseline/,Out-of-the-box AI forecasting leaderboard.
+ForecastBench tournament leaderboard,leaderboard,https://www.forecastbench.org/tournament/,Tool-augmented frontier leaderboard for AI forecasting systems.

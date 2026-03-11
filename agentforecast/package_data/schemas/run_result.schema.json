@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "agentforecast RunResult",
+  "type": "object",
+  "required": [
+    "kind",
+    "schema_version",
+    "schema_ref",
+    "tool_version",
+    "run_type",
+    "backend_selected",
+    "candidate_backends",
+    "feature_spec",
+    "inputs",
+    "summary",
+    "diagnostics",
+    "metrics",
+    "artifacts",
+    "warnings",
+    "used_live_data"
+  ],
+  "properties": {
+    "kind": {
+      "const": "agentforecast.run_result"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "schema_ref": {
+      "type": "string"
+    },
+    "tool_version": {
+      "type": "string"
+    },
+    "run_type": {
+      "type": "string"
+    },
+    "backend_selected": {
+      "type": "string"
+    },
+    "candidate_backends": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "feature_spec": {
+      "type": "object"
+    },
+    "inputs": {
+      "type": "object"
+    },
+    "summary": {
+      "type": "object"
+    },
+    "diagnostics": {
+      "type": "object"
+    },
+    "metrics": {
+      "type": "object"
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "used_live_data": {
+      "type": "boolean"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "kind",
+          "path",
+          "media_type",
+          "description"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "media_type": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

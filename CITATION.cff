@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+title: agentforecast
+message: "If you use agentforecast in research or demos, please cite the project."
+type: software
+authors:
+  - family-names: contributors
+    given-names: agentforecast
+version: 1.7.0
+license: MIT

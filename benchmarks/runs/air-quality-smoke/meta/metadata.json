@@ -1,0 +1,308 @@
+{
+  "run_type": "compare_backends",
+  "backend_selected": "moving_average",
+  "candidate_backends": [
+    "moving_average",
+    "stream_ewm",
+    "seasonal_naive",
+    "stats_arima",
+    "stats_ets",
+    "naive",
+    "ml_ridge"
+  ],
+  "feature_spec": {
+    "mode": "auto",
+    "lags": [
+      1,
+      2,
+      3,
+      7,
+      14,
+      21,
+      28
+    ],
+    "rolling_windows": [
+      3,
+      7,
+      14
+    ],
+    "calendar_features": [
+      "dayofweek",
+      "month",
+      "day",
+      "dayofyear",
+      "is_month_start",
+      "is_month_end"
+    ],
+    "exogenous_cols": [
+      "smoke_index",
+      "wind_speed"
+    ]
+  },
+  "inputs": {
+    "name": "air_quality_smoke",
+    "horizon": 7,
+    "strategy": "fast",
+    "source": "package_data/datasets/air_quality_smoke.csv",
+    "date_col": "ds",
+    "value_col": "y",
+    "series_kind": "price",
+    "candidate_backends": [
+      "naive",
+      "seasonal_naive",
+      "moving_average",
+      "stream_ewm",
+      "ml_ridge",
+      "stats_arima",
+      "stats_ets"
+    ],
+    "routing": {
+      "profile": "explicit",
+      "history_len": 90,
+      "horizon": 7,
+      "candidate_backends": [
+        "naive",
+        "seasonal_naive",
+        "moving_average",
+        "stream_ewm",
+        "ml_ridge",
+        "stats_arima",
+        "stats_ets"
+      ],
+      "missing_backends": [],
+      "recommended_extras": [],
+      "reason": "explicit_backends_provided"
+    }
+  },
+  "summary": {
+    "headline": "air_quality_smoke: moving_average won the backend comparison and produced a publishable pack.",
+    "latest_observed": 32.08,
+    "projected_end": 40.56999999999999,
+    "artifact_count": 10,
+    "narrative": "Compared 7 backend(s) and routed the series to 'moving_average'. Exported CSV, chart, card, markdown, and JSON artifacts.",
+    "routing_reason": "explicit_backends_provided"
+  },
+  "diagnostics": {
+    "leaderboard": [
+      {
+        "backend_id": "moving_average",
+        "mae": 6.549388,
+        "rmse": 8.000713,
+        "mape": 16.142522,
+        "smape": 16.112236,
+        "backtest_horizon": 7
+      },
+      {
+        "backend_id": "stream_ewm",
+        "mae": 7.174039,
+        "rmse": 8.20962,
+        "mape": 19.049078,
+        "smape": 17.601502,
+        "backtest_horizon": 7
+      },
+      {
+        "backend_id": "seasonal_naive",
+        "mae": 13.134286,
+        "rmse": 15.265624,
+        "mape": 34.73541,
+        "smape": 34.925252,
+        "backtest_horizon": 7
+      },
+      {
+        "backend_id": "stats_arima",
+        "mae": 13.982967,
+        "rmse": 16.102596,
+        "mape": 39.623432,
+        "smape": 30.966841,
+        "backtest_horizon": 7
+      },
+      {
+        "backend_id": "stats_ets",
+        "mae": 14.056159,
+        "rmse": 16.687183,
+        "mape": 40.27736,
+        "smape": 30.999169,
+        "backtest_horizon": 7
+      },
+      {
+        "backend_id": "naive",
+        "mae": 14.81,
+        "rmse": 16.801124,
+        "mape": 41.718721,
+        "smape": 32.422256,
+        "backtest_horizon": 7
+      },
+      {
+        "backend_id": "ml_ridge",
+        "mae": 17.534266,
+        "rmse": 20.872733,
+        "mape": 50.341287,
+        "smape": 36.617896,
+        "backtest_horizon": 7
+      }
+    ],
+    "cleanup": {
+      "cleanup_applied": false,
+      "missing_points_filled": 0,
+      "duplicate_timestamps_merged": 0,
+      "inferred_frequency": "D",
+      "step_seconds": 86400.0,
+      "exogenous_cols": [
+        "smoke_index",
+        "wind_speed"
+      ],
+      "future_feature_policy": "use_provided_then_carry_last"
+    },
+    "routing": {
+      "profile": "explicit",
+      "history_len": 90,
+      "horizon": 7,
+      "candidate_backends": [
+        "naive",
+        "seasonal_naive",
+        "moving_average",
+        "stream_ewm",
+        "ml_ridge",
+        "stats_arima",
+        "stats_ets"
+      ],
+      "missing_backends": [],
+      "recommended_extras": [],
+      "reason": "explicit_backends_provided"
+    }
+  },
+  "metrics": {
+    "backend_id": "moving_average",
+    "mae": 6.549388,
+    "rmse": 8.000713,
+    "mape": 16.142522,
+    "smape": 16.112236,
+    "backtest_horizon": 7.0
+  },
+  "leaderboard": [
+    {
+      "backend_id": "moving_average",
+      "mae": 6.549388,
+      "rmse": 8.000713,
+      "mape": 16.142522,
+      "smape": 16.112236,
+      "backtest_horizon": 7
+    },
+    {
+      "backend_id": "stream_ewm",
+      "mae": 7.174039,
+      "rmse": 8.20962,
+      "mape": 19.049078,
+      "smape": 17.601502,
+      "backtest_horizon": 7
+    },
+    {
+      "backend_id": "seasonal_naive",
+      "mae": 13.134286,
+      "rmse": 15.265624,
+      "mape": 34.73541,
+      "smape": 34.925252,
+      "backtest_horizon": 7
+    },
+    {
+      "backend_id": "stats_arima",
+      "mae": 13.982967,
+      "rmse": 16.102596,
+      "mape": 39.623432,
+      "smape": 30.966841,
+      "backtest_horizon": 7
+    },
+    {
+      "backend_id": "stats_ets",
+      "mae": 14.056159,
+      "rmse": 16.687183,
+      "mape": 40.27736,
+      "smape": 30.999169,
+      "backtest_horizon": 7
+    },
+    {
+      "backend_id": "naive",
+      "mae": 14.81,
+      "rmse": 16.801124,
+      "mape": 41.718721,
+      "smape": 32.422256,
+      "backtest_horizon": 7
+    },
+    {
+      "backend_id": "ml_ridge",
+      "mae": 17.534266,
+      "rmse": 20.872733,
+      "mape": 50.341287,
+      "smape": 36.617896,
+      "backtest_horizon": 7
+    }
+  ],
+  "artifacts": [
+    {
+      "kind": "history_csv",
+      "path": "data/history.csv",
+      "media_type": "text/csv",
+      "description": "Normalized history"
+    },
+    {
+      "kind": "forecast_csv",
+      "path": "data/forecast.csv",
+      "media_type": "text/csv",
+      "description": "Winner backend forecast"
+    },
+    {
+      "kind": "leaderboard_csv",
+      "path": "data/leaderboard.csv",
+      "media_type": "text/csv",
+      "description": "Backend comparison leaderboard"
+    },
+    {
+      "kind": "forecast_png",
+      "path": "plots/forecast.png",
+      "media_type": "image/png",
+      "description": "Forecast chart"
+    },
+    {
+      "kind": "forecast_card_png",
+      "path": "plots/forecast_card.png",
+      "media_type": "image/png",
+      "description": "Shareable forecast card"
+    },
+    {
+      "kind": "comparison_png",
+      "path": "plots/backend_comparison.png",
+      "media_type": "image/png",
+      "description": "Backend comparison chart"
+    },
+    {
+      "kind": "leaderboard_card_png",
+      "path": "plots/leaderboard_card.png",
+      "media_type": "image/png",
+      "description": "Leaderboard card"
+    },
+    {
+      "kind": "delta_card_png",
+      "path": "plots/winner_vs_runnerup_delta.png",
+      "media_type": "image/png",
+      "description": "Winner vs runner-up delta card"
+    },
+    {
+      "kind": "summary_markdown",
+      "path": "reports/summary.md",
+      "media_type": "text/markdown",
+      "description": "Human-readable report"
+    },
+    {
+      "kind": "metadata_json",
+      "path": "meta/metadata.json",
+      "media_type": "application/json",
+      "description": "Structured compare result"
+    }
+  ],
+  "warnings": [],
+  "used_live_data": false,
+  "kind": "agentforecast.compare_result",
+  "schema_version": "1.0.0",
+  "schema_ref": "package://agentforecast/package_data/schemas/compare_result.schema.json",
+  "tool_version": "1.7.0"
+}

@@ -1,0 +1,417 @@
+{
+  "name": "agentforecast public gallery",
+  "items": [
+    {
+      "slug": "github-breakout",
+      "title": "github_breakout",
+      "headline": "github_breakout: ml_ridge won the backend comparison and produced a publishable pack.",
+      "backend_selected": "ml_ridge",
+      "summary": {
+        "headline": "github_breakout: ml_ridge won the backend comparison and produced a publishable pack.",
+        "latest_observed": 14643.0,
+        "projected_end": 20203.127404436033,
+        "artifact_count": 10,
+        "narrative": "Compared 5 backend(s) and routed the series to 'ml_ridge'. Exported CSV, chart, card, markdown, and JSON artifacts.",
+        "routing_reason": "explicit_backends_provided"
+      },
+      "diagnostics": {
+        "leaderboard": [
+          {
+            "backend_id": "ml_ridge",
+            "mae": 50.121404,
+            "rmse": 64.257077,
+            "mape": 0.371262,
+            "smape": 0.370199,
+            "backtest_horizon": 24
+          },
+          {
+            "backend_id": "stream_ewm",
+            "mae": 150.863184,
+            "rmse": 182.506567,
+            "mape": 1.127896,
+            "smape": 1.136577,
+            "backtest_horizon": 24
+          },
+          {
+            "backend_id": "stats_ets",
+            "mae": 362.055136,
+            "rmse": 425.396751,
+            "mape": 2.708628,
+            "smape": 2.757822,
+            "backtest_horizon": 24
+          },
+          {
+            "backend_id": "river_snarimax",
+            "mae": 647.980174,
+            "rmse": 752.67119,
+            "mape": 4.856345,
+            "smape": 5.013338,
+            "backtest_horizon": 24
+          },
+          {
+            "backend_id": "naive",
+            "mae": 1961.875,
+            "rmse": 2253.66116,
+            "mape": 14.735098,
+            "smape": 16.256368,
+            "backtest_horizon": 24
+          }
+        ],
+        "cleanup": {
+          "cleanup_applied": false,
+          "missing_points_filled": 0,
+          "duplicate_timestamps_merged": 0,
+          "inferred_frequency": "D",
+          "step_seconds": 86400.0,
+          "exogenous_cols": [
+            "repo_mentions"
+          ],
+          "future_feature_policy": "use_provided_then_carry_last"
+        },
+        "routing": {
+          "profile": "explicit",
+          "history_len": 120,
+          "horizon": 30,
+          "candidate_backends": [
+            "naive",
+            "stats_ets",
+            "ml_ridge",
+            "stream_ewm",
+            "river_snarimax"
+          ],
+          "missing_backends": [],
+          "recommended_extras": [],
+          "reason": "explicit_backends_provided"
+        }
+      },
+      "metrics": {
+        "backend_id": "ml_ridge",
+        "mae": 50.121404,
+        "rmse": 64.257077,
+        "mape": 0.371262,
+        "smape": 0.370199,
+        "backtest_horizon": 24.0
+      },
+      "artifacts": {
+        "history_csv": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/github-breakout/data/history.csv",
+        "forecast_csv": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/github-breakout/data/forecast.csv",
+        "leaderboard_csv": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/github-breakout/data/leaderboard.csv",
+        "forecast_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/github-breakout/plots/forecast.png",
+        "forecast_card_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/github-breakout/plots/forecast_card.png",
+        "comparison_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/github-breakout/plots/backend_comparison.png",
+        "leaderboard_card_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/github-breakout/plots/leaderboard_card.png",
+        "delta_card_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/github-breakout/plots/winner_vs_runnerup_delta.png",
+        "summary_markdown": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/github-breakout/reports/summary.md",
+        "metadata_json": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/github-breakout/meta/metadata.json"
+      },
+      "public_artifacts": {
+        "history_csv": "assets/github-breakout/history.csv",
+        "forecast_csv": "assets/github-breakout/forecast.csv",
+        "leaderboard_csv": "assets/github-breakout/leaderboard.csv",
+        "forecast_png": "assets/github-breakout/forecast.png",
+        "forecast_card_png": "assets/github-breakout/forecast_card.png",
+        "comparison_png": "assets/github-breakout/backend_comparison.png",
+        "leaderboard_card_png": "assets/github-breakout/leaderboard_card.png",
+        "delta_card_png": "assets/github-breakout/winner_vs_runnerup_delta.png",
+        "summary_markdown": "assets/github-breakout/summary.md",
+        "metadata_json": "assets/github-breakout/metadata.json"
+      }
+    },
+    {
+      "slug": "gold",
+      "title": "gold",
+      "headline": "gold: ml_ridge won the backend comparison and produced a publishable pack.",
+      "backend_selected": "ml_ridge",
+      "summary": {
+        "headline": "gold: ml_ridge won the backend comparison and produced a publishable pack.",
+        "latest_observed": 2623.54,
+        "projected_end": 2705.8437872970244,
+        "artifact_count": 10,
+        "narrative": "Compared 4 backend(s) and routed the series to 'ml_ridge'. Exported CSV, chart, card, markdown, and JSON artifacts.",
+        "routing_reason": "explicit_backends_provided"
+      },
+      "diagnostics": {
+        "leaderboard": [
+          {
+            "backend_id": "ml_ridge",
+            "mae": 9.803314,
+            "rmse": 11.061204,
+            "mape": 0.374506,
+            "smape": 0.374609,
+            "backtest_horizon": 30
+          },
+          {
+            "backend_id": "moving_average",
+            "mae": 50.441571,
+            "rmse": 54.254188,
+            "mape": 1.921794,
+            "smape": 1.943351,
+            "backtest_horizon": 30
+          },
+          {
+            "backend_id": "naive",
+            "mae": 66.083,
+            "rmse": 69.037147,
+            "mape": 2.519541,
+            "smape": 2.554589,
+            "backtest_horizon": 30
+          },
+          {
+            "backend_id": "stats_arima",
+            "mae": 74.688926,
+            "rmse": 77.686044,
+            "mape": 2.848018,
+            "smape": 2.892489,
+            "backtest_horizon": 30
+          }
+        ],
+        "cleanup": {
+          "cleanup_applied": false,
+          "missing_points_filled": 0,
+          "duplicate_timestamps_merged": 0,
+          "inferred_frequency": "D",
+          "step_seconds": 86400.0,
+          "exogenous_cols": [
+            "vix",
+            "dxy",
+            "yield_10y"
+          ],
+          "future_feature_policy": "use_provided_then_carry_last"
+        },
+        "routing": {
+          "profile": "explicit",
+          "history_len": 180,
+          "horizon": 30,
+          "candidate_backends": [
+            "naive",
+            "moving_average",
+            "stats_arima",
+            "ml_ridge"
+          ],
+          "missing_backends": [],
+          "recommended_extras": [],
+          "reason": "explicit_backends_provided"
+        }
+      },
+      "metrics": {
+        "backend_id": "ml_ridge",
+        "mae": 9.803314,
+        "rmse": 11.061204,
+        "mape": 0.374506,
+        "smape": 0.374609,
+        "backtest_horizon": 30.0
+      },
+      "artifacts": {
+        "history_csv": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/gold/data/history.csv",
+        "forecast_csv": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/gold/data/forecast.csv",
+        "leaderboard_csv": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/gold/data/leaderboard.csv",
+        "forecast_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/gold/plots/forecast.png",
+        "forecast_card_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/gold/plots/forecast_card.png",
+        "comparison_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/gold/plots/backend_comparison.png",
+        "leaderboard_card_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/gold/plots/leaderboard_card.png",
+        "delta_card_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/gold/plots/winner_vs_runnerup_delta.png",
+        "summary_markdown": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/gold/reports/summary.md",
+        "metadata_json": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/gold/meta/metadata.json"
+      },
+      "public_artifacts": {
+        "history_csv": "assets/gold/history.csv",
+        "forecast_csv": "assets/gold/forecast.csv",
+        "leaderboard_csv": "assets/gold/leaderboard.csv",
+        "forecast_png": "assets/gold/forecast.png",
+        "forecast_card_png": "assets/gold/forecast_card.png",
+        "comparison_png": "assets/gold/backend_comparison.png",
+        "leaderboard_card_png": "assets/gold/leaderboard_card.png",
+        "delta_card_png": "assets/gold/winner_vs_runnerup_delta.png",
+        "summary_markdown": "assets/gold/summary.md",
+        "metadata_json": "assets/gold/metadata.json"
+      }
+    },
+    {
+      "slug": "sales",
+      "title": "sales",
+      "headline": "sales: stats_ets won the backend comparison and produced a publishable pack.",
+      "backend_selected": "stats_ets",
+      "summary": {
+        "headline": "sales: stats_ets won the backend comparison and produced a publishable pack.",
+        "latest_observed": 164.04,
+        "projected_end": 168.99328033812077,
+        "artifact_count": 10,
+        "narrative": "Compared 6 backend(s) and routed the series to 'stats_ets'. Exported CSV, chart, card, markdown, and JSON artifacts.",
+        "routing_reason": "exogenous_features_available"
+      },
+      "diagnostics": {
+        "leaderboard": [
+          {
+            "backend_id": "stats_ets",
+            "mae": 2.668245,
+            "rmse": 3.34,
+            "mape": 1.660057,
+            "smape": 1.662909,
+            "backtest_horizon": 14
+          },
+          {
+            "backend_id": "ml_ridge",
+            "mae": 3.331871,
+            "rmse": 4.084696,
+            "mape": 2.068253,
+            "smape": 2.092819,
+            "backtest_horizon": 14
+          },
+          {
+            "backend_id": "seasonal_naive",
+            "mae": 4.409286,
+            "rmse": 5.815405,
+            "mape": 2.725862,
+            "smape": 2.789142,
+            "backtest_horizon": 14
+          },
+          {
+            "backend_id": "naive",
+            "mae": 7.069286,
+            "rmse": 8.145321,
+            "mape": 4.325824,
+            "smape": 4.383461,
+            "backtest_horizon": 14
+          },
+          {
+            "backend_id": "moving_average",
+            "mae": 7.383367,
+            "rmse": 8.441226,
+            "mape": 4.503556,
+            "smape": 4.581437,
+            "backtest_horizon": 14
+          },
+          {
+            "backend_id": "stream_ewm",
+            "mae": 8.835582,
+            "rmse": 10.343119,
+            "mape": 5.328184,
+            "smape": 5.508338,
+            "backtest_horizon": 14
+          }
+        ],
+        "cleanup": {
+          "cleanup_applied": false,
+          "missing_points_filled": 0,
+          "duplicate_timestamps_merged": 0,
+          "inferred_frequency": "D",
+          "step_seconds": 86400.0,
+          "exogenous_cols": [
+            "promo_index"
+          ],
+          "future_feature_policy": "use_provided_then_carry_last"
+        },
+        "routing": {
+          "profile": "fast",
+          "history_len": 120,
+          "horizon": 14,
+          "candidate_backends": [
+            "naive",
+            "seasonal_naive",
+            "moving_average",
+            "stream_ewm",
+            "ml_ridge",
+            "stats_ets"
+          ],
+          "missing_backends": [],
+          "recommended_extras": [],
+          "reason": "exogenous_features_available"
+        }
+      },
+      "metrics": {
+        "backend_id": "stats_ets",
+        "mae": 2.668245,
+        "rmse": 3.34,
+        "mape": 1.660057,
+        "smape": 1.662909,
+        "backtest_horizon": 14.0
+      },
+      "artifacts": {
+        "history_csv": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/sales/data/history.csv",
+        "forecast_csv": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/sales/data/forecast.csv",
+        "leaderboard_csv": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/sales/data/leaderboard.csv",
+        "forecast_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/sales/plots/forecast.png",
+        "forecast_card_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/sales/plots/forecast_card.png",
+        "comparison_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/sales/plots/backend_comparison.png",
+        "leaderboard_card_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/sales/plots/leaderboard_card.png",
+        "delta_card_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/sales/plots/winner_vs_runnerup_delta.png",
+        "summary_markdown": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/sales/reports/summary.md",
+        "metadata_json": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/sales/meta/metadata.json"
+      },
+      "public_artifacts": {
+        "history_csv": "assets/sales/history.csv",
+        "forecast_csv": "assets/sales/forecast.csv",
+        "leaderboard_csv": "assets/sales/leaderboard.csv",
+        "forecast_png": "assets/sales/forecast.png",
+        "forecast_card_png": "assets/sales/forecast_card.png",
+        "comparison_png": "assets/sales/backend_comparison.png",
+        "leaderboard_card_png": "assets/sales/leaderboard_card.png",
+        "delta_card_png": "assets/sales/winner_vs_runnerup_delta.png",
+        "summary_markdown": "assets/sales/summary.md",
+        "metadata_json": "assets/sales/metadata.json"
+      }
+    }
+  ],
+  "benchmark_hub": [
+    {
+      "name": "Monash / ForecastingData repository",
+      "url": "https://forecastingdata.org/",
+      "kind": "dataset hub",
+      "notes": "Public repository of time-series datasets plus baseline evaluation pages."
+    },
+    {
+      "name": "Monash baseline evaluation results",
+      "url": "https://forecastingdata.org/RMSSE.html",
+      "kind": "baseline results",
+      "notes": "Baseline evaluation page hosted by the Monash forecasting repository."
+    },
+    {
+      "name": "M4 competition",
+      "url": "https://www.unic.ac.cy/iff/research/forecasting/m-competitions/m4/",
+      "kind": "competition",
+      "notes": "Classic multi-domain forecasting competition."
+    },
+    {
+      "name": "M5 competition",
+      "url": "https://www.unic.ac.cy/iff/research/forecasting/m-competitions/m5/",
+      "kind": "competition",
+      "notes": "Retail forecasting benchmark with exogenous structure and hierarchy."
+    },
+    {
+      "name": "OpenTS-Bench / OpenTS",
+      "url": "https://decisionintelligence.github.io/OpenTS/",
+      "kind": "leaderboard hub",
+      "notes": "OpenTS benchmark and leaderboard surface for time-series forecasting and related tasks."
+    },
+    {
+      "name": "TFB repository",
+      "url": "https://github.com/decisionintelligence/TFB",
+      "kind": "benchmark codebase",
+      "notes": "Comprehensive and fair benchmarking toolkit for time-series forecasting methods."
+    },
+    {
+      "name": "GIFT-Eval repository",
+      "url": "https://github.com/SalesforceAIResearch/gift-eval",
+      "kind": "benchmark",
+      "notes": "Foundation-model oriented time-series benchmark with code and data."
+    },
+    {
+      "name": "GIFT-Eval public leaderboard",
+      "url": "https://huggingface.co/spaces/Salesforce/GIFT-Eval",
+      "kind": "leaderboard",
+      "notes": "Interactive public leaderboard for GIFT-Eval."
+    },
+    {
+      "name": "ForecastBench baseline leaderboard",
+      "url": "https://www.forecastbench.org/baseline/",
+      "kind": "leaderboard",
+      "notes": "Out-of-the-box AI forecasting leaderboard."
+    },
+    {
+      "name": "ForecastBench tournament leaderboard",
+      "url": "https://www.forecastbench.org/tournament/",
+      "kind": "leaderboard",
+      "notes": "Tool-augmented frontier leaderboard for AI forecasting systems."
+    }
+  ]
+}

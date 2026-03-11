@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "agentforecast DirectoryRunResult",
+  "type": "object",
+  "required": [
+    "kind",
+    "schema_version",
+    "schema_ref",
+    "tool_version",
+    "inputs",
+    "runs",
+    "warnings"
+  ]
+}

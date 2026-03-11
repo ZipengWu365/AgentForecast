@@ -1,0 +1,97 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentforecast"
+version = "1.7.0"
+description = "Turn any time series into a publishable forecast pack with multi-backend routing, streaming models, and hosted gallery output."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+  {name = "agentforecast contributors"}
+]
+dependencies = [
+  "numpy>=1.24",
+  "pandas>=1.5",
+  "matplotlib>=3.6"
+]
+keywords = ["forecasting", "time-series", "agent", "river", "xgboost", "arima", "mlforecast", "statsforecast"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Developers",
+  "Topic :: Scientific/Engineering",
+]
+
+[project.optional-dependencies]
+stats = [
+  "statsmodels>=0.14",
+  "statsforecast"
+]
+ml = [
+  "scikit-learn>=1.4",
+  "xgboost>=2.0",
+  "lightgbm>=4.0",
+  "catboost>=1.2",
+  "mlforecast"
+]
+stream = [
+  "river>=0.23"
+]
+deep = [
+  "neuralforecast"
+]
+automl = [
+  "autogluon.timeseries"
+]
+tabpfn = [
+  "tabpfn"
+]
+all = [
+  "statsmodels>=0.14",
+  "statsforecast",
+  "scikit-learn>=1.4",
+  "xgboost>=2.0",
+  "lightgbm>=4.0",
+  "catboost>=1.2",
+  "mlforecast",
+  "river>=0.23",
+  "neuralforecast",
+  "autogluon.timeseries",
+  "tabpfn"
+]
+
+[project.scripts]
+agentforecast = "agentforecast.cli:main"
+
+[project.urls]
+"Homepage" = "https://github.com/ZipengWu365/AgentForecast"
+"Repository" = "https://github.com/ZipengWu365/AgentForecast"
+"Documentation" = "https://github.com/ZipengWu365/AgentForecast#readme"
+"Issues" = "https://github.com/ZipengWu365/AgentForecast/issues"
+"Changelog" = "https://github.com/ZipengWu365/AgentForecast/blob/main/CHANGELOG.md"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["agentforecast*"]
+
+[tool.setuptools.package-data]
+agentforecast = [
+  "package_data/datasets/*.csv",
+  "package_data/manifests/*.json",
+  "package_data/schemas/*.json",
+  "package_data/benchmarks/*.csv"
+]
+
+
+[tool.setuptools.dynamic]
+
+[tool.agentforecast.release]
+requires_public_urls = true
+release_profile = "release/HOSTED_PROFILE.template.toml"
+notes = "Fill real repo/docs/gallery URLs before public release instead of publishing fake metadata."

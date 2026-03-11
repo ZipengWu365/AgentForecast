@@ -1,0 +1,12 @@
+{
+  "name": "agentforecast-mcp",
+  "version": "1.7.0",
+  "transport": "stdio-jsonrpc",
+  "methods": [
+    "initialize",
+    "tools/list",
+    "tools/call",
+    "resources/list",
+    "resources/read"
+  ]
+}

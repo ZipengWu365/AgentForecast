@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>agentforecast public gallery</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+  --bg: #ffffff;
+  --bg-soft: #fffdf5;
+  --surface: #fafafa;
+  --surface-strong: #ffffff;
+  --card: #fafafa;
+  --text: #1f2937;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --border-strong: #d8dde6;
+  --sun: #ffc83d;
+  --sun-soft: #fff4c2;
+  --sun-strong: #efb81c;
+  --blue: #2f6bff;
+  --blue-soft: #eef4ff;
+  --success: #1f8a5b;
+  --warning: #ac6a00;
+  --shadow-sm: 0 10px 30px rgba(31, 41, 55, 0.06);
+  --shadow-lg: 0 18px 60px rgba(31, 41, 55, 0.1);
+  --radius-xl: 28px;
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  background:
+    radial-gradient(circle at top left, rgba(255, 244, 194, 0.68), transparent 28%),
+    radial-gradient(circle at top right, rgba(47, 107, 255, 0.08), transparent 26%),
+    var(--bg);
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--text);
+  line-height: 1.55;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+.shell {
+  width: min(1180px, calc(100vw - 32px));
+  margin: 0 auto;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.84);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.9);
+}
+
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.brand-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, var(--sun), #ffe27a);
+  color: #111827;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.brand-copy small,
+.eyebrow,
+.meta-line,
+.muted,
+.footer-note {
+  color: var(--text-muted);
+}
+
+.brand-copy strong {
+  display: block;
+  font-size: 0.97rem;
+}
+
+.brand-copy small {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.76rem;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  color: var(--text-muted);
+  font-size: 0.94rem;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+}
+
+.button-primary {
+  background: linear-gradient(135deg, var(--sun), #ffe27a);
+  color: #111827;
+  box-shadow: var(--shadow-sm);
+}
+
+.button-secondary {
+  background: var(--surface-strong);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.page {
+  padding: 40px 0 72px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.9fr);
+  gap: 28px;
+  padding: 28px;
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(250, 250, 250, 0.98)),
+    linear-gradient(145deg, rgba(255, 200, 61, 0.12), rgba(47, 107, 255, 0.05));
+  border: 1px solid rgba(229, 231, 235, 0.9);
+  box-shadow: var(--shadow-lg);
+}
+
+.hero h1,
+.section-head h2,
+.case-header h1 {
+  margin: 0;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.hero h1 {
+  font-size: clamp(2.6rem, 5vw, 4.7rem);
+  max-width: 11ch;
+}
+
+.hero-copy p {
+  margin: 18px 0 0;
+  font-size: 1.06rem;
+  max-width: 64ch;
+  color: var(--text-muted);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.eyebrow::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--sun);
+  box-shadow: 0 0 0 6px rgba(255, 200, 61, 0.18);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  color: var(--text-muted);
+  font-size: 0.87rem;
+  font-weight: 600;
+}
+
+.pill-accent {
+  background: var(--sun-soft);
+  border-color: rgba(255, 200, 61, 0.35);
+  color: #805400;
+}
+
+.pill-blue {
+  background: var(--blue-soft);
+  border-color: rgba(47, 107, 255, 0.18);
+  color: var(--blue);
+}
+
+.panel {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.hero-panel {
+  padding: 22px;
+  display: grid;
+  gap: 18px;
+}
+
+.stat-grid,
+.feature-grid,
+.card-grid,
+.workflow-grid,
+.metric-grid,
+.artifact-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.stat-grid,
+.feature-grid,
+.workflow-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.card-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.metric-grid,
+.artifact-grid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.stat-card,
+.feature-card,
+.workflow-card,
+.gallery-card,
+.artifact-card,
+.metric-card,
+.bench-card,
+.case-panel {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+
+.stat-card,
+.metric-card {
+  padding: 16px;
+}
+
+.stat-card strong,
+.metric-card strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 1.42rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.feature-card,
+.workflow-card,
+.bench-card,
+.case-panel {
+  padding: 18px;
+}
+
+.feature-card h3,
+.workflow-card h3,
+.section-head h2,
+.gallery-card h3,
+.bench-card h3,
+.case-panel h3 {
+  margin: 0 0 10px;
+}
+
+.section {
+  margin-top: 28px;
+  padding: 28px;
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(229, 231, 235, 0.9);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--shadow-sm);
+}
+
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.section-head h2 {
+  font-size: clamp(1.9rem, 3vw, 2.7rem);
+}
+
+.section-head p {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.code-block {
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(47, 107, 255, 0.12);
+  background: #f8fbff;
+  padding: 16px 18px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.88rem;
+  color: #163063;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.gallery-card {
+  overflow: hidden;
+  transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
+}
+
+.gallery-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(255, 200, 61, 0.48);
+}
+
+.gallery-card-media {
+  padding: 16px 16px 0;
+}
+
+.gallery-card-media img {
+  border-radius: 16px;
+  border: 1px solid rgba(229, 231, 235, 0.85);
+  background: #fff;
+}
+
+.gallery-card-body {
+  padding: 18px;
+}
+
+.gallery-card-headline {
+  color: var(--text-muted);
+  min-height: 48px;
+}
+
+.gallery-card-footer,
+.mini-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mini-row {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.table thead th {
+  background: #fffdf6;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.table th,
+.table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.table tr:last-child td {
+  border-bottom: 0;
+}
+
+.artifact-card {
+  padding: 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.artifact-card strong {
+  font-size: 0.95rem;
+}
+
+.artifact-card code,
+.mono {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.artifact-card code {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  word-break: break-word;
+}
+
+.artifact-card a {
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.case-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.78fr);
+  gap: 24px;
+  padding: 28px;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+  background: linear-gradient(160deg, rgba(255, 244, 194, 0.28), rgba(255, 255, 255, 0.94) 40%, rgba(47, 107, 255, 0.05));
+  box-shadow: var(--shadow-lg);
+}
+
+.case-header h1 {
+  font-size: clamp(2.2rem, 4vw, 4rem);
+}
+
+.case-lead {
+  color: var(--text-muted);
+  max-width: 64ch;
+}
+
+.case-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.case-media img {
+  border-radius: 20px;
+  border: 1px solid rgba(229, 231, 235, 0.9);
+  box-shadow: var(--shadow-sm);
+}
+
+.stack {
+  display: grid;
+  gap: 18px;
+}
+
+.footer {
+  margin-top: 32px;
+  padding: 24px 0 8px;
+}
+
+.footer-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 22px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: linear-gradient(145deg, #fffefb, #ffffff);
+  box-shadow: var(--shadow-sm);
+}
+
+.footer-note {
+  font-size: 0.92rem;
+}
+
+@media (max-width: 980px) {
+  .hero,
+  .case-header {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-grid,
+  .feature-grid,
+  .workflow-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .shell {
+    width: min(100vw - 20px, 1180px);
+  }
+
+  .topbar-inner,
+  .section-head,
+  .footer-card,
+  .gallery-card-footer,
+  .mini-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .page {
+    padding: 24px 0 48px;
+  }
+
+  .hero,
+  .section,
+  .case-header {
+    padding: 20px;
+  }
+
+  .hero h1,
+  .case-header h1 {
+    max-width: none;
+  }
+
+  .stat-grid,
+  .feature-grid,
+  .workflow-grid,
+  .metric-grid,
+  .artifact-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+<header class='topbar'><div class='shell topbar-inner'><a class='brand' href='index.html'><span class='brand-mark'>AF</span><span class='brand-copy'><strong>agentforecast</strong><small>sunny scientific open source</small></span></a><nav class='nav-links'><a class='nav-link' href='#workflow'>Workflow</a><a class='nav-link' href='#packs'>Packs</a><a class='nav-link' href='#benchmarks'>Benchmarks</a><a class='nav-link' href='feed.json'>Feed</a><a class='button button-primary' href='#packs'>Browse packs</a></nav></div></header><main class='page'><div class='shell'><section class='hero'><div class='hero-copy'><div class='eyebrow'>Unified forecasting layer</div><h1>agentforecast public gallery</h1><p>A bright, productized surface for scientific forecasting. Compare backends, publish clean artifacts, and expose stable JSON and gallery outputs for humans and agents.</p><div class='hero-actions'><a class='button button-primary' href='#packs'>Explore public packs</a><a class='button button-secondary' href='feed.json'>Open JSON feed</a></div><div class='hero-meta'><span class='pill pill-accent'>white-background-first</span><span class='pill'>scientific clarity</span><span class='pill pill-blue'>agent-friendly outputs</span></div></div><aside class='hero-panel panel'><div><strong>Product promise</strong><p class='muted'>One command routes a series, scores visible backends, and exports cards, charts, markdown, CSV, and JSON.</p></div><div class='stat-grid'><article class='stat-card'><div class='muted'>Published packs</div><strong>3</strong><div class='muted'>Real forecast packs with charts, markdown, JSON, and cards.</div></article><article class='stat-card'><div class='muted'>Backends visible</div><strong>2</strong><div class='muted'>A small public surface over heterogeneous forecasting families.</div></article><article class='stat-card'><div class='muted'>Benchmark links</div><strong>10</strong><div class='muted'>Internal demo evidence kept separate from broader public benchmark hubs.</div></article><article class='stat-card'><div class='muted'>Launch posture</div><strong>public beta</strong><div class='muted'>Bright, legible, white-first UI designed for technical trust.</div></article></div><div class='code-block'>python -m agentforecast.cli shoot sales --outdir demo
+python -m agentforecast.cli demo-gallery --outdir public_gallery/demo_runs --site-dir public_gallery/site</div></aside></section><section class='section' id='features'><div class='section-head'><div><div class='eyebrow'>Why it feels different</div><h2>Product surface first, framework complexity second</h2></div><p>Bright and readable UI, stable artifact contracts, and backend routing make the package feel closer to a premium research product than a loose stack of scripts.</p></div><div class='feature-grid'><article class='feature-card'><h3>One command, many backends</h3><p class='muted'>Route from baseline to classical, tabular, or streaming backends without changing the outer product surface.</p></article><article class='feature-card'><h3>Publishable by default</h3><p class='muted'>Every run produces cards, charts, CSV, markdown, and JSON instead of a bare numeric array.</p></article><article class='feature-card'><h3>Agent-friendly contract</h3><p class='muted'>Stable fields such as schema refs, artifact maps, backend selection, warnings, and diagnostics.</p></article><article class='feature-card'><h3>Cross-disciplinary by design</h3><p class='muted'>Markets, healthcare, scientific operations, climate risk, and repo growth all fit the same pattern.</p></article></div></section><section class='section' id='workflow'><div class='section-head'><div><div class='eyebrow'>Workflow</div><h2>Point. Route. Publish.</h2></div><p>The gallery builder is opinionated about clarity: clean stats, high-contrast cards, simple code blocks, and obvious links to the underlying artifacts.</p></div><div class='workflow-grid'><article class='workflow-card'><h3>1. Point</h3><p class='muted'>Use a dataset id, case id, local CSV, directory, or URL.</p></article><article class='workflow-card'><h3>2. Route</h3><p class='muted'>Let backend auto-selection compare candidate methods or choose one explicitly.</p></article><article class='workflow-card'><h3>3. Publish</h3><p class='muted'>Get charts, cards, markdown, JSON, and leaderboard artifacts.</p></article><article class='workflow-card'><h3>4. Reuse</h3><p class='muted'>Push the static gallery to GitHub Pages or consume the JSON from an agent.</p></article></div></section><section class='section' id='packs'><div class='section-head'><div><div class='eyebrow'>Forecast packs</div><h2>Public runs, ready to scan</h2></div><p>Every card is built from the same product contract: selected backend, transparent metrics, copied artifacts, and a clean path into the case detail page.</p></div><div class='card-grid'><article class='gallery-card'><div class='gallery-card-media'><img src='assets/github-breakout/backend_comparison.png' alt='github_breakout'></div><div class='gallery-card-body'><div class='mini-row'><span class='badge'>ml_ridge</span><span class='muted'>github-breakout</span></div><h3><a href='cases/github-breakout.html'>github_breakout</a></h3><p class='gallery-card-headline'>github_breakout: ml_ridge won the backend comparison and produced a publishable pack.</p><div class='gallery-card-footer'><div class='mini-row'><span>latest</span><strong>14,643</strong></div><div class='mini-row'><span>projected end</span><strong>20,203</strong></div></div></div></article><article class='gallery-card'><div class='gallery-card-media'><img src='assets/gold/backend_comparison.png' alt='gold'></div><div class='gallery-card-body'><div class='mini-row'><span class='badge'>ml_ridge</span><span class='muted'>gold</span></div><h3><a href='cases/gold.html'>gold</a></h3><p class='gallery-card-headline'>gold: ml_ridge won the backend comparison and produced a publishable pack.</p><div class='gallery-card-footer'><div class='mini-row'><span>latest</span><strong>2,624</strong></div><div class='mini-row'><span>projected end</span><strong>2,706</strong></div></div></div></article><article class='gallery-card'><div class='gallery-card-media'><img src='assets/sales/backend_comparison.png' alt='sales'></div><div class='gallery-card-body'><div class='mini-row'><span class='badge'>stats_ets</span><span class='muted'>sales</span></div><h3><a href='cases/sales.html'>sales</a></h3><p class='gallery-card-headline'>sales: stats_ets won the backend comparison and produced a publishable pack.</p><div class='gallery-card-footer'><div class='mini-row'><span>latest</span><strong>164.04</strong></div><div class='mini-row'><span>projected end</span><strong>168.99</strong></div></div></div></article></div></section><section class='section' id='benchmarks'><div class='section-head'><div><div class='eyebrow'>Benchmark hub</div><h2>Internal transparency, external honesty</h2></div><p>The site keeps internal pack evidence visible, while linking out to broader public benchmark hubs instead of pretending that a tiny repo-local score table settles the field.</p></div><div class='table-wrap'><table class='table'><thead><tr><th>Name</th><th>Kind</th><th>Link</th></tr></thead><tbody><tr><td>Monash / ForecastingData repository</td><td>dataset hub</td><td><a href='https://forecastingdata.org/'>https://forecastingdata.org/</a></td></tr><tr><td>Monash baseline evaluation results</td><td>baseline results</td><td><a href='https://forecastingdata.org/RMSSE.html'>https://forecastingdata.org/RMSSE.html</a></td></tr><tr><td>M4 competition</td><td>competition</td><td><a href='https://www.unic.ac.cy/iff/research/forecasting/m-competitions/m4/'>https://www.unic.ac.cy/iff/research/forecasting/m-competitions/m4/</a></td></tr><tr><td>M5 competition</td><td>competition</td><td><a href='https://www.unic.ac.cy/iff/research/forecasting/m-competitions/m5/'>https://www.unic.ac.cy/iff/research/forecasting/m-competitions/m5/</a></td></tr><tr><td>OpenTS-Bench / OpenTS</td><td>leaderboard hub</td><td><a href='https://decisionintelligence.github.io/OpenTS/'>https://decisionintelligence.github.io/OpenTS/</a></td></tr><tr><td>TFB repository</td><td>benchmark codebase</td><td><a href='https://github.com/decisionintelligence/TFB'>https://github.com/decisionintelligence/TFB</a></td></tr><tr><td>GIFT-Eval repository</td><td>benchmark</td><td><a href='https://github.com/SalesforceAIResearch/gift-eval'>https://github.com/SalesforceAIResearch/gift-eval</a></td></tr><tr><td>GIFT-Eval public leaderboard</td><td>leaderboard</td><td><a href='https://huggingface.co/spaces/Salesforce/GIFT-Eval'>https://huggingface.co/spaces/Salesforce/GIFT-Eval</a></td></tr><tr><td>ForecastBench baseline leaderboard</td><td>leaderboard</td><td><a href='https://www.forecastbench.org/baseline/'>https://www.forecastbench.org/baseline/</a></td></tr><tr><td>ForecastBench tournament leaderboard</td><td>leaderboard</td><td><a href='https://www.forecastbench.org/tournament/'>https://www.forecastbench.org/tournament/</a></td></tr></tbody></table></div></section><section class='section'><div class='footer-card'><div><div class='eyebrow'>Launch CTA</div><h2 style='margin:0 0 10px;'>Use the gallery as the ecosystem front door</h2><p class='muted' style='max-width:60ch;'>Keep the repo bright, legible, and optimistic. Lead with public packs, then let users drill into markdown, CSV, JSON, and benchmark links.</p></div><div class='hero-actions'><a class='button button-primary' href='feed.json'>Download feed</a><a class='button button-secondary' href='#packs'>Review cases</a></div></div></section><div class='footer'><div class='footer-note'>Built by the agentforecast hosted gallery builder. White-first design language tuned for modern scientific open source.</div></div></div></main>
+</body>
+</html>
