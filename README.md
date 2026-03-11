@@ -1,6 +1,26 @@
-# agentforecast
+<p align="center">
+  <img src="assets/agentforecast-mark.svg" alt="agentforecast logo" width="88" />
+</p>
 
-**Forecast any time series with classical, tabular, streaming, and optional adapter backends, then publish charts, CSV, cards, markdown, and JSON in one command.**
+<h1 align="center">agentforecast</h1>
+
+<p align="center"><strong>Forecast any time series with classical, tabular, streaming, and optional adapter backends, then publish charts, CSV, cards, markdown, and JSON in one command.</strong></p>
+
+<p align="center">
+  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-1f2937?style=flat-square"></a>
+  <img alt="Python" src="https://img.shields.io/badge/python-3.10%2B-2F6BFF?style=flat-square">
+  <img alt="GitHub Pages" src="https://img.shields.io/badge/gallery-GitHub%20Pages-FFC83D?style=flat-square&logo=github">
+  <img alt="Author" src="https://img.shields.io/badge/author-Zipeng%20Wu-1F2937?style=flat-square">
+  <img alt="Affiliation" src="https://img.shields.io/badge/The%20University%20of%20Birmingham-research-9C1C40?style=flat-square">
+</p>
+
+<p align="center">
+  <a href="mailto:zxw365@student.bham.ac.uk">zxw365@student.bham.ac.uk</a>
+</p>
+
+<p align="center">
+  <img src="assets/hosted_gallery_preview.png" alt="agentforecast hosted gallery preview" width="940" />
+</p>
 
 `agentforecast` is a **multi-backend, agent-friendly forecast-to-publish layer**.
 
@@ -9,6 +29,12 @@ It does three jobs at once:
 1. routes one series through a small forecasting surface
 2. compares or selects backends such as **statsmodels**, **scikit-learn/XGBoost**, **streaming online models**, and optional adapters for **StatsForecast / MLForecast / River / AutoGluon / TabPFN**
 3. exports a **forecast pack** that is ready for humans, scripts, and agents
+
+## Author
+
+- **Zipeng Wu**
+- **The University of Birmingham**
+- **Email:** [zxw365@student.bham.ac.uk](mailto:zxw365@student.bham.ac.uk)
 
 ## Why use it
 

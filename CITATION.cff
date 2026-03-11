@@ -3,7 +3,9 @@ title: agentforecast
 message: "If you use agentforecast in research or demos, please cite the project."
 type: software
 authors:
-  - family-names: contributors
-    given-names: agentforecast
+  - family-names: Wu
+    given-names: Zipeng
+    affiliation: The University of Birmingham
+    email: zxw365@student.bham.ac.uk
 version: 1.7.0
 license: MIT

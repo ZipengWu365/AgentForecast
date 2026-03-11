@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [
-  {name = "agentforecast contributors"}
+  {name = "Zipeng Wu", email = "zxw365@student.bham.ac.uk"}
 ]
 dependencies = [
   "numpy>=1.24",
