@@ -256,6 +256,49 @@ img {
   color: var(--blue);
 }
 
+.author-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.author-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.author-pill strong {
+  color: var(--text);
+}
+
+.author-pill-uob {
+  background: rgba(156, 28, 64, 0.08);
+  border-color: rgba(156, 28, 64, 0.18);
+  color: #7b1733;
+}
+
+.author-mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: linear-gradient(145deg, var(--sun), #ffe27a);
+  color: #111827;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
 .panel {
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
@@ -608,6 +651,6 @@ img {
     &quot;ml_ridge&quot;
   ],
   &quot;recommended_extras&quot;: []
-}</div></div></div><div class='stack'><div class='case-media'><img src='../assets/gold/backend_comparison.png' alt='gold'></div><div class='case-panel'><h3>Summary</h3><p class='muted'>Compared 4 backend(s) and routed the series to &#x27;ml_ridge&#x27;. Exported CSV, chart, card, markdown, and JSON artifacts.</p><div class='hero-meta'><span class='pill pill-accent'>backend ml_ridge</span><span class='pill'>artifacts 10</span><span class='pill pill-blue'>schema-ready JSON</span></div></div></div></section><section class='section' id='leaderboard'><div class='section-head'><div><div class='eyebrow'>Leaderboard</div><h2>Visible backend performance</h2></div><p>Keep the leaderboard tight and readable. This page should communicate confidence, not overwhelm users with an estimator zoo.</p></div><div class='table-wrap'><table class='table'><thead><tr><th>Backend</th><th>MAE</th><th>RMSE</th><th>sMAPE</th></tr></thead><tbody><tr><td><span class='badge'>ml_ridge</span></td><td>9.803</td><td>11.061</td><td>0.3746</td></tr><tr><td><span class='badge'>moving_average</span></td><td>50.442</td><td>54.254</td><td>1.943</td></tr><tr><td><span class='badge'>naive</span></td><td>66.083</td><td>69.037</td><td>2.555</td></tr><tr><td><span class='badge'>stats_arima</span></td><td>74.689</td><td>77.686</td><td>2.892</td></tr></tbody></table></div></section><section class='section' id='artifacts'><div class='section-head'><div><div class='eyebrow'>Artifacts</div><h2>Every useful file, one click away</h2></div><p>Cards are intentionally simple: obvious file type, obvious path, obvious action. That keeps the page friendly for researchers and agents alike.</p></div><div class='artifact-grid'><article class='artifact-card'><strong>history_csv</strong><code>assets/gold/history.csv</code><a href='../assets/gold/history.csv'>Open artifact</a></article><article class='artifact-card'><strong>forecast_csv</strong><code>assets/gold/forecast.csv</code><a href='../assets/gold/forecast.csv'>Open artifact</a></article><article class='artifact-card'><strong>leaderboard_csv</strong><code>assets/gold/leaderboard.csv</code><a href='../assets/gold/leaderboard.csv'>Open artifact</a></article><article class='artifact-card'><strong>forecast_png</strong><code>assets/gold/forecast.png</code><a href='../assets/gold/forecast.png'>Open artifact</a></article><article class='artifact-card'><strong>forecast_card_png</strong><code>assets/gold/forecast_card.png</code><a href='../assets/gold/forecast_card.png'>Open artifact</a></article><article class='artifact-card'><strong>comparison_png</strong><code>assets/gold/backend_comparison.png</code><a href='../assets/gold/backend_comparison.png'>Open artifact</a></article><article class='artifact-card'><strong>leaderboard_card_png</strong><code>assets/gold/leaderboard_card.png</code><a href='../assets/gold/leaderboard_card.png'>Open artifact</a></article><article class='artifact-card'><strong>delta_card_png</strong><code>assets/gold/winner_vs_runnerup_delta.png</code><a href='../assets/gold/winner_vs_runnerup_delta.png'>Open artifact</a></article><article class='artifact-card'><strong>summary_markdown</strong><code>assets/gold/summary.md</code><a href='../assets/gold/summary.md'>Open artifact</a></article><article class='artifact-card'><strong>metadata_json</strong><code>assets/gold/metadata.json</code><a href='../assets/gold/metadata.json'>Open artifact</a></article></div></section><div class='footer'><div class='footer-card'><div><h3 style='margin:0 0 8px;'>Back to the ecosystem</h3><p class='muted' style='margin:0;'>Use the gallery homepage to compare multiple scientific, market, and operational examples in one visual system.</p></div><a class='button button-primary' href='../index.html'>Return to gallery</a></div></div></div></main>
+}</div></div></div><div class='stack'><div class='case-media'><img src='../assets/gold/backend_comparison.png' alt='gold'></div><div class='case-panel'><h3>Summary</h3><p class='muted'>Compared 4 backend(s) and routed the series to &#x27;ml_ridge&#x27;. Exported CSV, chart, card, markdown, and JSON artifacts.</p><div class='author-strip'><a class='author-pill' href='mailto:zxw365@student.bham.ac.uk'><span class='author-mark'>ZW</span><span><strong>Zipeng Wu</strong></span></a><span class='author-pill author-pill-uob'>The University of Birmingham</span><a class='author-pill' href='mailto:zxw365@student.bham.ac.uk'>zxw365@student.bham.ac.uk</a></div><div class='hero-meta'><span class='pill pill-accent'>backend ml_ridge</span><span class='pill'>artifacts 10</span><span class='pill pill-blue'>schema-ready JSON</span></div></div></div></section><section class='section' id='leaderboard'><div class='section-head'><div><div class='eyebrow'>Leaderboard</div><h2>Visible backend performance</h2></div><p>Keep the leaderboard tight and readable. This page should communicate confidence, not overwhelm users with an estimator zoo.</p></div><div class='table-wrap'><table class='table'><thead><tr><th>Backend</th><th>MAE</th><th>RMSE</th><th>sMAPE</th></tr></thead><tbody><tr><td><span class='badge'>ml_ridge</span></td><td>9.803</td><td>11.061</td><td>0.3746</td></tr><tr><td><span class='badge'>moving_average</span></td><td>50.442</td><td>54.254</td><td>1.943</td></tr><tr><td><span class='badge'>naive</span></td><td>66.083</td><td>69.037</td><td>2.555</td></tr><tr><td><span class='badge'>stats_arima</span></td><td>74.689</td><td>77.686</td><td>2.892</td></tr></tbody></table></div></section><section class='section' id='artifacts'><div class='section-head'><div><div class='eyebrow'>Artifacts</div><h2>Every useful file, one click away</h2></div><p>Cards are intentionally simple: obvious file type, obvious path, obvious action. That keeps the page friendly for researchers and agents alike.</p></div><div class='artifact-grid'><article class='artifact-card'><strong>history_csv</strong><code>assets/gold/history.csv</code><a href='../assets/gold/history.csv'>Open artifact</a></article><article class='artifact-card'><strong>forecast_csv</strong><code>assets/gold/forecast.csv</code><a href='../assets/gold/forecast.csv'>Open artifact</a></article><article class='artifact-card'><strong>leaderboard_csv</strong><code>assets/gold/leaderboard.csv</code><a href='../assets/gold/leaderboard.csv'>Open artifact</a></article><article class='artifact-card'><strong>forecast_png</strong><code>assets/gold/forecast.png</code><a href='../assets/gold/forecast.png'>Open artifact</a></article><article class='artifact-card'><strong>forecast_card_png</strong><code>assets/gold/forecast_card.png</code><a href='../assets/gold/forecast_card.png'>Open artifact</a></article><article class='artifact-card'><strong>comparison_png</strong><code>assets/gold/backend_comparison.png</code><a href='../assets/gold/backend_comparison.png'>Open artifact</a></article><article class='artifact-card'><strong>leaderboard_card_png</strong><code>assets/gold/leaderboard_card.png</code><a href='../assets/gold/leaderboard_card.png'>Open artifact</a></article><article class='artifact-card'><strong>delta_card_png</strong><code>assets/gold/winner_vs_runnerup_delta.png</code><a href='../assets/gold/winner_vs_runnerup_delta.png'>Open artifact</a></article><article class='artifact-card'><strong>summary_markdown</strong><code>assets/gold/summary.md</code><a href='../assets/gold/summary.md'>Open artifact</a></article><article class='artifact-card'><strong>metadata_json</strong><code>assets/gold/metadata.json</code><a href='../assets/gold/metadata.json'>Open artifact</a></article></div></section><div class='footer'><div class='footer-card'><div><h3 style='margin:0 0 8px;'>Back to the ecosystem</h3><p class='muted' style='margin:0;'>Use the gallery homepage to compare multiple scientific, market, and operational examples in one visual system. Built by Zipeng Wu at The University of Birmingham.</p></div><a class='button button-primary' href='../index.html'>Return to gallery</a></div></div></div></main>
 </body>
 </html>

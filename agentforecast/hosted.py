@@ -10,6 +10,10 @@ import shutil
 from .benchmark_hub import list_external_benchmarks
 from .utils import ensure_dir, read_json
 
+AUTHOR_NAME = "Zipeng Wu"
+AUTHOR_EMAIL = "zxw365@student.bham.ac.uk"
+AUTHOR_AFFILIATION = "The University of Birmingham"
+
 
 @dataclass
 class GalleryEntry:
@@ -316,6 +320,49 @@ img {
   background: var(--blue-soft);
   border-color: rgba(47, 107, 255, 0.18);
   color: var(--blue);
+}
+
+.author-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.author-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.author-pill strong {
+  color: var(--text);
+}
+
+.author-pill-uob {
+  background: rgba(156, 28, 64, 0.08);
+  border-color: rgba(156, 28, 64, 0.18);
+  color: #7b1733;
+}
+
+.author-mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: linear-gradient(145deg, var(--sun), #ffe27a);
+  color: #111827;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 800;
 }
 
 .panel {
@@ -766,6 +813,16 @@ def _workflow_grid() -> str:
     )
 
 
+def _author_strip() -> str:
+    return (
+        "<div class='author-strip'>"
+        f"<a class='author-pill' href='mailto:{_escape(AUTHOR_EMAIL)}'><span class='author-mark'>ZW</span><span><strong>{_escape(AUTHOR_NAME)}</strong></span></a>"
+        f"<span class='author-pill author-pill-uob'>{_escape(AUTHOR_AFFILIATION)}</span>"
+        f"<a class='author-pill' href='mailto:{_escape(AUTHOR_EMAIL)}'>{_escape(AUTHOR_EMAIL)}</a>"
+        "</div>"
+    )
+
+
 def _entry_card(entry: dict[str, Any]) -> str:
     public_artifacts = entry["public_artifacts"]
     preview = (
@@ -885,22 +942,23 @@ def build_hosted_site(runs_root: str | Path, site_dir: str | Path, *, gallery_ti
     topbar = _topbar([("Workflow", "#workflow"), ("Packs", "#packs"), ("Benchmarks", "#benchmarks"), ("Feed", "feed.json")])
     hero = (
         "<section class='hero'>"
-        "<div class='hero-copy'>"
-        "<div class='eyebrow'>Unified forecasting layer</div>"
-        f"<h1>{_escape(gallery_title)}</h1>"
-        "<p>A bright, productized surface for scientific forecasting. Compare backends, publish clean artifacts, and expose stable JSON and gallery outputs for humans and agents.</p>"
-        "<div class='hero-actions'>"
-        "<a class='button button-primary' href='#packs'>Explore public packs</a>"
-        "<a class='button button-secondary' href='feed.json'>Open JSON feed</a>"
-        "</div>"
-        "<div class='hero-meta'>"
-        "<span class='pill pill-accent'>white-background-first</span>"
-        "<span class='pill'>scientific clarity</span>"
-        "<span class='pill pill-blue'>agent-friendly outputs</span>"
-        "</div>"
-        "</div>"
-        "<aside class='hero-panel panel'>"
-        "<div><strong>Product promise</strong><p class='muted'>One command routes a series, scores visible backends, and exports cards, charts, markdown, CSV, and JSON.</p></div>"
+        + "<div class='hero-copy'>"
+        + "<div class='eyebrow'>Unified forecasting layer</div>"
+        + f"<h1>{_escape(gallery_title)}</h1>"
+        + "<p>A bright, productized surface for scientific forecasting. Compare backends, publish clean artifacts, and expose stable JSON and gallery outputs for humans and agents.</p>"
+        + _author_strip()
+        + "<div class='hero-actions'>"
+        + "<a class='button button-primary' href='#packs'>Explore public packs</a>"
+        + "<a class='button button-secondary' href='feed.json'>Open JSON feed</a>"
+        + "</div>"
+        + "<div class='hero-meta'>"
+        + "<span class='pill pill-accent'>white-background-first</span>"
+        + "<span class='pill'>scientific clarity</span>"
+        + "<span class='pill pill-blue'>agent-friendly outputs</span>"
+        + "</div>"
+        + "</div>"
+        + "<aside class='hero-panel panel'>"
+        + "<div><strong>Product promise</strong><p class='muted'>One command routes a series, scores visible backends, and exports cards, charts, markdown, CSV, and JSON.</p></div>"
         + _summary_cards(public_entries, len(benchmark_items))
         + "<div class='code-block'>python -m agentforecast.cli shoot sales --outdir demo\npython -m agentforecast.cli demo-gallery --outdir public_gallery/demo_runs --site-dir public_gallery/site</div>"
         + "</aside></section>"
@@ -957,7 +1015,9 @@ def build_hosted_site(runs_root: str | Path, site_dir: str | Path, *, gallery_ti
         + packs_section
         + benchmark_section
         + cta_section
-        + "<div class='footer'><div class='footer-note'>Built by the agentforecast hosted gallery builder. White-first design language tuned for modern scientific open source.</div></div>"
+        + "<div class='footer'><div class='footer-card'><div><h3 style='margin:0 0 8px;'>Author</h3>"
+        + f"<p class='muted' style='margin:0;'>Created by {_escape(AUTHOR_NAME)} at {_escape(AUTHOR_AFFILIATION)}. Contact: <a href='mailto:{_escape(AUTHOR_EMAIL)}'>{_escape(AUTHOR_EMAIL)}</a>.</p></div>"
+        + "<div class='footer-note'>Built by the agentforecast hosted gallery builder. White-first design language tuned for modern scientific open source.</div></div></div>"
         + "</div></main>"
     )
     (site_dir / "index.html").write_text(_page(gallery_title, index_body), encoding="utf-8")
@@ -992,6 +1052,7 @@ def build_hosted_site(runs_root: str | Path, site_dir: str | Path, *, gallery_ti
             )
             + "<div class='case-panel'><h3>Summary</h3>"
             + f"<p class='muted'>{_escape(entry['summary'].get('narrative', 'Forecast pack built and exported.'))}</p>"
+            + _author_strip()
             + "<div class='hero-meta'>"
             + f"<span class='pill pill-accent'>backend {_escape(entry['backend_selected'])}</span>"
             + f"<span class='pill'>artifacts {_escape(len(public_artifacts))}</span>"
@@ -1008,7 +1069,11 @@ def build_hosted_site(runs_root: str | Path, site_dir: str | Path, *, gallery_ti
             + "<p>Cards are intentionally simple: obvious file type, obvious path, obvious action. That keeps the page friendly for researchers and agents alike.</p></div>"
             + _artifact_cards(public_artifacts)
             + "</section>"
-            + "<div class='footer'><div class='footer-card'><div><h3 style='margin:0 0 8px;'>Back to the ecosystem</h3><p class='muted' style='margin:0;'>Use the gallery homepage to compare multiple scientific, market, and operational examples in one visual system.</p></div><a class='button button-primary' href='../index.html'>Return to gallery</a></div></div>"
+            + "<div class='footer'><div class='footer-card'><div><h3 style='margin:0 0 8px;'>Back to the ecosystem</h3><p class='muted' style='margin:0;'>Use the gallery homepage to compare multiple scientific, market, and operational examples in one visual system. Built by "
+            + _escape(AUTHOR_NAME)
+            + " at "
+            + _escape(AUTHOR_AFFILIATION)
+            + ".</p></div><a class='button button-primary' href='../index.html'>Return to gallery</a></div></div>"
             + "</div></main>"
         )
         (site_dir / "cases" / f"{entry['slug']}.html").write_text(_page(entry["title"], case_body), encoding="utf-8")
