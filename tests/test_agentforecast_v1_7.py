@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from agentforecast import ConformalSpec, FeatureSpec, forecast_dataset, shoot
+from agentforecast import ConformalSpec, FeatureSpec, forecast_dataset, forecast_stream_dataframe, shoot
 from agentforecast.backends import is_backend_available, list_backends, route_backends
 from agentforecast.datasets import dataset_path, get_dataset_spec
 from agentforecast.examples_hub import build_examples_site, demo_examples, list_examples
@@ -52,6 +52,13 @@ class AgentForecastV17Tests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             result = forecast_stream_csv(dataset_path('icu-bed-stress'), backend='stream_ewm', outdir=tmp)
             self.assertEqual(result.backend_selected, 'stream_ewm')
+            self.assertIn('streaming', result.diagnostics)
+
+    def test_forecast_stream_dataframe(self) -> None:
+        frame = pd.read_csv(public_example_path('daily-min-temperatures')).tail(180)
+        with tempfile.TemporaryDirectory() as tmp:
+            result = forecast_stream_dataframe(frame, name='daily_min_temperatures', backend='stream_ewm', outdir=tmp, horizon=7)
+            self.assertEqual(result.run_type, 'forecast_stream_dataframe')
             self.assertIn('streaming', result.diagnostics)
 
     def test_tool_server_error_shape(self) -> None:
@@ -169,6 +176,9 @@ class AgentForecastV17Tests(unittest.TestCase):
             self.assertTrue((site / 'examples' / 'first-forecast-pack.html').exists())
             rebuilt = build_examples_site(runs, site)
             self.assertEqual(rebuilt['entry_count'], 2)
+            page = (site / 'examples' / 'first-forecast-pack.html').read_text(encoding='utf-8')
+            self.assertIn('Python API first', page)
+            self.assertIn('from agentforecast import forecast_dataframe', page)
 
     def test_prepare_series_frame_preserves_monthly_calendar_frequency(self) -> None:
         frame = pd.read_csv(public_example_path('airline-passengers'))

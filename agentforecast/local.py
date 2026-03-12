@@ -561,37 +561,15 @@ def forecast_dir(
     )
 
 
-def forecast_stream_csv(
-    path: str | Path,
+def _streaming_diagnostics(
+    prepared,
     *,
-    backend: str = "river_snarimax",
-    date_col: str = "ds",
-    value_col: str = "y",
-    horizon: int = 7,
-    outdir: str | Path = "outputs",
-    series_kind: str = "auto",
-    conformal: ConformalSpec | None = None,
-    feature_spec: FeatureSpec | dict[str, Any] | None = None,
-) -> RunResult:
-    ensure(backend.startswith(('river_', 'stream_')), 'STREAM_BACKEND_REQUIRED', 'forecast_stream_csv currently requires a streaming backend.')
-    result = forecast_csv(
-        path,
-        date_col=date_col,
-        value_col=value_col,
-        horizon=horizon,
-        backend=backend,
-        strategy="streaming",
-        outdir=outdir,
-        series_kind=series_kind,
-        conformal=conformal,
-        feature_spec=feature_spec,
-    )
-    csv_path = Path(path)
-    frame = load_csv(csv_path)
-    prepared = prepare_series_frame(frame, date_col=date_col, value_col=value_col, series_kind=series_kind)
+    backend: str,
+    conformal: ConformalSpec | None,
+    feature_spec: FeatureSpec | dict[str, Any] | None,
+) -> dict[str, Any]:
     step_errors = []
     history = prepared.history
-    # lightweight progressive diagnostics using rolling one-step comparisons
     if len(history) >= 20:
         for split in range(max(8, len(history) // 2), len(history) - 1):
             train = history.iloc[:split].reset_index(drop=True)
@@ -611,34 +589,117 @@ def forecast_stream_csv(
     base_mae = float(np.mean(step_errors[:5])) if len(step_errors) >= 5 else rolling_mae
     drift_ratio = (rolling_mae / base_mae) if (rolling_mae and base_mae and base_mae > 0) else 1.0
     drift_alert = bool(drift_ratio > 1.5) if rolling_mae is not None and base_mae is not None else False
-
-    root = Path(outdir) / slugify(csv_path.stem)
-    drift_path = root / "plots" / "drift_alert_card.png"
-    plot_drift_alert_card(
-        title=f"{csv_path.stem}: streaming drift watch",
-        backend=backend,
-        rolling_mae=rolling_mae,
-        base_mae=base_mae,
-        drift_ratio=drift_ratio,
-        alert=drift_alert,
-        output_path=drift_path,
-    )
-    meta_path = root / "meta" / "metadata.json"
-    result.run_type = "forecast_stream_csv"
-    payload = result.to_dict()
-    payload["diagnostics"]["streaming"] = {
+    return {
         "backend_family": "streaming",
         "rolling_mae_last_5": rolling_mae,
         "baseline_mae_first_5": base_mae,
         "drift_ratio": drift_ratio,
         "drift_alert": drift_alert,
     }
+
+
+def _finalize_stream_result(
+    result: RunResult,
+    *,
+    name: str,
+    outdir: str | Path,
+    backend: str,
+    diagnostics: dict[str, Any],
+) -> RunResult:
+    root = Path(outdir) / slugify(name)
+    drift_path = root / "plots" / "drift_alert_card.png"
+    plot_drift_alert_card(
+        title=f"{name}: streaming drift watch",
+        backend=backend,
+        rolling_mae=diagnostics["rolling_mae_last_5"],
+        base_mae=diagnostics["baseline_mae_first_5"],
+        drift_ratio=diagnostics["drift_ratio"],
+        alert=diagnostics["drift_alert"],
+        output_path=drift_path,
+    )
+    meta_path = root / "meta" / "metadata.json"
+    payload = result.to_dict()
+    payload["diagnostics"]["streaming"] = diagnostics
     payload["artifacts"].append(
         ArtifactRef("drift_alert_card_png", relative_artifact(drift_path, root), "image/png", "Streaming drift alert card").to_dict()
     )
     write_json(meta_path, payload)
-    result.diagnostics["streaming"] = payload["diagnostics"]["streaming"]
+    result.diagnostics["streaming"] = diagnostics
     result.artifacts.append(ArtifactRef("drift_alert_card_png", relative_artifact(drift_path, root), "image/png", "Streaming drift alert card"))
+    return result
+
+
+def forecast_stream_dataframe(
+    frame: pd.DataFrame,
+    *,
+    name: str = "series",
+    backend: str = "river_snarimax",
+    date_col: str = "ds",
+    value_col: str = "y",
+    horizon: int = 7,
+    outdir: str | Path = "outputs",
+    series_kind: str = "auto",
+    source: str | None = None,
+    conformal: ConformalSpec | None = None,
+    feature_spec: FeatureSpec | dict[str, Any] | None = None,
+) -> RunResult:
+    ensure(backend.startswith(('river_', 'stream_')), 'STREAM_BACKEND_REQUIRED', 'forecast_stream_dataframe currently requires a streaming backend.')
+    result = forecast_dataframe(
+        frame,
+        name=name,
+        date_col=date_col,
+        value_col=value_col,
+        horizon=horizon,
+        backend=backend,
+        strategy="streaming",
+        outdir=outdir,
+        series_kind=series_kind,
+        source=source,
+        conformal=conformal,
+        feature_spec=feature_spec,
+    )
+    prepared = prepare_series_frame(frame, date_col=date_col, value_col=value_col, series_kind=series_kind)
+    diagnostics = _streaming_diagnostics(
+        prepared,
+        backend=backend,
+        conformal=conformal,
+        feature_spec=feature_spec,
+    )
+    result.run_type = "forecast_stream_dataframe"
+    return _finalize_stream_result(result, name=name, outdir=outdir, backend=backend, diagnostics=diagnostics)
+
+
+def forecast_stream_csv(
+    path: str | Path,
+    *,
+    backend: str = "river_snarimax",
+    date_col: str = "ds",
+    value_col: str = "y",
+    horizon: int = 7,
+    outdir: str | Path = "outputs",
+    series_kind: str = "auto",
+    conformal: ConformalSpec | None = None,
+    feature_spec: FeatureSpec | dict[str, Any] | None = None,
+) -> RunResult:
+    csv_path = Path(path)
+    ensure(backend.startswith(('river_', 'stream_')), 'STREAM_BACKEND_REQUIRED', 'forecast_stream_csv currently requires a streaming backend.')
+    frame = load_csv(csv_path)
+    result = forecast_stream_dataframe(
+        frame,
+        name=csv_path.stem,
+        backend=backend,
+        date_col=date_col,
+        value_col=value_col,
+        horizon=horizon,
+        outdir=outdir,
+        series_kind=series_kind,
+        source=posix_path(csv_path),
+        conformal=conformal,
+        feature_spec=feature_spec,
+    )
+    result.run_type = "forecast_stream_csv"
+    result.inputs["csv_path"] = posix_path(csv_path)
+    write_json(Path(outdir) / slugify(csv_path.stem) / "meta" / "metadata.json", result.to_dict())
     return result
 
 

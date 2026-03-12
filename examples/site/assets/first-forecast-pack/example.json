@@ -17,13 +17,14 @@
   ],
   "script_path": "examples/scripts/first_forecast_pack.py",
   "pack_dir": "run",
+  "python_api": "import pandas as pd\nfrom agentforecast import forecast_dataframe\n\ndf = pd.read_csv(\"https://raw.githubusercontent.com/jbrownlee/Datasets/master/monthly-car-sales.csv\")\nresult = forecast_dataframe(\n    df,\n    name=\"monthly_car_sales\",\n    horizon=12,\n    strategy=\"fast\",\n    outdir=\"demo\",\n)\n\nprint(result.summary[\"headline\"])",
   "cli_command": "python -m agentforecast.cli forecast-csv C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/monthly_car_sales.csv --horizon 12 --outdir examples/generated/first-forecast-pack",
   "runtime_notes": [
     "Source data: Monthly car sales."
   ],
-  "script_source": "from __future__ import annotations\n\nfrom pathlib import Path\nimport sys\n\nROOT = Path(__file__).resolve().parents[2]\nsys.path.insert(0, str(ROOT))\n\nfrom agentforecast import forecast_csv\nfrom agentforecast.public_examples import public_example_path\n\n\ndef main() -> None:\n    outdir = ROOT / \"examples\" / \"generated\" / \"first-forecast-pack\"\n    result = forecast_csv(public_example_path(\"monthly-car-sales\"), outdir=outdir, horizon=12, strategy=\"fast\")\n    print(result.summary[\"headline\"])\n    print((outdir / \"monthly-car-sales-real\" / \"reports\" / \"summary.md\").resolve())\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "script_source": "from __future__ import annotations\n\nfrom pathlib import Path\nimport pandas as pd\nimport sys\n\nROOT = Path(__file__).resolve().parents[2]\nsys.path.insert(0, str(ROOT))\n\nfrom agentforecast import forecast_dataframe\n\n\ndef main() -> None:\n    outdir = ROOT / \"examples\" / \"generated\" / \"first-forecast-pack\"\n    df = pd.read_csv(\"https://raw.githubusercontent.com/jbrownlee/Datasets/master/monthly-car-sales.csv\")\n    result = forecast_dataframe(df, name=\"monthly_car_sales\", outdir=outdir, horizon=12, strategy=\"fast\")\n    print(result.summary[\"headline\"])\n    print((outdir / result.inputs[\"name\"] / \"reports\" / \"summary.md\").resolve())\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "result": {
-    "run_type": "forecast_csv",
+    "run_type": "compare_backends",
     "backend_selected": "stats_ets",
     "candidate_backends": [
       "stats_ets",
@@ -74,7 +75,7 @@
       "name": "monthly_car_sales",
       "horizon": 12,
       "strategy": "fast",
-      "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/monthly_car_sales.csv",
+      "source": "dataframe",
       "date_col": "ds",
       "value_col": "y",
       "series_kind": "price",
@@ -101,8 +102,7 @@
         "missing_backends": [],
         "recommended_extras": [],
         "reason": "default_fast_path"
-      },
-      "csv_path": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/monthly_car_sales.csv"
+      }
     },
     "summary": {
       "headline": "monthly_car_sales: stats_ets won the backend comparison and produced a publishable pack.",

@@ -21,6 +21,7 @@
       ],
       "script_path": "examples/scripts/first_forecast_pack.py",
       "pack_dir": "run",
+      "python_api": "import pandas as pd\nfrom agentforecast import forecast_dataframe\n\ndf = pd.read_csv(\"https://raw.githubusercontent.com/jbrownlee/Datasets/master/monthly-car-sales.csv\")\nresult = forecast_dataframe(\n    df,\n    name=\"monthly_car_sales\",\n    horizon=12,\n    strategy=\"fast\",\n    outdir=\"demo\",\n)\n\nprint(result.summary[\"headline\"])",
       "cli_command": "python -m agentforecast.cli forecast-csv C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/monthly_car_sales.csv --horizon 12 --outdir examples/generated/first-forecast-pack",
       "runtime_notes": [
         "Source data: Monthly car sales."
@@ -47,6 +48,7 @@
       ],
       "script_path": "examples/scripts/backend_arena.py",
       "pack_dir": "run",
+      "python_api": "import pandas as pd\nfrom agentforecast import compare_backends_frame\n\ndf = pd.read_csv(\"https://raw.githubusercontent.com/jbrownlee/Datasets/master/airline-passengers.csv\")\nresult = compare_backends_frame(\n    df,\n    name=\"airline_passengers\",\n    backends=['naive', 'moving_average', 'stats_arima', 'stats_ets', 'ml_ridge', 'stream_ewm'],\n    horizon=12,\n    outdir=\"demo\",\n)\n\nprint(result.backend_selected)\nprint(result.leaderboard[0])",
       "cli_command": "python -m agentforecast.cli compare-csv C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/airline_passengers.csv --backends naive,moving_average,stats_arima,stats_ets,ml_ridge,stream_ewm --horizon 12 --outdir examples/generated/backend-arena",
       "runtime_notes": [
         "Source data: Airline passengers."
@@ -73,6 +75,7 @@
       ],
       "script_path": "examples/scripts/time_series_as_regression.py",
       "pack_dir": "run",
+      "python_api": "import pandas as pd\nfrom agentforecast import FeatureSpec, forecast_dataframe\n\ndf = pd.read_csv(\"https://raw.githubusercontent.com/jbrownlee/Datasets/master/daily-min-temperatures.csv\")\nfeature_spec = FeatureSpec(\n    lag_points=(1, 2, 3, 7, 14, 28),\n    lag_step=7,\n    lag_count=4,\n    rolling_windows=(3, 7, 14, 28),\n    include_tsfresh=True,\n    tsfresh_window=28,\n)\nresult = forecast_dataframe(\n    df,\n    name=\"daily_min_temperatures\",\n    backend=\"ml_ridge\",\n    horizon=30,\n    feature_spec=feature_spec,\n    outdir=\"demo\",\n)\n\nprint(result.feature_spec[\"lags\"])",
       "cli_command": "python -m agentforecast.cli forecast-csv C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv --backend ml_ridge --lag-points 1,2,3,7,14,28 --lag-step 7 --lag-count 4 --rolling-windows 3,7,14,28 --outdir examples/generated/time-series-as-regression --tsfresh --tsfresh-window 28",
       "runtime_notes": [
         "Source data: Daily minimum temperatures.",
@@ -100,6 +103,7 @@
       ],
       "script_path": "examples/scripts/calibrated_intervals.py",
       "pack_dir": "run",
+      "python_api": "import pandas as pd\nfrom agentforecast import ConformalSpec, forecast_dataframe\n\ndf = pd.read_csv(\"https://raw.githubusercontent.com/jbrownlee/Datasets/master/airline-passengers.csv\")\nconformal = ConformalSpec(\n    enabled=True,\n    method=\"auto\",\n    levels=(80, 90, 95),\n    calibration_window=60,\n    warmup_min=10,\n)\nresult = forecast_dataframe(\n    df,\n    name=\"airline_passengers\",\n    backend=\"river_linear\",\n    horizon=12,\n    conformal=conformal,\n    outdir=\"demo\",\n)\n\nprint(result.diagnostics[\"conformal\"][\"coverage_backtest\"])",
       "cli_command": "python -m agentforecast.cli forecast-csv C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/airline_passengers.csv --backend river_linear --conformal --conformal-method auto --levels 80,90,95 --calibration-window 60 --warmup-min 10 --horizon 12 --outdir examples/generated/calibrated-intervals",
       "runtime_notes": [
         "Source data: Airline passengers.",
@@ -127,6 +131,7 @@
       ],
       "script_path": "examples/scripts/streaming_drift_watch.py",
       "pack_dir": "run",
+      "python_api": "import pandas as pd\nfrom agentforecast import forecast_stream_dataframe\n\ndf = pd.read_csv(\"https://raw.githubusercontent.com/jbrownlee/Datasets/master/daily-min-temperatures.csv\")\nresult = forecast_stream_dataframe(\n    df,\n    name=\"daily_min_temperatures\",\n    backend=\"river_snarimax\",\n    horizon=14,\n    outdir=\"demo\",\n)\n\nprint(result.diagnostics[\"streaming\"][\"drift_ratio\"])",
       "cli_command": "python -m agentforecast.cli forecast-stream C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv --backend river_snarimax --horizon 14 --outdir examples/generated/streaming-drift-watch",
       "runtime_notes": [
         "Source data: Daily minimum temperatures.",

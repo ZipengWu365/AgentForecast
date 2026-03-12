@@ -1,5 +1,5 @@
 {
-  "run_type": "forecast_csv",
+  "run_type": "forecast_dataframe",
   "backend_selected": "river_linear",
   "candidate_backends": [
     "river_linear"
@@ -45,7 +45,7 @@
     "name": "airline_passengers",
     "horizon": 12,
     "strategy": "fast",
-    "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/airline_passengers.csv",
+    "source": "dataframe",
     "date_col": "ds",
     "value_col": "y",
     "series_kind": "price",
@@ -64,8 +64,7 @@
       "warmup_min": 10,
       "symmetric": true,
       "horizon_aware": true
-    },
-    "csv_path": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/airline_passengers.csv"
+    }
   },
   "summary": {
     "headline": "airline_passengers: river_linear won the backend comparison and produced a publishable pack.",

@@ -4,6 +4,8 @@
 
 The example hub is built from packaged real public time series, not the synthetic bundled quickstart datasets.
 
+The website now leads with short Python API snippets, then keeps the CLI as a secondary equivalent for automation.
+
 Every curated example has:
 
 - a runnable source script under `examples/scripts/`
@@ -13,8 +15,10 @@ Every curated example has:
 
 ## Generate The Full Hub
 
-```bash
-python -m agentforecast.cli demo-examples --outdir examples/generated --site-dir examples/site
+```python
+from agentforecast import demo_examples
+
+demo_examples("examples/generated", "examples/site")
 ```
 
 Open:
@@ -53,7 +57,19 @@ Generate only a subset:
 python -m agentforecast.cli demo-examples --examples first-forecast-pack,time-series-as-regression --outdir examples/generated --site-dir examples/site
 ```
 
-## Direct Commands
+## Python-First Pattern
+
+```python
+import pandas as pd
+
+from agentforecast import forecast_dataframe
+
+df = pd.read_csv("https://raw.githubusercontent.com/jbrownlee/Datasets/master/monthly-car-sales.csv")
+result = forecast_dataframe(df, name="monthly_car_sales", horizon=12, strategy="fast", outdir="demo")
+print(result.summary["headline"])
+```
+
+## CLI Equivalents
 
 Quick onboarding:
 

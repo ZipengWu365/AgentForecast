@@ -50,7 +50,7 @@
     "name": "airline_passengers",
     "horizon": 12,
     "strategy": "fast",
-    "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/airline_passengers.csv",
+    "source": "dataframe",
     "date_col": "ds",
     "value_col": "y",
     "series_kind": "price",

@@ -9,6 +9,8 @@ import shutil
 import tempfile
 import warnings
 
+import pandas as pd
+
 from .backends import is_backend_available
 from .conformal import ConformalSpec
 from .features import FeatureSpec
@@ -22,7 +24,7 @@ from .hosted import (
     _leaderboard_table,
     _routing_snippet,
 )
-from .local import compare_backends_csv, forecast_csv, forecast_stream_csv
+from .local import compare_backends_frame, forecast_dataframe, forecast_stream_dataframe
 from .public_examples import get_public_example_spec, public_example_path
 from .utils import ensure_dir, read_json, slugify, write_json
 
@@ -420,6 +422,126 @@ def _json_block(payload: Any) -> str:
     return "<div class='code-block'>" + _escape(json.dumps(payload, ensure_ascii=False, indent=2)) + "</div>"
 
 
+def _code_usage_block(title: str, copy: str, code: str) -> str:
+    return (
+        "<div class='note-stack'>"
+        f"<article class='note-card'><strong>{_escape(title)}</strong><div class='muted'>{_escape(copy)}</div></article>"
+        "</div>"
+        f"<div class='code-block'>{_escape(code)}</div>"
+    )
+
+
+def _python_api_snippet(
+    spec: ExampleSpec,
+    *,
+    backend: str | None = None,
+    backends: list[str] | None = None,
+    feature_spec: FeatureSpec | None = None,
+    conformal: ConformalSpec | None = None,
+) -> str:
+    data_spec = get_public_example_spec(spec.dataset_id)
+    name = Path(data_spec.file_name).stem
+    source_url = data_spec.source_url
+    if spec.example_id == "first-forecast-pack":
+        return (
+            "import pandas as pd\n"
+            "from agentforecast import forecast_dataframe\n\n"
+            f'df = pd.read_csv("{source_url}")\n'
+            "result = forecast_dataframe(\n"
+            "    df,\n"
+            f'    name="{name}",\n'
+            f"    horizon={data_spec.default_horizon},\n"
+            '    strategy="fast",\n'
+            '    outdir="demo",\n'
+            ")\n\n"
+            'print(result.summary["headline"])'
+        )
+    if spec.example_id == "backend-arena":
+        backend_list = backends or ["naive", "moving_average", "stats_arima", "stats_ets", "ml_ridge", "stream_ewm"]
+        rendered = ", ".join(repr(item) for item in backend_list)
+        return (
+            "import pandas as pd\n"
+            "from agentforecast import compare_backends_frame\n\n"
+            f'df = pd.read_csv("{source_url}")\n'
+            "result = compare_backends_frame(\n"
+            "    df,\n"
+            f'    name="{name}",\n'
+            f"    backends=[{rendered}],\n"
+            f"    horizon={data_spec.default_horizon},\n"
+            '    outdir="demo",\n'
+            ")\n\n"
+            "print(result.backend_selected)\n"
+            "print(result.leaderboard[0])"
+        )
+    if spec.example_id == "time-series-as-regression":
+        tsfresh_flag = "True" if feature_spec and feature_spec.include_tsfresh else "False"
+        tsfresh_tail = f",\n    tsfresh_window={feature_spec.tsfresh_window}" if feature_spec and feature_spec.include_tsfresh else ""
+        return (
+            "import pandas as pd\n"
+            "from agentforecast import FeatureSpec, forecast_dataframe\n\n"
+            f'df = pd.read_csv("{source_url}")\n'
+            "feature_spec = FeatureSpec(\n"
+            "    lag_points=(1, 2, 3, 7, 14, 28),\n"
+            "    lag_step=7,\n"
+            "    lag_count=4,\n"
+            "    rolling_windows=(3, 7, 14, 28),\n"
+            f"    include_tsfresh={tsfresh_flag}{tsfresh_tail},\n"
+            ")\n"
+            "result = forecast_dataframe(\n"
+            "    df,\n"
+            f'    name="{name}",\n'
+            '    backend="ml_ridge",\n'
+            "    horizon=30,\n"
+            "    feature_spec=feature_spec,\n"
+            '    outdir="demo",\n'
+            ")\n\n"
+            'print(result.feature_spec["lags"])'
+        )
+    if spec.example_id == "calibrated-intervals":
+        resolved_backend = backend or "river_linear"
+        resolved_method = conformal.method if conformal is not None else "auto"
+        levels = conformal.levels if conformal is not None else (80, 90, 95)
+        calibration_window = conformal.calibration_window if conformal is not None else 60
+        warmup_min = conformal.warmup_min if conformal is not None else 10
+        return (
+            "import pandas as pd\n"
+            "from agentforecast import ConformalSpec, forecast_dataframe\n\n"
+            f'df = pd.read_csv("{source_url}")\n'
+            "conformal = ConformalSpec(\n"
+            "    enabled=True,\n"
+            f'    method="{resolved_method}",\n'
+            f"    levels={levels},\n"
+            f"    calibration_window={calibration_window},\n"
+            f"    warmup_min={warmup_min},\n"
+            ")\n"
+            "result = forecast_dataframe(\n"
+            "    df,\n"
+            f'    name="{name}",\n'
+            f'    backend="{resolved_backend}",\n'
+            f"    horizon={data_spec.default_horizon},\n"
+            "    conformal=conformal,\n"
+            '    outdir="demo",\n'
+            ")\n\n"
+            'print(result.diagnostics["conformal"]["coverage_backtest"])'
+        )
+    if spec.example_id == "streaming-drift-watch":
+        resolved_backend = backend or "river_snarimax"
+        return (
+            "import pandas as pd\n"
+            "from agentforecast import forecast_stream_dataframe\n\n"
+            f'df = pd.read_csv("{source_url}")\n'
+            "result = forecast_stream_dataframe(\n"
+            "    df,\n"
+            f'    name="{name}",\n'
+            f'    backend="{resolved_backend}",\n'
+            "    horizon=14,\n"
+            '    outdir="demo",\n'
+            ")\n\n"
+            'print(result.diagnostics["streaming"]["drift_ratio"])'
+        )
+    raise ValueError(f"Unknown example '{spec.example_id}'.")
+
+
 def _copy_public_artifacts(example_root: Path, site_dir: Path, example_id: str, entry: dict[str, Any]) -> dict[str, str]:
     copied: dict[str, str] = {}
     pack_root = example_root / entry.get("pack_dir", "run")
@@ -472,7 +594,7 @@ def _write_index(site_dir: Path, entries: list[dict[str, Any]]) -> None:
         f"<article class='stat-card'><div class='muted'>Datasets</div><strong>{_escape(len(datasets))}</strong><div class='muted'>{_escape(', '.join(datasets))}</div></article>"
         f"<article class='stat-card'><div class='muted'>PNG artifacts</div><strong>{_escape(png_count)}</strong><div class='muted'>Forecast, comparison, leaderboard, and drift cards.</div></article>"
         "</div>"
-        "<div class='code-block'>python -m agentforecast.cli demo-examples --outdir examples/generated --site-dir examples/site</div>"
+        "<div class='code-block'>from agentforecast import demo_examples\n\ndemo_examples(\"examples/generated\", \"examples/site\")</div>"
         "</div>"
         "</section>"
     )
@@ -587,10 +709,10 @@ def _write_example_page(site_dir: Path, entry: dict[str, Any]) -> None:
         f"{notes_block}"
         "</section>"
         "<section class='section'>"
-        "<div class='section-head'><div><div class='section-kicker'>Run it</div><h2>CLI and source</h2></div>"
-        "<p>Use the command below or adapt the source script directly.</p></div>"
-        f"<div class='code-block'>{_escape(entry['cli_command'])}</div>"
-        f"<div class='code-block'>{_escape(entry.get('script_source', ''))}</div>"
+        "<div class='section-head'><div><div class='section-kicker'>Run it</div><h2>Python API first</h2></div>"
+        "<p>Start with the importable API if you are reading this as a person. The CLI stays available below for automation and CI.</p></div>"
+        f"{_code_usage_block('Python API', 'This is the shortest read-data, call-function, inspect-result path.', entry['python_api'])}"
+        f"{_code_usage_block('CLI equivalent', 'Keep the command-line version for pipelines, agents, and reproducible shell runs.', entry['cli_command'])}"
         "</section>"
         "<section class='section'>"
         "<div class='section-head'><div><div class='section-kicker'>Result</div><h2>Executed outcome</h2></div>"
@@ -621,13 +743,15 @@ def _write_example_page(site_dir: Path, entry: dict[str, Any]) -> None:
     (page_dir / f"{entry['example_id']}.html").write_text(_examples_page(entry["title"], body), encoding="utf-8")
 
 
-def _run_example(spec: ExampleSpec, outdir: Path) -> tuple[dict[str, Any], str, list[str]]:
+def _run_example(spec: ExampleSpec, outdir: Path) -> tuple[dict[str, Any], str, str, list[str]]:
     runtime_notes: list[str] = []
     data_spec = get_public_example_spec(spec.dataset_id)
     source_path = public_example_path(spec.dataset_id)
+    frame = pd.read_csv(source_path)
     if spec.example_id == "first-forecast-pack":
-        result = forecast_csv(
-            source_path,
+        result = forecast_dataframe(
+            frame,
+            name=Path(data_spec.file_name).stem,
             outdir=outdir,
             strategy="fast",
             horizon=data_spec.default_horizon,
@@ -636,10 +760,12 @@ def _run_example(spec: ExampleSpec, outdir: Path) -> tuple[dict[str, Any], str, 
             series_kind=data_spec.series_kind,
         )
         cli_command = f"python -m agentforecast.cli forecast-csv {source_path.as_posix()} --horizon {data_spec.default_horizon} --outdir examples/generated/first-forecast-pack"
+        python_api = _python_api_snippet(spec)
     elif spec.example_id == "backend-arena":
         candidate = [backend_id for backend_id in ["naive", "moving_average", "stats_arima", "stats_ets", "ml_ridge", "stream_ewm"] if is_backend_available(backend_id)]
-        result = compare_backends_csv(
-            source_path,
+        result = compare_backends_frame(
+            frame,
+            name=Path(data_spec.file_name).stem,
             backends=candidate,
             outdir=outdir,
             horizon=data_spec.default_horizon,
@@ -648,6 +774,7 @@ def _run_example(spec: ExampleSpec, outdir: Path) -> tuple[dict[str, Any], str, 
             series_kind=data_spec.series_kind,
         )
         cli_command = f"python -m agentforecast.cli compare-csv {source_path.as_posix()} --backends " + ",".join(candidate) + f" --horizon {data_spec.default_horizon} --outdir examples/generated/backend-arena"
+        python_api = _python_api_snippet(spec, backends=candidate)
         missing = [backend_id for backend_id in ["stats_arima", "stats_ets", "ml_ridge"] if backend_id not in candidate]
         if missing:
             runtime_notes.append("This run excluded unavailable extras: " + ", ".join(missing) + ".")
@@ -662,8 +789,9 @@ def _run_example(spec: ExampleSpec, outdir: Path) -> tuple[dict[str, Any], str, 
             include_tsfresh=include_tsfresh,
             tsfresh_window=28,
         )
-        result = forecast_csv(
-            source_path,
+        result = forecast_dataframe(
+            frame,
+            name=Path(data_spec.file_name).stem,
             backend="ml_ridge",
             outdir=outdir,
             horizon=30,
@@ -682,6 +810,7 @@ def _run_example(spec: ExampleSpec, outdir: Path) -> tuple[dict[str, Any], str, 
             runtime_notes.append("`tsfresh` was installed in this environment, so compact tsfresh descriptors were included.")
         else:
             runtime_notes.append("`tsfresh` was not installed in this environment, so this run used lag, delay, rolling, and calendar features only.")
+        python_api = _python_api_snippet(spec, feature_spec=feature_spec)
     elif spec.example_id == "calibrated-intervals":
         backend = "river_linear" if is_backend_available("river_linear") else "stream_ewm"
         conformal = ConformalSpec(
@@ -691,8 +820,9 @@ def _run_example(spec: ExampleSpec, outdir: Path) -> tuple[dict[str, Any], str, 
             calibration_window=60,
             warmup_min=10,
         )
-        result = forecast_csv(
-            source_path,
+        result = forecast_dataframe(
+            frame,
+            name=Path(data_spec.file_name).stem,
             backend=backend,
             outdir=outdir,
             conformal=conformal,
@@ -710,10 +840,12 @@ def _run_example(spec: ExampleSpec, outdir: Path) -> tuple[dict[str, Any], str, 
             runtime_notes.append("This run used River jackknife intervals through `river_linear`.")
         else:
             runtime_notes.append("River was not available, so this run used the rolling residual conformal fallback on `stream_ewm`.")
+        python_api = _python_api_snippet(spec, backend=backend, conformal=conformal)
     elif spec.example_id == "streaming-drift-watch":
         backend = "river_snarimax" if is_backend_available("river_snarimax") else "stream_ewm"
-        result = forecast_stream_csv(
-            source_path,
+        result = forecast_stream_dataframe(
+            frame,
+            name=Path(data_spec.file_name).stem,
             backend=backend,
             horizon=14,
             outdir=outdir,
@@ -729,12 +861,13 @@ def _run_example(spec: ExampleSpec, outdir: Path) -> tuple[dict[str, Any], str, 
             runtime_notes.append("This run used the River streaming forecaster path.")
         else:
             runtime_notes.append("River was not available, so this run used the built-in `stream_ewm` fallback.")
+        python_api = _python_api_snippet(spec, backend=backend)
     else:
         raise ValueError(f"Unknown example '{spec.example_id}'.")
 
     payload = result.to_dict() if hasattr(result, "to_dict") else result
     runtime_notes.insert(0, f"Source data: {data_spec.title}.")
-    return payload, cli_command, runtime_notes
+    return payload, python_api, cli_command, runtime_notes
 
 
 def demo_examples(
@@ -755,7 +888,7 @@ def demo_examples(
     for spec in chosen_specs:
         example_root = ensure_dir(runs_root / spec.example_id)
         with tempfile.TemporaryDirectory() as tmpdir:
-            payload, cli_command, runtime_notes = _run_example(spec, Path(tmpdir))
+            payload, python_api, cli_command, runtime_notes = _run_example(spec, Path(tmpdir))
             pack_root = Path(tmpdir) / slugify(payload["inputs"]["name"])
             shutil.copytree(pack_root, example_root / "run")
         script_source_path = _REPO_ROOT / spec.script_path
@@ -765,6 +898,7 @@ def demo_examples(
         manifest = {
             **spec.to_dict(),
             "pack_dir": "run",
+            "python_api": python_api,
             "cli_command": cli_command,
             "runtime_notes": runtime_notes,
             "script_source": script_source,

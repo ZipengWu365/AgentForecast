@@ -1,5 +1,5 @@
 {
-  "run_type": "forecast_csv",
+  "run_type": "forecast_dataframe",
   "backend_selected": "ml_ridge",
   "candidate_backends": [
     "ml_ridge"
@@ -62,14 +62,13 @@
     "name": "daily_min_temperatures",
     "horizon": 30,
     "strategy": "fast",
-    "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv",
+    "source": "dataframe",
     "date_col": "ds",
     "value_col": "y",
     "series_kind": "price",
     "candidate_backends": [
       "ml_ridge"
-    ],
-    "csv_path": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv"
+    ]
   },
   "summary": {
     "headline": "daily_min_temperatures: ml_ridge won the backend comparison and produced a publishable pack.",

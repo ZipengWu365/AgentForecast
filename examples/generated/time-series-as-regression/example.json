@@ -17,14 +17,15 @@
   ],
   "script_path": "examples/scripts/time_series_as_regression.py",
   "pack_dir": "run",
+  "python_api": "import pandas as pd\nfrom agentforecast import FeatureSpec, forecast_dataframe\n\ndf = pd.read_csv(\"https://raw.githubusercontent.com/jbrownlee/Datasets/master/daily-min-temperatures.csv\")\nfeature_spec = FeatureSpec(\n    lag_points=(1, 2, 3, 7, 14, 28),\n    lag_step=7,\n    lag_count=4,\n    rolling_windows=(3, 7, 14, 28),\n    include_tsfresh=True,\n    tsfresh_window=28,\n)\nresult = forecast_dataframe(\n    df,\n    name=\"daily_min_temperatures\",\n    backend=\"ml_ridge\",\n    horizon=30,\n    feature_spec=feature_spec,\n    outdir=\"demo\",\n)\n\nprint(result.feature_spec[\"lags\"])",
   "cli_command": "python -m agentforecast.cli forecast-csv C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv --backend ml_ridge --lag-points 1,2,3,7,14,28 --lag-step 7 --lag-count 4 --rolling-windows 3,7,14,28 --outdir examples/generated/time-series-as-regression --tsfresh --tsfresh-window 28",
   "runtime_notes": [
     "Source data: Daily minimum temperatures.",
     "`tsfresh` was installed in this environment, so compact tsfresh descriptors were included."
   ],
-  "script_source": "from __future__ import annotations\n\nfrom pathlib import Path\nimport importlib.util\nimport sys\n\nROOT = Path(__file__).resolve().parents[2]\nsys.path.insert(0, str(ROOT))\n\nfrom agentforecast import FeatureSpec, forecast_csv\nfrom agentforecast.public_examples import public_example_path\n\n\ndef main() -> None:\n    outdir = ROOT / \"examples\" / \"generated\" / \"time-series-as-regression\"\n    include_tsfresh = importlib.util.find_spec(\"tsfresh\") is not None\n    feature_spec = FeatureSpec(\n        mode=\"tutorial_regression\",\n        lag_points=(1, 2, 3, 7, 14, 28),\n        lag_step=7,\n        lag_count=4,\n        rolling_windows=(3, 7, 14, 28),\n        include_tsfresh=include_tsfresh,\n        tsfresh_window=28,\n    )\n    result = forecast_csv(public_example_path(\"daily-min-temperatures\"), backend=\"ml_ridge\", outdir=outdir, horizon=30, feature_spec=feature_spec)\n    print(result.summary[\"headline\"])\n    print((outdir / \"daily-min-temperatures-real\" / \"plots\" / \"forecast.png\").resolve())\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "script_source": "from __future__ import annotations\n\nfrom pathlib import Path\nimport importlib.util\nimport pandas as pd\nimport sys\n\nROOT = Path(__file__).resolve().parents[2]\nsys.path.insert(0, str(ROOT))\n\nfrom agentforecast import FeatureSpec, forecast_dataframe\n\n\ndef main() -> None:\n    outdir = ROOT / \"examples\" / \"generated\" / \"time-series-as-regression\"\n    df = pd.read_csv(\"https://raw.githubusercontent.com/jbrownlee/Datasets/master/daily-min-temperatures.csv\")\n    include_tsfresh = importlib.util.find_spec(\"tsfresh\") is not None\n    feature_spec = FeatureSpec(\n        mode=\"tutorial_regression\",\n        lag_points=(1, 2, 3, 7, 14, 28),\n        lag_step=7,\n        lag_count=4,\n        rolling_windows=(3, 7, 14, 28),\n        include_tsfresh=include_tsfresh,\n        tsfresh_window=28,\n    )\n    result = forecast_dataframe(df, name=\"daily_min_temperatures\", backend=\"ml_ridge\", outdir=outdir, horizon=30, feature_spec=feature_spec)\n    print(result.summary[\"headline\"])\n    print((outdir / result.inputs[\"name\"] / \"plots\" / \"forecast.png\").resolve())\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "result": {
-    "run_type": "forecast_csv",
+    "run_type": "forecast_dataframe",
     "backend_selected": "ml_ridge",
     "candidate_backends": [
       "ml_ridge"
@@ -87,14 +88,13 @@
       "name": "daily_min_temperatures",
       "horizon": 30,
       "strategy": "fast",
-      "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv",
+      "source": "dataframe",
       "date_col": "ds",
       "value_col": "y",
       "series_kind": "price",
       "candidate_backends": [
         "ml_ridge"
-      ],
-      "csv_path": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv"
+      ]
     },
     "summary": {
       "headline": "daily_min_temperatures: ml_ridge won the backend comparison and produced a publishable pack.",

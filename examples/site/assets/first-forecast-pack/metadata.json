@@ -1,5 +1,5 @@
 {
-  "run_type": "forecast_csv",
+  "run_type": "compare_backends",
   "backend_selected": "stats_ets",
   "candidate_backends": [
     "stats_ets",
@@ -50,7 +50,7 @@
     "name": "monthly_car_sales",
     "horizon": 12,
     "strategy": "fast",
-    "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/monthly_car_sales.csv",
+    "source": "dataframe",
     "date_col": "ds",
     "value_col": "y",
     "series_kind": "price",
@@ -77,8 +77,7 @@
       "missing_backends": [],
       "recommended_extras": [],
       "reason": "default_fast_path"
-    },
-    "csv_path": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/monthly_car_sales.csv"
+    }
   },
   "summary": {
     "headline": "monthly_car_sales: stats_ets won the backend comparison and produced a publishable pack.",

@@ -799,9 +799,9 @@ def _summary_cards(entries: list[dict[str, Any]], benchmark_count: int) -> str:
 
 def _feature_grid() -> str:
     items = [
-        ("One command, many backends", "Route from baseline to classical, tabular, or streaming backends without changing the outer product surface."),
+        ("Python first, CLI second", "Start from a DataFrame or URL in a few importable calls, then keep the CLI for automation."),
         ("Publishable by default", "Every run produces cards, charts, CSV, markdown, and JSON instead of a bare numeric array."),
-        ("Agent-friendly contract", "Stable fields such as schema refs, artifact maps, backend selection, warnings, and diagnostics."),
+        ("Visible backend evidence", "Leaderboard rows, routing context, and metrics stay visible instead of being hidden behind a black-box helper."),
         ("Cross-disciplinary by design", "Markets, healthcare, scientific operations, climate risk, and repo growth all fit the same pattern."),
     ]
     return (
@@ -985,9 +985,9 @@ def build_hosted_site(runs_root: str | Path, site_dir: str | Path, *, gallery_ti
         + "</div>"
         + "</div>"
         + "<aside class='hero-panel panel'>"
-        + "<div><strong>Product promise</strong><p class='muted'>One command routes a series, scores visible backends, and exports cards, charts, markdown, CSV, and JSON.</p></div>"
+        + "<div><strong>Product promise</strong><p class='muted'>One Python call or one command routes a series, scores visible backends, and exports cards, charts, markdown, CSV, and JSON.</p></div>"
         + _summary_cards(public_entries, len(benchmark_items))
-        + "<div class='code-block'>python -m agentforecast.cli forecast-url https://raw.githubusercontent.com/jbrownlee/Datasets/master/monthly-car-sales.csv --horizon 12 --outdir demo\npython -m agentforecast.cli demo-gallery --outdir public_gallery/demo_runs --site-dir public_gallery/site</div>"
+        + "<div class='code-block'>import pandas as pd\nfrom agentforecast import forecast_dataframe\n\ndf = pd.read_csv(\"https://raw.githubusercontent.com/jbrownlee/Datasets/master/monthly-car-sales.csv\")\nresult = forecast_dataframe(df, name=\"monthly_car_sales\", horizon=12, strategy=\"fast\", outdir=\"demo\")</div>"
         + "</aside></section>"
     )
 

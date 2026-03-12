@@ -4,7 +4,7 @@
 
 <h1 align="center">agentforecast</h1>
 
-<p align="center"><strong>Forecast any time series with classical, tabular, streaming, and optional adapter backends, then publish charts, CSV, cards, markdown, and JSON in one command.</strong></p>
+<p align="center"><strong>Forecast any time series with classical, tabular, streaming, and optional adapter backends, then publish charts, CSV, cards, markdown, and JSON from a small Python API or one command.</strong></p>
 
 <p align="center">
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-1f2937?style=flat-square"></a>
@@ -40,7 +40,7 @@ It does three jobs at once:
 
 Use `agentforecast` when you want:
 
-- **one command, many backends**
+- **one Python call, many backends**
 - **backend=auto** instead of stitching framework-specific APIs together
 - **publishable artifacts** instead of only a NumPy array
 - **agent-friendly JSON outputs** with stable fields and schema refs
@@ -56,12 +56,29 @@ Do **not** use it when your main need is:
 
 ## 60-second quickstart
 
-Lean path:
+Python-first path:
+
+```python
+import pandas as pd
+
+from agentforecast import forecast_dataframe
+
+df = pd.read_csv("https://raw.githubusercontent.com/jbrownlee/Datasets/master/monthly-car-sales.csv")
+result = forecast_dataframe(
+    df,
+    name="monthly_car_sales",
+    horizon=12,
+    strategy="fast",
+    outdir="demo",
+)
+print(result.summary["headline"])
+```
+
+CLI equivalent:
 
 ```bash
 python -m pip install .
-python -m agentforecast.cli shoot sales --outdir demo
-python -c "from pathlib import Path; print((Path('demo')/'sales'/'reports'/'summary.md').read_text(encoding='utf-8'))"
+python -m agentforecast.cli forecast-url https://raw.githubusercontent.com/jbrownlee/Datasets/master/monthly-car-sales.csv --horizon 12 --outdir demo
 ```
 
 Local wheel path:
@@ -72,9 +89,11 @@ python -m pip install dist/agentforecast-1.7.0-py3-none-any.whl
 
 Hosted gallery path:
 
-```bash
-python -m agentforecast.cli demo-gallery --outdir demo_gallery_runs --site-dir public_gallery/site
-python -c "from pathlib import Path; print((Path('public_gallery')/'site'/'index.html').resolve())"
+```python
+from agentforecast import demo_examples, build_hosted_site
+
+demo_examples("examples/generated", "examples/site")
+build_hosted_site("public_gallery/demo_runs", "public_gallery/site")
 ```
 
 Multi-backend compare path:
@@ -112,17 +131,20 @@ You point it at:
 
 and it returns a pack.
 
-```bash
-agentforecast shoot sales
-agentforecast shoot github-breakout-radar
-agentforecast shoot ./my_series.csv
-agentforecast shoot ./many_csvs/
-agentforecast shoot https://example.com/series.csv
+```python
+import pandas as pd
+
+from agentforecast import forecast_dataframe, forecast_url
+
+local_df = pd.read_csv("my_series.csv")
+local_run = forecast_dataframe(local_df, name="my_series", outdir="demo")
+remote_run = forecast_url("https://example.com/series.csv", outdir="demo_remote")
 ```
 
-There is also a vibe-coding alias:
+There is also a CLI and a vibe-coding alias when you want shell or agent flows:
 
 ```bash
+python -m agentforecast.cli shoot sales --outdir demo
 agentforecast vibe sales
 ```
 
@@ -228,7 +250,31 @@ pip install "agentforecast[stats,ml,stream,features]"
 
 `agentforecast` can now expose the regression framing directly instead of hiding it behind fixed defaults.
 
-You can choose specific lag points:
+You can choose specific lag points from Python:
+
+```python
+import pandas as pd
+
+from agentforecast import FeatureSpec, forecast_dataframe
+
+df = pd.read_csv("https://raw.githubusercontent.com/jbrownlee/Datasets/master/daily-min-temperatures.csv")
+feature_spec = FeatureSpec(
+    lag_points=(1, 2, 3, 7, 14, 28),
+    lag_step=7,
+    lag_count=4,
+    rolling_windows=(3, 7, 14, 28),
+)
+result = forecast_dataframe(
+    df,
+    name="daily_min_temperatures",
+    backend="ml_ridge",
+    horizon=30,
+    feature_spec=feature_spec,
+    outdir="regression_demo",
+)
+```
+
+CLI equivalent:
 
 ```bash
 python -m agentforecast.cli forecast-dataset gold-exogenous \
