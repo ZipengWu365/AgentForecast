@@ -7,12 +7,53 @@ import html
 import json
 import shutil
 
+from .backends import list_backends
 from .benchmark_hub import list_external_benchmarks
 from .utils import ensure_dir, read_json
 
 AUTHOR_NAME = "Zipeng Wu"
 AUTHOR_EMAIL = "zxw365@student.bham.ac.uk"
 AUTHOR_AFFILIATION = "The University of Birmingham"
+
+_FAMILY_COPY = {
+    "baseline": (
+        "Baseline references",
+        "Fast reference models for last-value carry, recent averages, drift, and simple seasonal repeats.",
+    ),
+    "classical": (
+        "Classical forecasting",
+        "ARIMA and ETS style models for interpretable seasonality, smoother long-horizon structure, and low-data runs.",
+    ),
+    "tabular": (
+        "Time series as regression",
+        "Lag-feature regression with Ridge, boosting, tree ensembles, and optional MLForecast-style adapters.",
+    ),
+    "streaming": (
+        "Streaming and online learning",
+        "Incremental forecasters and online regressors for rolling updates, drift monitoring, and low-latency refreshes.",
+    ),
+    "deep": (
+        "Deep forecasting adapters",
+        "Optional neural backends for longer-horizon experiments when the lean surface is not enough.",
+    ),
+    "automl": (
+        "AutoML adapters",
+        "Optional automation paths for larger search spaces and managed forecasting workflows.",
+    ),
+    "tabpfn": (
+        "Experimental tabular priors",
+        "Optional TabPFN-style regressors for compact tabular forecasting experiments.",
+    ),
+}
+
+_CAPABILITY_COPY = (
+    ("Auto routing", "Compare candidate backends automatically and keep the leaderboard visible instead of hiding model choice."),
+    ("Time series as regression", "Expose lag points, spaced delays, rolling windows, calendar fields, and optional tsfresh descriptors."),
+    ("Prediction intervals", "Emit conformal-style lower_* / upper_* bands with coverage and width diagnostics."),
+    ("Exogenous signals", "Carry external regressors through lag-feature backends and adapters that support exogenous inputs."),
+    ("Streaming drift watch", "Publish rolling diagnostics and drift alert cards alongside streaming forecast packs."),
+    ("Publishable artifacts", "Export plots, cards, CSV, markdown, and JSON for both human readers and agents."),
+)
 
 
 @dataclass
@@ -395,19 +436,26 @@ img {
 .card-grid,
 .workflow-grid,
 .metric-grid,
-.artifact-grid {
+.artifact-grid,
+.surface-grid,
+.capability-grid {
   display: grid;
   gap: 16px;
 }
 
 .stat-grid,
 .feature-grid,
-.workflow-grid {
+.workflow-grid,
+.capability-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .card-grid {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.surface-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
 .metric-grid,
@@ -422,7 +470,8 @@ img {
 .artifact-card,
 .metric-card,
 .bench-card,
-.case-panel {
+.case-panel,
+.surface-card {
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   background: var(--card);
@@ -445,7 +494,8 @@ img {
 .feature-card,
 .workflow-card,
 .bench-card,
-.case-panel {
+.case-panel,
+.surface-card {
   padding: 18px;
 }
 
@@ -454,7 +504,8 @@ img {
 .section-head h2,
 .gallery-card h3,
 .bench-card h3,
-.case-panel h3 {
+.case-panel h3,
+.surface-card h3 {
   margin: 0 0 10px;
 }
 
@@ -562,6 +613,45 @@ img {
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   background: var(--surface-strong);
+}
+
+.surface-stack {
+  display: grid;
+  gap: 18px;
+}
+
+.section-subhead {
+  display: grid;
+  gap: 6px;
+}
+
+.section-subhead h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+}
+
+.surface-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.surface-list {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  color: var(--text-muted);
+}
+
+.surface-list li + li {
+  margin-top: 6px;
+}
+
+.surface-card code {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.85rem;
+  color: #163063;
 }
 
 .table {
@@ -680,7 +770,8 @@ img {
 
   .stat-grid,
   .feature-grid,
-  .workflow-grid {
+  .workflow-grid,
+  .capability-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -718,7 +809,9 @@ img {
   .feature-grid,
   .workflow-grid,
   .metric-grid,
-  .artifact-grid {
+  .artifact-grid,
+  .capability-grid,
+  .surface-grid {
     grid-template-columns: 1fr;
   }
 
@@ -887,6 +980,61 @@ def _benchmark_table() -> str:
     )
 
 
+def _capability_grid() -> str:
+    return (
+        "<div class='capability-grid'>"
+        + "".join(
+            "<article class='feature-card'>"
+            f"<h3>{_escape(title)}</h3><p class='muted'>{_escape(copy)}</p>"
+            "</article>"
+            for title, copy in _CAPABILITY_COPY
+        )
+        + "</div>"
+    )
+
+
+def _backend_surface_cards() -> str:
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    for spec in list_backends(include_unavailable=True):
+        grouped.setdefault(spec["family"], []).append(spec)
+
+    ordered_families = [
+        family
+        for family in ("baseline", "classical", "tabular", "streaming", "deep", "automl", "tabpfn")
+        if family in grouped
+    ]
+    cards = []
+    for family in ordered_families:
+        specs = grouped[family]
+        title, copy = _FAMILY_COPY.get(family, (family.title(), ""))
+        installed = sum(1 for spec in specs if spec["available"])
+        model_ids = ", ".join(spec["backend_id"] for spec in specs)
+        providers = ", ".join(dict.fromkeys(spec["provider"] for spec in specs))
+        extras = sorted({spec["extra"] for spec in specs})
+        tags = sorted({tag for spec in specs for tag in spec.get("tags", [])})[:5]
+        extra_copy = ", ".join(extras)
+        cards.append(
+            "<article class='surface-card'>"
+            f"<div class='mini-row'><span class='badge'>{_escape(family)}</span><span class='muted'>{installed}/{len(specs)} available in this build</span></div>"
+            f"<h3>{_escape(title)}</h3>"
+            f"<p class='muted'>{_escape(copy)}</p>"
+            "<ul class='surface-list'>"
+            f"<li><strong>Model ids:</strong> <code>{_escape(model_ids)}</code></li>"
+            f"<li><strong>Providers:</strong> {_escape(providers)}</li>"
+            f"<li><strong>Install extras:</strong> {_escape(extra_copy)}</li>"
+            "</ul>"
+            + (
+                "<div class='surface-pill-row'>"
+                + "".join(f"<span class='pill pill-blue'>{_escape(tag)}</span>" for tag in tags)
+                + "</div>"
+                if tags
+                else ""
+            )
+            + "</article>"
+        )
+    return "<div class='surface-grid'>" + "".join(cards) + "</div>"
+
+
 def _artifact_cards(public_artifacts: dict[str, str]) -> str:
     cards = []
     for kind, path in public_artifacts.items():
@@ -1018,9 +1166,16 @@ def build_hosted_site(runs_root: str | Path, site_dir: str | Path, *, gallery_ti
 
     benchmark_section = (
         "<section class='section' id='benchmarks'>"
-        "<div class='section-head'><div><div class='eyebrow'>Benchmark hub</div><h2>Internal transparency, external honesty</h2></div>"
-        "<p>The site keeps internal pack evidence visible, while linking out to broader public benchmark hubs instead of pretending that a tiny repo-local score table settles the field.</p></div>"
+        "<div class='section-head'><div><div class='eyebrow'>Model surface</div><h2>What is inside this package</h2></div>"
+        "<p>Before anyone looks at external benchmarks, they should be able to scan the backend families, concrete model ids, install extras, and core capabilities that agentforecast exposes.</p></div>"
+        + "<div class='surface-stack'>"
+        + "<div class='section-subhead'><h3>Backend families and model ids</h3><p class='muted'>This is the forecasting surface behind the gallery, grouped the way a human evaluator would usually reason about model choice.</p></div>"
+        + _backend_surface_cards()
+        + "<div class='section-subhead'><h3>Package capabilities</h3><p class='muted'>These are the workflow-level features that matter in practice beyond the estimator list itself.</p></div>"
+        + _capability_grid()
+        + "<div class='section-subhead' id='external-benchmarks'><h3>External benchmark hubs</h3><p class='muted'>Internal demo evidence stays visible, but broader public benchmark hubs are still the right place to compare against the field.</p></div>"
         + _benchmark_table()
+        + "</div>"
         + "</section>"
     )
 

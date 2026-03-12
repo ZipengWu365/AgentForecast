@@ -321,19 +321,26 @@ img {
 .card-grid,
 .workflow-grid,
 .metric-grid,
-.artifact-grid {
+.artifact-grid,
+.surface-grid,
+.capability-grid {
   display: grid;
   gap: 16px;
 }
 
 .stat-grid,
 .feature-grid,
-.workflow-grid {
+.workflow-grid,
+.capability-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .card-grid {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.surface-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
 .metric-grid,
@@ -348,7 +355,8 @@ img {
 .artifact-card,
 .metric-card,
 .bench-card,
-.case-panel {
+.case-panel,
+.surface-card {
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   background: var(--card);
@@ -371,7 +379,8 @@ img {
 .feature-card,
 .workflow-card,
 .bench-card,
-.case-panel {
+.case-panel,
+.surface-card {
   padding: 18px;
 }
 
@@ -380,7 +389,8 @@ img {
 .section-head h2,
 .gallery-card h3,
 .bench-card h3,
-.case-panel h3 {
+.case-panel h3,
+.surface-card h3 {
   margin: 0 0 10px;
 }
 
@@ -488,6 +498,45 @@ img {
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   background: var(--surface-strong);
+}
+
+.surface-stack {
+  display: grid;
+  gap: 18px;
+}
+
+.section-subhead {
+  display: grid;
+  gap: 6px;
+}
+
+.section-subhead h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+}
+
+.surface-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.surface-list {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  color: var(--text-muted);
+}
+
+.surface-list li + li {
+  margin-top: 6px;
+}
+
+.surface-card code {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.85rem;
+  color: #163063;
 }
 
 .table {
@@ -606,7 +655,8 @@ img {
 
   .stat-grid,
   .feature-grid,
-  .workflow-grid {
+  .workflow-grid,
+  .capability-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -644,7 +694,9 @@ img {
   .feature-grid,
   .workflow-grid,
   .metric-grid,
-  .artifact-grid {
+  .artifact-grid,
+  .capability-grid,
+  .surface-grid {
     grid-template-columns: 1fr;
   }
 
