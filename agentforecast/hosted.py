@@ -55,6 +55,29 @@ _CAPABILITY_COPY = (
     ("Publishable artifacts", "Export plots, cards, CSV, markdown, and JSON for both human readers and agents."),
 )
 
+_MODEL_SELECTION_COPY = (
+    (
+        "Baseline and seasonal references",
+        "Real practical baselines for sanity checks and low-data series.",
+        "naive, seasonal_naive, moving_average, drift",
+    ),
+    (
+        "Statistical workhorses",
+        "Classical models that remain strong in real business forecasting when data is limited and seasonality matters.",
+        "stats_ets, stats_arima, statsforecast_autoets, statsforecast_autoarima",
+    ),
+    (
+        "Time series as regression",
+        "Lag-feature regressors for practical tabular forecasting with exogenous variables.",
+        "ml_ridge, ml_histgb, ml_xgboost, ml_lightgbm, ml_catboost, mlforecast_linear, mlforecast_xgboost",
+    ),
+    (
+        "Streaming and online models",
+        "Incremental models for rolling updates, low-latency refreshes, and drift-aware operation.",
+        "stream_ewm, stream_sgd, river_linear, river_snarimax, river_holtwinters",
+    ),
+)
+
 _API_SURFACE_COPY = (
     {
         "badge": "forecast",
@@ -948,20 +971,16 @@ def _summary_cards(entries: list[dict[str, Any]], benchmark_count: int) -> str:
     )
 
 
-def _feature_grid() -> str:
-    items = [
-        ("Python first, CLI second", "Start from a DataFrame or URL in a few importable calls, then keep the CLI for automation."),
-        ("Publishable by default", "Every run produces cards, charts, CSV, markdown, and JSON instead of a bare numeric array."),
-        ("Visible backend evidence", "Leaderboard rows, routing context, and metrics stay visible instead of being hidden behind a black-box helper."),
-        ("Cross-disciplinary by design", "Markets, healthcare, scientific operations, climate risk, and repo growth all fit the same pattern."),
-    ]
+def _selection_grid() -> str:
     return (
         "<div class='feature-grid'>"
         + "".join(
             "<article class='feature-card'>"
-            f"<h3>{_escape(title)}</h3><p class='muted'>{_escape(copy)}</p>"
+            f"<h3>{_escape(title)}</h3>"
+            f"<p class='muted'>{_escape(copy)}</p>"
+            f"<div class='code-block'>{_escape(model_ids)}</div>"
             "</article>"
-            for title, copy in items
+            for title, copy, model_ids in _MODEL_SELECTION_COPY
         )
         + "</div>"
     )
@@ -1194,7 +1213,7 @@ def build_hosted_site(runs_root: str | Path, site_dir: str | Path, *, gallery_ti
         public_entries.append({**entry.to_dict(), "public_artifacts": copied})
 
     benchmark_items = list_external_benchmarks()
-    topbar = _topbar([("Workflow", "#workflow"), ("Packs", "#packs"), ("Benchmarks", "#benchmarks"), ("Feed", "feed.json")])
+    topbar = _topbar([("Models", "#models"), ("Workflow", "#workflow"), ("Packs", "#packs"), ("Benchmarks", "#benchmarks"), ("Feed", "feed.json")])
     hero = (
         "<section class='hero'>"
         + "<div class='hero-copy'>"
@@ -1219,11 +1238,12 @@ def build_hosted_site(runs_root: str | Path, site_dir: str | Path, *, gallery_ti
         + "</aside></section>"
     )
 
-    feature_section = (
-        "<section class='section' id='features'>"
-        "<div class='section-head'><div><div class='eyebrow'>Why it feels different</div><h2>Product surface first, framework complexity second</h2></div>"
-        "<p>Bright and readable UI, stable artifact contracts, and backend routing make the package feel closer to a premium research product than a loose stack of scripts.</p></div>"
-        + _feature_grid()
+    selection_section = (
+        "<section class='section' id='models'>"
+        "<div class='section-head'><div><div class='eyebrow'>Model selection</div><h2>Real forecasting models, not toy demos</h2></div>"
+        "<p>agentforecast is built around practical forecasting families that people actually use: baseline references, ETS and ARIMA, lag-feature regression, and online River-style models. Optional deep or AutoML adapters stay secondary instead of dominating the public surface.</p></div>"
+        + "<div class='section-subhead'><h3>What the package actually includes</h3><p class='muted'>The public homepage should answer model choice first. Auto routing stays grounded in these real, usable model families rather than novelty-only showcase algorithms.</p></div>"
+        + _selection_grid()
         + "</section>"
     )
 
@@ -1274,7 +1294,7 @@ def build_hosted_site(runs_root: str | Path, site_dir: str | Path, *, gallery_ti
         topbar
         + "<main class='page'><div class='shell'>"
         + hero
-        + feature_section
+        + selection_section
         + workflow_section
         + packs_section
         + benchmark_section
