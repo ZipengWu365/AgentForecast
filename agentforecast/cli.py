@@ -23,13 +23,14 @@ from .local import (
 )
 from .live import get_case, list_cases, run_case
 from .datasets import get_dataset_spec, list_datasets
-from .backends import list_backends, list_backend_families, route_backends
+from .backends import is_backend_available, list_backends, list_backend_families, route_backends
 from .resources import api_catalog, describe_package, package_overview
 from .tool_server import serve_json_tools
 from .mcp_server import serve_mcp
 from .benchmark_hub import list_external_benchmarks
 from .examples_hub import build_examples_site, demo_examples, list_examples
 from .hosted import build_hosted_site
+from .public_examples import public_example_path
 
 
 def _print(payload, output: str = "json") -> None:
@@ -44,10 +45,20 @@ def _demo_gallery(outdir: str, site_dir: str) -> dict:
     if runs_root.exists():
         shutil.rmtree(runs_root)
     runs_root.mkdir(parents=True, exist_ok=True)
-    # fast demos that are wheel-safe and work without heavy extras
-    shoot("sales", outdir=runs_root, strategy="fast")
-    compare_backends_dataset("gold", backends=["naive", "moving_average", "stats_arima", "ml_ridge"], outdir=runs_root)
-    run_case("github-breakout-radar", outdir=runs_root)
+    # Public gallery demos now use packaged real public time series instead of synthetic bundled examples.
+    forecast_csv(public_example_path("monthly-car-sales"), outdir=runs_root, horizon=12, strategy="fast")
+    compare_backends_csv(
+        public_example_path("airline-passengers"),
+        backends=[backend_id for backend_id in ["naive", "moving_average", "stats_arima", "stats_ets", "ml_ridge", "stream_ewm"] if is_backend_available(backend_id)],
+        outdir=runs_root,
+        horizon=12,
+    )
+    forecast_stream_csv(
+        public_example_path("daily-min-temperatures"),
+        backend="river_snarimax" if is_backend_available("river_snarimax") else "stream_ewm",
+        outdir=runs_root,
+        horizon=14,
+    )
     return build_hosted_site(runs_root, site_dir)
 
 

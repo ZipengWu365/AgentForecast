@@ -3,7 +3,7 @@
 <head>
 <meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'>
-<title>Backend arena on the gold series</title>
+<title>Backend arena on airline passengers</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -430,6 +430,10 @@ img {
   transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
 }
 
+.gallery-card-link {
+  display: block;
+}
+
 .gallery-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
@@ -731,6 +735,10 @@ img {
   border-color: rgba(47, 107, 255, 0.18);
 }
 
+.example-card-link {
+  display: block;
+}
+
 .example-card img,
 .media-card img {
   width: 100%;
@@ -775,7 +783,7 @@ img {
 </style>
 </head>
 <body>
-<header class='topbar'><div class='shell topbar-inner'><a class='brand' href='../index.html'><span class='brand-mark'>AF</span><span class='brand-copy'><strong>agentforecast</strong><small>tutorial-grade runnable examples</small></span></a><nav class='nav-links'><a class='nav-link' href='../index.html#examples'>Examples</a><a class='nav-link' href='../feed.json'>Feed</a><a class='button button-primary' href='../index.html#examples'>Browse examples</a></nav></div></header><main class='page'><div class='shell'><div class='breadcrumbs'><a href='../index.html'>Examples</a><span>/</span><span>Backend arena on the gold series</span></div><section class='case-header'><div><div class='eyebrow'>Model Selection</div><h1>Backend arena on the gold series</h1><p class='case-lead'>Compare baseline, classical, tabular, and streaming backends on one market-style series.</p><div class='tag-row'><span class='tag'>leaderboard</span><span class='tag'>comparison</span><span class='tag'>backend-selection</span></div><div class='author-strip'><a class='author-pill' href='mailto:zxw365@student.bham.ac.uk'><span class='author-mark'>ZW</span><span><strong>Zipeng Wu</strong></span></a><span class='author-pill author-pill-uob'>The University of Birmingham</span><a class='author-pill' href='mailto:zxw365@student.bham.ac.uk'>zxw365@student.bham.ac.uk</a></div></div><div class='case-panel'><h3>Dataset context</h3><div class='muted'>Gold price watch</div><div class='muted'>Synthetic gold-like market series with trend and stress swings.</div><div class='muted'>Provenance: Bundled demo snapshot inspired by market stress series.</div></div></section><section class='section'><div class='section-head'><div><div class='section-kicker'>Why this example</div><h2>What it teaches</h2></div><p>This example shows that the package is not tied to one model family. The point is the common output surface and leaderboard diagnostics.</p></div><div class='learn-grid'><article class='learn-card'><strong>Step 1</strong><div class='muted'>Run several backend families on the same target.</div></article><article class='learn-card'><strong>Step 2</strong><div class='muted'>Read the leaderboard before trusting the winner.</div></article><article class='learn-card'><strong>Step 3</strong><div class='muted'>Use the comparison chart and delta card when you need a defensible backend choice.</div></article></div></section><section class='section'><div class='section-head'><div><div class='section-kicker'>Run it</div><h2>CLI and source</h2></div><p>Use the command below or adapt the source script directly.</p></div><div class='code-block'>python -m agentforecast.cli compare-dataset gold --backends naive,moving_average,stats_arima,stats_ets,ml_ridge,stream_ewm --outdir examples/generated/backend-arena</div><div class='code-block'>from __future__ import annotations
+<header class='topbar'><div class='shell topbar-inner'><a class='brand' href='../index.html'><span class='brand-mark'>AF</span><span class='brand-copy'><strong>agentforecast</strong><small>tutorial-grade runnable examples</small></span></a><nav class='nav-links'><a class='nav-link' href='../index.html#examples'>Examples</a><a class='nav-link' href='../feed.json'>Feed</a><a class='button button-primary' href='../index.html#examples'>Browse examples</a></nav></div></header><main class='page'><div class='shell'><div class='breadcrumbs'><a href='../index.html'>Examples</a><span>/</span><span>Backend arena on airline passengers</span></div><section class='case-header'><div><div class='eyebrow'>Model Selection</div><h1>Backend arena on airline passengers</h1><p class='case-lead'>Compare baseline, classical, tabular, and streaming backends on a real airline passenger series.</p><div class='tag-row'><span class='tag'>leaderboard</span><span class='tag'>comparison</span><span class='tag'>backend-selection</span></div><div class='author-strip'><a class='author-pill' href='mailto:zxw365@student.bham.ac.uk'><span class='author-mark'>ZW</span><span><strong>Zipeng Wu</strong></span></a><span class='author-pill author-pill-uob'>The University of Birmingham</span><a class='author-pill' href='mailto:zxw365@student.bham.ac.uk'>zxw365@student.bham.ac.uk</a></div></div><div class='case-panel'><h3>Dataset context</h3><div class='muted'>Airline passengers</div><div class='muted'>Real monthly airline passenger counts used widely in forecasting benchmarks because the seasonal growth pattern is easy to interpret.</div><div class='muted'>Provenance: Public historical airline passenger series mirrored by Jason Brownlee&#x27;s Datasets repository.</div><div class='muted'><a href='https://raw.githubusercontent.com/jbrownlee/Datasets/master/airline-passengers.csv'>https://raw.githubusercontent.com/jbrownlee/Datasets/master/airline-passengers.csv</a></div></div></section><section class='section'><div class='section-head'><div><div class='section-kicker'>Why this example</div><h2>What it teaches</h2></div><p>The comparison page is more convincing when the leaderboard is built on a real historical benchmark instead of a synthetic stand-in.</p></div><div class='learn-grid'><article class='learn-card'><strong>Step 1</strong><div class='muted'>Run several backend families on the same target.</div></article><article class='learn-card'><strong>Step 2</strong><div class='muted'>Read the leaderboard before trusting the winner.</div></article><article class='learn-card'><strong>Step 3</strong><div class='muted'>Use the comparison chart and delta card when you need a defensible backend choice.</div></article></div><div class='note-stack'><article class='note-card'><strong>Note</strong><div class='muted'>Source data: Airline passengers.</div></article></div></section><section class='section'><div class='section-head'><div><div class='section-kicker'>Run it</div><h2>CLI and source</h2></div><p>Use the command below or adapt the source script directly.</p></div><div class='code-block'>python -m agentforecast.cli compare-csv C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/airline_passengers.csv --backends naive,moving_average,stats_arima,stats_ets,ml_ridge,stream_ewm --horizon 12 --outdir examples/generated/backend-arena</div><div class='code-block'>from __future__ import annotations
 
 from pathlib import Path
 import sys
@@ -783,8 +791,9 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from agentforecast import compare_backends_dataset
+from agentforecast import compare_backends_csv
 from agentforecast.backends import is_backend_available
+from agentforecast.public_examples import public_example_path
 
 
 def main() -&gt; None:
@@ -794,14 +803,14 @@ def main() -&gt; None:
         for backend_id in [&quot;naive&quot;, &quot;moving_average&quot;, &quot;stats_arima&quot;, &quot;stats_ets&quot;, &quot;ml_ridge&quot;, &quot;stream_ewm&quot;]
         if is_backend_available(backend_id)
     ]
-    result = compare_backends_dataset(&quot;gold&quot;, backends=backends, outdir=outdir)
+    result = compare_backends_csv(public_example_path(&quot;airline-passengers&quot;), backends=backends, outdir=outdir, horizon=12)
     print(result.summary[&quot;headline&quot;])
-    print((outdir / &quot;gold&quot; / &quot;data&quot; / &quot;leaderboard.csv&quot;).resolve())
+    print((outdir / &quot;airline-passengers-real&quot; / &quot;data&quot; / &quot;leaderboard.csv&quot;).resolve())
 
 
 if __name__ == &quot;__main__&quot;:
     main()
-</div></section><section class='section'><div class='section-head'><div><div class='section-kicker'>Result</div><h2>Executed outcome</h2></div><p>Compared 6 backend(s) and routed the series to &#x27;ml_ridge&#x27;. Exported CSV, chart, card, markdown, and JSON artifacts.</p></div><div class='metric-grid'><article class='metric-card'><div class='muted'>Selected backend</div><strong>ml_ridge</strong></article><article class='metric-card'><div class='muted'>Dataset</div><strong>gold</strong></article><article class='metric-card'><div class='muted'>Horizon</div><strong>30</strong></article><article class='metric-card'><div class='muted'>MAE</div><strong>9.803</strong></article><article class='metric-card'><div class='muted'>Projected end</div><strong>2,706</strong></article><article class='metric-card'><div class='muted'>Artifacts</div><strong>12</strong></article><article class='metric-card'><div class='muted'>Coverage 90</div><strong>0.9333</strong></article><article class='metric-card'><div class='muted'>Avg width 90</div><strong>58.105</strong></article></div></section><section class='section'><div class='section-head'><div><div class='section-kicker'>Visuals</div><h2>Generated charts and cards</h2></div><p>These previews are copied from the real run artifacts written under the example output directory.</p></div><div class='media-grid'><article class='media-card'><a href='../assets/backend-arena/forecast.png'><img src='../assets/backend-arena/forecast.png' alt='Forecast chart'></a><div class='media-card-body'><h3>Forecast chart</h3><p>forecast_png</p></div></article><article class='media-card'><a href='../assets/backend-arena/backend_comparison.png'><img src='../assets/backend-arena/backend_comparison.png' alt='Backend comparison'></a><div class='media-card-body'><h3>Backend comparison</h3><p>comparison_png</p></div></article><article class='media-card'><a href='../assets/backend-arena/forecast_card.png'><img src='../assets/backend-arena/forecast_card.png' alt='Forecast card'></a><div class='media-card-body'><h3>Forecast card</h3><p>forecast_card_png</p></div></article><article class='media-card'><a href='../assets/backend-arena/leaderboard_card.png'><img src='../assets/backend-arena/leaderboard_card.png' alt='Leaderboard card'></a><div class='media-card-body'><h3>Leaderboard card</h3><p>leaderboard_card_png</p></div></article><article class='media-card'><a href='../assets/backend-arena/winner_vs_runnerup_delta.png'><img src='../assets/backend-arena/winner_vs_runnerup_delta.png' alt='Winner delta card'></a><div class='media-card-body'><h3>Winner delta card</h3><p>delta_card_png</p></div></article></div></section><section class='section'><div class='section-head'><div><div class='section-kicker'>Leaderboard</div><h2>Backend evidence</h2></div><p>The winning backend is shown together with the competing candidates.</p></div><div class='table-wrap'><table class='table'><thead><tr><th>Backend</th><th>MAE</th><th>RMSE</th><th>sMAPE</th></tr></thead><tbody><tr><td><span class='badge'>ml_ridge</span></td><td>9.803</td><td>11.061</td><td>0.3746</td></tr><tr><td><span class='badge'>stats_ets</span></td><td>38.419</td><td>40.284</td><td>1.478</td></tr><tr><td><span class='badge'>moving_average</span></td><td>50.442</td><td>54.254</td><td>1.943</td></tr><tr><td><span class='badge'>naive</span></td><td>66.083</td><td>69.037</td><td>2.555</td></tr><tr><td><span class='badge'>stats_arima</span></td><td>74.689</td><td>77.686</td><td>2.892</td></tr><tr><td><span class='badge'>stream_ewm</span></td><td>89.757</td><td>96.955</td><td>3.489</td></tr></tbody></table></div></section><section class='section'><div class='section-head'><div><div class='section-kicker'>Routing</div><h2>Routing rationale</h2></div><p>The package keeps routing visible so backend choice is inspectable.</p></div><div class='code-block'>{
+</div></section><section class='section'><div class='section-head'><div><div class='section-kicker'>Result</div><h2>Executed outcome</h2></div><p>Compared 6 backend(s) and routed the series to &#x27;stats_ets&#x27;. Exported CSV, chart, card, markdown, and JSON artifacts.</p></div><div class='metric-grid'><article class='metric-card'><div class='muted'>Selected backend</div><strong>stats_ets</strong></article><article class='metric-card'><div class='muted'>Dataset</div><strong>Airline passengers</strong></article><article class='metric-card'><div class='muted'>Horizon</div><strong>12</strong></article><article class='metric-card'><div class='muted'>MAE</div><strong>13.382</strong></article><article class='metric-card'><div class='muted'>Projected end</div><strong>471.05</strong></article><article class='metric-card'><div class='muted'>Artifacts</div><strong>12</strong></article><article class='metric-card'><div class='muted'>Coverage 90</div><strong>0.9167</strong></article><article class='metric-card'><div class='muted'>Avg width 90</div><strong>90.475</strong></article></div></section><section class='section'><div class='section-head'><div><div class='section-kicker'>Visuals</div><h2>Generated charts and cards</h2></div><p>These previews are copied from the real run artifacts written under the example output directory.</p></div><div class='media-grid'><article class='media-card'><a href='../assets/backend-arena/forecast.png'><img src='../assets/backend-arena/forecast.png' alt='Forecast chart'></a><div class='media-card-body'><h3>Forecast chart</h3><p>forecast_png</p></div></article><article class='media-card'><a href='../assets/backend-arena/backend_comparison.png'><img src='../assets/backend-arena/backend_comparison.png' alt='Backend comparison'></a><div class='media-card-body'><h3>Backend comparison</h3><p>comparison_png</p></div></article><article class='media-card'><a href='../assets/backend-arena/forecast_card.png'><img src='../assets/backend-arena/forecast_card.png' alt='Forecast card'></a><div class='media-card-body'><h3>Forecast card</h3><p>forecast_card_png</p></div></article><article class='media-card'><a href='../assets/backend-arena/leaderboard_card.png'><img src='../assets/backend-arena/leaderboard_card.png' alt='Leaderboard card'></a><div class='media-card-body'><h3>Leaderboard card</h3><p>leaderboard_card_png</p></div></article><article class='media-card'><a href='../assets/backend-arena/winner_vs_runnerup_delta.png'><img src='../assets/backend-arena/winner_vs_runnerup_delta.png' alt='Winner delta card'></a><div class='media-card-body'><h3>Winner delta card</h3><p>delta_card_png</p></div></article></div></section><section class='section'><div class='section-head'><div><div class='section-kicker'>Leaderboard</div><h2>Backend evidence</h2></div><p>The winning backend is shown together with the competing candidates.</p></div><div class='table-wrap'><table class='table'><thead><tr><th>Backend</th><th>MAE</th><th>RMSE</th><th>sMAPE</th></tr></thead><tbody><tr><td><span class='badge'>stats_ets</span></td><td>13.382</td><td>16.981</td><td>2.796</td></tr><tr><td><span class='badge'>ml_ridge</span></td><td>36.079</td><td>51.659</td><td>7.694</td></tr><tr><td><span class='badge'>moving_average</span></td><td>58.095</td><td>76.287</td><td>11.974</td></tr><tr><td><span class='badge'>stats_arima</span></td><td>66.242</td><td>91.229</td><td>13.792</td></tr><tr><td><span class='badge'>stream_ewm</span></td><td>67.281</td><td>92.129</td><td>14.038</td></tr><tr><td><span class='badge'>naive</span></td><td>76</td><td>102.98</td><td>16.121</td></tr></tbody></table></div></section><section class='section'><div class='section-head'><div><div class='section-kicker'>Routing</div><h2>Routing rationale</h2></div><p>The package keeps routing visible so backend choice is inspectable.</p></div><div class='code-block'>{
   &quot;profile&quot;: &quot;explicit&quot;,
   &quot;reason&quot;: &quot;explicit_backends_provided&quot;,
   &quot;candidate_backends&quot;: [
@@ -826,26 +835,25 @@ if __name__ == &quot;__main__&quot;:
   &quot;symmetric&quot;: true,
   &quot;horizon_aware&quot;: true,
   &quot;effective_horizon_aware&quot;: false,
-  &quot;calibration_size&quot;: 30,
+  &quot;calibration_size&quot;: 12,
   &quot;native_levels&quot;: [],
   &quot;fallback_reason&quot;: null,
-  &quot;backend_id&quot;: &quot;ml_ridge&quot;,
+  &quot;backend_id&quot;: &quot;stats_ets&quot;,
   &quot;coverage_backtest&quot;: {
-    &quot;80&quot;: 0.9,
-    &quot;90&quot;: 0.933333
+    &quot;80&quot;: 0.916667,
+    &quot;90&quot;: 0.916667
   },
   &quot;mean_interval_width&quot;: {
-    &quot;80&quot;: 45.271658,
-    &quot;90&quot;: 58.104986
+    &quot;80&quot;: 70.49241,
+    &quot;90&quot;: 90.47516
   },
   &quot;width_normalized_coverage&quot;: {
-    &quot;80&quot;: 52.023601,
-    &quot;90&quot;: 42.034674
+    &quot;80&quot;: 6.191959,
+    &quot;90&quot;: 4.824375
   },
   &quot;backend_tags&quot;: [
-    &quot;fast&quot;,
-    &quot;low_data&quot;,
-    &quot;tabular&quot;
+    &quot;accurate&quot;,
+    &quot;long_horizon&quot;
   ]
 }</div></section><section class='section'><div class='section-head'><div><div class='section-kicker'>Artifacts</div><h2>Open exported files</h2></div><p>The example page links directly to the copied artifacts so you can inspect data, reports, and metadata without leaving the site.</p></div><div class='artifact-grid'><article class='artifact-card'><strong>history_csv</strong><code>assets/backend-arena/history.csv</code><a href='../assets/backend-arena/history.csv'>Open artifact</a></article><article class='artifact-card'><strong>forecast_csv</strong><code>assets/backend-arena/forecast.csv</code><a href='../assets/backend-arena/forecast.csv'>Open artifact</a></article><article class='artifact-card'><strong>leaderboard_csv</strong><code>assets/backend-arena/leaderboard.csv</code><a href='../assets/backend-arena/leaderboard.csv'>Open artifact</a></article><article class='artifact-card'><strong>forecast_png</strong><code>assets/backend-arena/forecast.png</code><a href='../assets/backend-arena/forecast.png'>Open artifact</a></article><article class='artifact-card'><strong>forecast_card_png</strong><code>assets/backend-arena/forecast_card.png</code><a href='../assets/backend-arena/forecast_card.png'>Open artifact</a></article><article class='artifact-card'><strong>comparison_png</strong><code>assets/backend-arena/backend_comparison.png</code><a href='../assets/backend-arena/backend_comparison.png'>Open artifact</a></article><article class='artifact-card'><strong>leaderboard_card_png</strong><code>assets/backend-arena/leaderboard_card.png</code><a href='../assets/backend-arena/leaderboard_card.png'>Open artifact</a></article><article class='artifact-card'><strong>delta_card_png</strong><code>assets/backend-arena/winner_vs_runnerup_delta.png</code><a href='../assets/backend-arena/winner_vs_runnerup_delta.png'>Open artifact</a></article><article class='artifact-card'><strong>summary_markdown</strong><code>assets/backend-arena/summary.md</code><a href='../assets/backend-arena/summary.md'>Open artifact</a></article><article class='artifact-card'><strong>metadata_json</strong><code>assets/backend-arena/metadata.json</code><a href='../assets/backend-arena/metadata.json'>Open artifact</a></article><article class='artifact-card'><strong>source_py</strong><code>assets/backend-arena/backend_arena.py</code><a href='../assets/backend-arena/backend_arena.py'>Open artifact</a></article><article class='artifact-card'><strong>example_json</strong><code>assets/backend-arena/example.json</code><a href='../assets/backend-arena/example.json'>Open artifact</a></article></div></section></div></main>
 </body>

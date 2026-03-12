@@ -6,8 +6,9 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from agentforecast import ConformalSpec, forecast_dataset
+from agentforecast import ConformalSpec, forecast_csv
 from agentforecast.backends import is_backend_available
+from agentforecast.public_examples import public_example_path
 
 
 def main() -> None:
@@ -20,9 +21,9 @@ def main() -> None:
         calibration_window=60,
         warmup_min=10,
     )
-    result = forecast_dataset("sales", backend=backend, outdir=outdir, conformal=conformal)
+    result = forecast_csv(public_example_path("airline-passengers"), backend=backend, outdir=outdir, horizon=12, conformal=conformal)
     print(result.summary["headline"])
-    print((outdir / "sales" / "data" / "forecast.csv").resolve())
+    print((outdir / "airline-passengers-real" / "data" / "forecast.csv").resolve())
 
 
 if __name__ == "__main__":

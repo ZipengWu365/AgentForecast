@@ -10,7 +10,7 @@ import pandas as pd
 
 from .conformal import ConformalSpec, attach_conformal_intervals, build_river_jackknife_wrappers, resolve_conformal_spec
 from .errors import AgentForecastError, ensure
-from .features import build_supervised_matrix, future_exog_map, infer_season_length, make_feature_row
+from .features import build_future_index, build_supervised_matrix, future_exog_map, infer_frequency_alias, infer_season_length, make_feature_row
 
 
 @dataclass
@@ -210,12 +210,15 @@ def _future_index(history: pd.DataFrame, horizon: int) -> tuple[pd.DatetimeIndex
     else:
         diffs = ds.diff().dropna()
         step = diffs.mode().iloc[0] if not diffs.empty else pd.Timedelta(days=1)
-    future_ds = pd.date_range(ds.iloc[-1] + step, periods=horizon, freq=step)
+    future_ds = build_future_index(ds, horizon, step=step)
     return future_ds, step
 
 
 def _freq_alias(history: pd.DataFrame) -> str:
     ds = pd.to_datetime(history["ds"])
+    inferred = infer_frequency_alias(ds)
+    if inferred:
+        return inferred
     if len(ds) < 2:
         return "D"
     step = ds.diff().dropna().mode().iloc[0]
@@ -248,7 +251,7 @@ def _attach_intervals(
 def _seasonal_length(history: pd.DataFrame) -> int | None:
     ds = pd.to_datetime(history["ds"])
     step = ds.diff().dropna().mode().iloc[0] if len(ds) > 1 else pd.Timedelta(days=1)
-    return infer_season_length(step)
+    return infer_season_length(step, freq_alias=infer_frequency_alias(ds))
 
 
 def _forecast_baseline(history: pd.DataFrame, horizon: int, backend_id: str) -> pd.DataFrame:

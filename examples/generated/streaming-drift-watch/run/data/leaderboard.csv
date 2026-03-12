@@ -1,2 +1,2 @@
 backend_id,mae,rmse,mape,smape,coverage_80,avg_width_80,wnc_80,coverage_90,avg_width_90,wnc_90,backtest_horizon
-river_snarimax,7.474171,8.4898,8.449561,8.000926,1.0,30.048472,3.015675,1.0,38.566426,2.34962,14
+river_snarimax,1.196384,1.629438,9.007428,8.695757,1.0,23.560135,0.590586,1.0,30.238816,0.460147,14

@@ -6,33 +6,35 @@
       "example_id": "first-forecast-pack",
       "category": "Getting Started",
       "title": "First forecast pack in one command",
-      "lead": "Route a bundled retail series through backend auto-selection and publish charts, CSV, markdown, and JSON.",
-      "dataset_id": "sales",
-      "why_it_matters": "This is the smallest end-to-end workflow. It teaches the artifact contract before any model tuning.",
+      "lead": "Run a real monthly car sales series through backend auto-selection and publish charts, CSV, markdown, and JSON.",
+      "dataset_id": "monthly-car-sales",
+      "why_it_matters": "This is the smallest end-to-end workflow, but it now uses a real public time series instead of a synthetic demo curve.",
       "tutorial_steps": [
-        "Start with a bundled dataset so the entire flow is reproducible.",
+        "Start with a packaged real public series so the entire flow stays reproducible.",
         "Inspect the selected backend and the pack written under data, plots, reports, and meta.",
         "Reuse the generated CSV and JSON instead of rebuilding post-processing by hand."
       ],
       "tags": [
         "quickstart",
         "artifact-contract",
-        "auto-routing"
+        "real-data"
       ],
       "script_path": "examples/scripts/first_forecast_pack.py",
       "pack_dir": "run",
-      "cli_command": "python -m agentforecast.cli shoot sales --outdir examples/generated/first-forecast-pack",
-      "runtime_notes": [],
+      "cli_command": "python -m agentforecast.cli forecast-csv C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/monthly_car_sales.csv --horizon 12 --outdir examples/generated/first-forecast-pack",
+      "runtime_notes": [
+        "Source data: Monthly car sales."
+      ],
       "backend_selected": "stats_ets",
-      "headline": "sales: stats_ets won the backend comparison and produced a publishable pack."
+      "headline": "monthly_car_sales: stats_ets won the backend comparison and produced a publishable pack."
     },
     {
       "example_id": "backend-arena",
       "category": "Model Selection",
-      "title": "Backend arena on the gold series",
-      "lead": "Compare baseline, classical, tabular, and streaming backends on one market-style series.",
-      "dataset_id": "gold",
-      "why_it_matters": "This example shows that the package is not tied to one model family. The point is the common output surface and leaderboard diagnostics.",
+      "title": "Backend arena on airline passengers",
+      "lead": "Compare baseline, classical, tabular, and streaming backends on a real airline passenger series.",
+      "dataset_id": "airline-passengers",
+      "why_it_matters": "The comparison page is more convincing when the leaderboard is built on a real historical benchmark instead of a synthetic stand-in.",
       "tutorial_steps": [
         "Run several backend families on the same target.",
         "Read the leaderboard before trusting the winner.",
@@ -45,18 +47,20 @@
       ],
       "script_path": "examples/scripts/backend_arena.py",
       "pack_dir": "run",
-      "cli_command": "python -m agentforecast.cli compare-dataset gold --backends naive,moving_average,stats_arima,stats_ets,ml_ridge,stream_ewm --outdir examples/generated/backend-arena",
-      "runtime_notes": [],
-      "backend_selected": "ml_ridge",
-      "headline": "gold: ml_ridge won the backend comparison and produced a publishable pack."
+      "cli_command": "python -m agentforecast.cli compare-csv C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/airline_passengers.csv --backends naive,moving_average,stats_arima,stats_ets,ml_ridge,stream_ewm --horizon 12 --outdir examples/generated/backend-arena",
+      "runtime_notes": [
+        "Source data: Airline passengers."
+      ],
+      "backend_selected": "stats_ets",
+      "headline": "airline_passengers: stats_ets won the backend comparison and produced a publishable pack."
     },
     {
       "example_id": "time-series-as-regression",
       "category": "Time Series As Regression",
       "title": "Time series to regression with custom lags",
-      "lead": "Turn a sequence with exogenous signals into a supervised regression problem with lag points, spaced delays, rolling windows, and optional tsfresh descriptors.",
-      "dataset_id": "gold-exogenous",
-      "why_it_matters": "This is the clearest example of the package framing a time series as a tabular regression problem instead of hiding the feature layer.",
+      "lead": "Turn a real daily temperature series into a supervised regression problem with lag points, spaced delays, rolling windows, and optional tsfresh descriptors.",
+      "dataset_id": "daily-min-temperatures",
+      "why_it_matters": "This example focuses on the regression framing itself. It does not need synthetic exogenous columns to show how lag engineering works.",
       "tutorial_steps": [
         "Choose explicit lag points for short and medium memory.",
         "Add evenly spaced delay features with lag_step and lag_count.",
@@ -69,20 +73,21 @@
       ],
       "script_path": "examples/scripts/time_series_as_regression.py",
       "pack_dir": "run",
-      "cli_command": "python -m agentforecast.cli forecast-dataset gold-exogenous --backend ml_ridge --lag-points 1,2,3,7,14,28 --lag-step 7 --lag-count 4 --rolling-windows 3,7,14,28 --outdir examples/generated/time-series-as-regression --tsfresh --tsfresh-window 28",
+      "cli_command": "python -m agentforecast.cli forecast-csv C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv --backend ml_ridge --lag-points 1,2,3,7,14,28 --lag-step 7 --lag-count 4 --rolling-windows 3,7,14,28 --outdir examples/generated/time-series-as-regression --tsfresh --tsfresh-window 28",
       "runtime_notes": [
+        "Source data: Daily minimum temperatures.",
         "`tsfresh` was installed in this environment, so compact tsfresh descriptors were included."
       ],
       "backend_selected": "ml_ridge",
-      "headline": "gold_exogenous: ml_ridge won the backend comparison and produced a publishable pack."
+      "headline": "daily_min_temperatures: ml_ridge won the backend comparison and produced a publishable pack."
     },
     {
       "example_id": "calibrated-intervals",
       "category": "Uncertainty",
       "title": "Calibrated prediction intervals",
       "lead": "Generate interval bands without changing the forecast.csv contract and inspect coverage and width diagnostics.",
-      "dataset_id": "sales",
-      "why_it_matters": "The interval example proves the package can emit calibrated uncertainty artifacts rather than only point forecasts.",
+      "dataset_id": "airline-passengers",
+      "why_it_matters": "Intervals are easier to evaluate when the series is a real historical benchmark with a familiar seasonal pattern.",
       "tutorial_steps": [
         "Enable conformal intervals with a stable list of levels.",
         "Inspect lower_* and upper_* columns in forecast.csv.",
@@ -95,20 +100,21 @@
       ],
       "script_path": "examples/scripts/calibrated_intervals.py",
       "pack_dir": "run",
-      "cli_command": "python -m agentforecast.cli forecast-dataset sales --backend river_linear --conformal --conformal-method auto --levels 80,90,95 --calibration-window 60 --warmup-min 10 --outdir examples/generated/calibrated-intervals",
+      "cli_command": "python -m agentforecast.cli forecast-csv C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/airline_passengers.csv --backend river_linear --conformal --conformal-method auto --levels 80,90,95 --calibration-window 60 --warmup-min 10 --horizon 12 --outdir examples/generated/calibrated-intervals",
       "runtime_notes": [
+        "Source data: Airline passengers.",
         "This run used River jackknife intervals through `river_linear`."
       ],
       "backend_selected": "river_linear",
-      "headline": "sales: river_linear won the backend comparison and produced a publishable pack."
+      "headline": "airline_passengers: river_linear won the backend comparison and produced a publishable pack."
     },
     {
       "example_id": "streaming-drift-watch",
       "category": "Streaming Operations",
       "title": "Streaming forecast with drift monitoring",
-      "lead": "Run a streaming backend on ICU bed stress data and publish a drift alert card alongside the forecast pack.",
-      "dataset_id": "icu-bed-stress",
-      "why_it_matters": "This example shows how the same product surface supports monitoring-style time series, not just static offline forecasts.",
+      "lead": "Run a streaming backend on real daily minimum temperatures and publish a drift alert card alongside the forecast pack.",
+      "dataset_id": "daily-min-temperatures",
+      "why_it_matters": "This keeps the monitoring example on real observed data while still showing the streaming and drift artifact path.",
       "tutorial_steps": [
         "Choose a streaming backend and forecast in monitoring mode.",
         "Inspect the drift diagnostics and drift alert card.",
@@ -121,12 +127,13 @@
       ],
       "script_path": "examples/scripts/streaming_drift_watch.py",
       "pack_dir": "run",
-      "cli_command": "python -m agentforecast.cli forecast-stream agentforecast/package_data/datasets/icu_bed_stress.csv --backend river_snarimax --horizon 14 --outdir examples/generated/streaming-drift-watch",
+      "cli_command": "python -m agentforecast.cli forecast-stream C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv --backend river_snarimax --horizon 14 --outdir examples/generated/streaming-drift-watch",
       "runtime_notes": [
+        "Source data: Daily minimum temperatures.",
         "This run used the River streaming forecaster path."
       ],
       "backend_selected": "river_snarimax",
-      "headline": "icu_bed_stress: river_snarimax won the backend comparison and produced a publishable pack."
+      "headline": "daily_min_temperatures: river_snarimax won the backend comparison and produced a publishable pack."
     }
   ]
 }

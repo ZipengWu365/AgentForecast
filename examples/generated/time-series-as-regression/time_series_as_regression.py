@@ -7,7 +7,8 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from agentforecast import FeatureSpec, forecast_dataset
+from agentforecast import FeatureSpec, forecast_csv
+from agentforecast.public_examples import public_example_path
 
 
 def main() -> None:
@@ -22,9 +23,9 @@ def main() -> None:
         include_tsfresh=include_tsfresh,
         tsfresh_window=28,
     )
-    result = forecast_dataset("gold-exogenous", backend="ml_ridge", outdir=outdir, feature_spec=feature_spec)
+    result = forecast_csv(public_example_path("daily-min-temperatures"), backend="ml_ridge", outdir=outdir, horizon=30, feature_spec=feature_spec)
     print(result.summary["headline"])
-    print((outdir / "gold-exogenous" / "plots" / "forecast.png").resolve())
+    print((outdir / "daily-min-temperatures-real" / "plots" / "forecast.png").resolve())
 
 
 if __name__ == "__main__":

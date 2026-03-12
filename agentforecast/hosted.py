@@ -496,6 +496,10 @@ img {
   transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
 }
 
+.gallery-card-link {
+  display: block;
+}
+
 .gallery-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
@@ -844,16 +848,18 @@ def _entry_card(entry: dict[str, Any]) -> str:
     projected = _format_value(entry["summary"].get("projected_end", "n/a"))
     preview_html = f"<div class='gallery-card-media'><img src='{_escape(preview)}' alt='{_escape(entry['title'])}'></div>" if preview else ""
     return (
+        f"<a class='gallery-card-link' href='cases/{_escape(entry['slug'])}.html'>"
         "<article class='gallery-card'>"
         f"{preview_html}"
         "<div class='gallery-card-body'>"
         f"<div class='mini-row'><span class='badge'>{_escape(entry['backend_selected'])}</span><span class='muted'>{_escape(entry['slug'])}</span></div>"
-        f"<h3><a href='cases/{_escape(entry['slug'])}.html'>{_escape(entry['title'])}</a></h3>"
+        f"<h3>{_escape(entry['title'])}</h3>"
         f"<p class='gallery-card-headline'>{_escape(entry['headline'])}</p>"
         f"<div class='gallery-card-footer'><div class='mini-row'><span>latest</span><strong>{_escape(latest)}</strong></div>"
         f"<div class='mini-row'><span>projected end</span><strong>{_escape(projected)}</strong></div></div>"
         "</div>"
         "</article>"
+        "</a>"
     )
 
 
@@ -935,6 +941,9 @@ def _routing_snippet(entry: dict[str, Any]) -> str:
 
 def build_hosted_site(runs_root: str | Path, site_dir: str | Path, *, gallery_title: str = "agentforecast public gallery") -> dict[str, Any]:
     runs_root = Path(runs_root)
+    site_dir = Path(site_dir)
+    if site_dir.exists():
+        shutil.rmtree(site_dir)
     site_dir = ensure_dir(site_dir)
     ensure_dir(site_dir / "cases")
     entries = collect_gallery_entries(runs_root)

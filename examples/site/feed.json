@@ -7,46 +7,46 @@
       "example_id": "first-forecast-pack",
       "title": "First forecast pack in one command",
       "category": "Getting Started",
-      "dataset_id": "sales",
+      "dataset_id": "monthly-car-sales",
       "backend_selected": "stats_ets",
       "page": "examples/first-forecast-pack.html",
-      "headline": "sales: stats_ets won the backend comparison and produced a publishable pack."
+      "headline": "monthly_car_sales: stats_ets won the backend comparison and produced a publishable pack."
     },
     {
       "example_id": "backend-arena",
-      "title": "Backend arena on the gold series",
+      "title": "Backend arena on airline passengers",
       "category": "Model Selection",
-      "dataset_id": "gold",
-      "backend_selected": "ml_ridge",
+      "dataset_id": "airline-passengers",
+      "backend_selected": "stats_ets",
       "page": "examples/backend-arena.html",
-      "headline": "gold: ml_ridge won the backend comparison and produced a publishable pack."
+      "headline": "airline_passengers: stats_ets won the backend comparison and produced a publishable pack."
     },
     {
       "example_id": "time-series-as-regression",
       "title": "Time series to regression with custom lags",
       "category": "Time Series As Regression",
-      "dataset_id": "gold-exogenous",
+      "dataset_id": "daily-min-temperatures",
       "backend_selected": "ml_ridge",
       "page": "examples/time-series-as-regression.html",
-      "headline": "gold_exogenous: ml_ridge won the backend comparison and produced a publishable pack."
+      "headline": "daily_min_temperatures: ml_ridge won the backend comparison and produced a publishable pack."
     },
     {
       "example_id": "calibrated-intervals",
       "title": "Calibrated prediction intervals",
       "category": "Uncertainty",
-      "dataset_id": "sales",
+      "dataset_id": "airline-passengers",
       "backend_selected": "river_linear",
       "page": "examples/calibrated-intervals.html",
-      "headline": "sales: river_linear won the backend comparison and produced a publishable pack."
+      "headline": "airline_passengers: river_linear won the backend comparison and produced a publishable pack."
     },
     {
       "example_id": "streaming-drift-watch",
       "title": "Streaming forecast with drift monitoring",
       "category": "Streaming Operations",
-      "dataset_id": "icu-bed-stress",
+      "dataset_id": "daily-min-temperatures",
       "backend_selected": "river_snarimax",
       "page": "examples/streaming-drift-watch.html",
-      "headline": "icu_bed_stress: river_snarimax won the backend comparison and produced a publishable pack."
+      "headline": "daily_min_temperatures: river_snarimax won the backend comparison and produced a publishable pack."
     }
   ]
 }

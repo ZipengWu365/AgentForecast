@@ -2,191 +2,367 @@
   "name": "agentforecast public gallery",
   "items": [
     {
-      "slug": "github-breakout",
-      "title": "github_breakout",
-      "headline": "github_breakout: ml_ridge won the backend comparison and produced a publishable pack.",
-      "backend_selected": "ml_ridge",
+      "slug": "airline-passengers",
+      "title": "airline_passengers",
+      "headline": "airline_passengers: stats_ets won the backend comparison and produced a publishable pack.",
+      "backend_selected": "stats_ets",
       "summary": {
-        "headline": "github_breakout: ml_ridge won the backend comparison and produced a publishable pack.",
-        "latest_observed": 14643.0,
-        "projected_end": 20203.127404436033,
+        "headline": "airline_passengers: stats_ets won the backend comparison and produced a publishable pack.",
+        "latest_observed": 432.0,
+        "projected_end": 471.0526239275274,
         "artifact_count": 10,
-        "narrative": "Compared 5 backend(s) and routed the series to 'ml_ridge'. Exported CSV, chart, card, markdown, and JSON artifacts.",
+        "narrative": "Compared 6 backend(s) and routed the series to 'stats_ets'. Exported CSV, chart, card, markdown, and JSON artifacts.",
+        "conformal_method": "residual_heuristic",
         "routing_reason": "explicit_backends_provided"
       },
       "diagnostics": {
         "leaderboard": [
-          {
-            "backend_id": "ml_ridge",
-            "mae": 50.121404,
-            "rmse": 64.257077,
-            "mape": 0.371262,
-            "smape": 0.370199,
-            "backtest_horizon": 24
-          },
-          {
-            "backend_id": "stream_ewm",
-            "mae": 150.863184,
-            "rmse": 182.506567,
-            "mape": 1.127896,
-            "smape": 1.136577,
-            "backtest_horizon": 24
-          },
           {
             "backend_id": "stats_ets",
-            "mae": 362.055136,
-            "rmse": 425.396751,
-            "mape": 2.708628,
-            "smape": 2.757822,
-            "backtest_horizon": 24
+            "mae": 13.382172,
+            "rmse": 16.981075,
+            "mape": 2.803138,
+            "smape": 2.795869,
+            "coverage_80": 0.916667,
+            "avg_width_80": 70.49241,
+            "wnc_80": 6.191959,
+            "coverage_90": 0.916667,
+            "avg_width_90": 90.47516,
+            "wnc_90": 4.824375,
+            "backtest_horizon": 12
           },
-          {
-            "backend_id": "river_snarimax",
-            "mae": 647.980174,
-            "rmse": 752.67119,
-            "mape": 4.856345,
-            "smape": 5.013338,
-            "backtest_horizon": 24
-          },
-          {
-            "backend_id": "naive",
-            "mae": 1961.875,
-            "rmse": 2253.66116,
-            "mape": 14.735098,
-            "smape": 16.256368,
-            "backtest_horizon": 24
-          }
-        ],
-        "cleanup": {
-          "cleanup_applied": false,
-          "missing_points_filled": 0,
-          "duplicate_timestamps_merged": 0,
-          "inferred_frequency": "D",
-          "step_seconds": 86400.0,
-          "exogenous_cols": [
-            "repo_mentions"
-          ],
-          "future_feature_policy": "use_provided_then_carry_last"
-        },
-        "routing": {
-          "profile": "explicit",
-          "history_len": 120,
-          "horizon": 30,
-          "candidate_backends": [
-            "naive",
-            "stats_ets",
-            "ml_ridge",
-            "stream_ewm",
-            "river_snarimax"
-          ],
-          "missing_backends": [],
-          "recommended_extras": [],
-          "reason": "explicit_backends_provided"
-        }
-      },
-      "metrics": {
-        "backend_id": "ml_ridge",
-        "mae": 50.121404,
-        "rmse": 64.257077,
-        "mape": 0.371262,
-        "smape": 0.370199,
-        "backtest_horizon": 24.0
-      },
-      "artifacts": {
-        "history_csv": "public_gallery/demo_runs/github-breakout/data/history.csv",
-        "forecast_csv": "public_gallery/demo_runs/github-breakout/data/forecast.csv",
-        "leaderboard_csv": "public_gallery/demo_runs/github-breakout/data/leaderboard.csv",
-        "forecast_png": "public_gallery/demo_runs/github-breakout/plots/forecast.png",
-        "forecast_card_png": "public_gallery/demo_runs/github-breakout/plots/forecast_card.png",
-        "comparison_png": "public_gallery/demo_runs/github-breakout/plots/backend_comparison.png",
-        "leaderboard_card_png": "public_gallery/demo_runs/github-breakout/plots/leaderboard_card.png",
-        "delta_card_png": "public_gallery/demo_runs/github-breakout/plots/winner_vs_runnerup_delta.png",
-        "summary_markdown": "public_gallery/demo_runs/github-breakout/reports/summary.md",
-        "metadata_json": "public_gallery/demo_runs/github-breakout/meta/metadata.json"
-      },
-      "public_artifacts": {
-        "history_csv": "assets/github-breakout/history.csv",
-        "forecast_csv": "assets/github-breakout/forecast.csv",
-        "leaderboard_csv": "assets/github-breakout/leaderboard.csv",
-        "forecast_png": "assets/github-breakout/forecast.png",
-        "forecast_card_png": "assets/github-breakout/forecast_card.png",
-        "comparison_png": "assets/github-breakout/backend_comparison.png",
-        "leaderboard_card_png": "assets/github-breakout/leaderboard_card.png",
-        "delta_card_png": "assets/github-breakout/winner_vs_runnerup_delta.png",
-        "summary_markdown": "assets/github-breakout/summary.md",
-        "metadata_json": "assets/github-breakout/metadata.json"
-      }
-    },
-    {
-      "slug": "gold",
-      "title": "gold",
-      "headline": "gold: ml_ridge won the backend comparison and produced a publishable pack.",
-      "backend_selected": "ml_ridge",
-      "summary": {
-        "headline": "gold: ml_ridge won the backend comparison and produced a publishable pack.",
-        "latest_observed": 2623.54,
-        "projected_end": 2705.8437872970244,
-        "artifact_count": 10,
-        "narrative": "Compared 4 backend(s) and routed the series to 'ml_ridge'. Exported CSV, chart, card, markdown, and JSON artifacts.",
-        "routing_reason": "explicit_backends_provided"
-      },
-      "diagnostics": {
-        "leaderboard": [
           {
             "backend_id": "ml_ridge",
-            "mae": 9.803314,
-            "rmse": 11.061204,
-            "mape": 0.374506,
-            "smape": 0.374609,
-            "backtest_horizon": 30
+            "mae": 36.079182,
+            "rmse": 51.659282,
+            "mape": 8.366429,
+            "smape": 7.693627,
+            "coverage_80": 0.916667,
+            "avg_width_80": 181.239729,
+            "wnc_80": 2.408336,
+            "coverage_90": 1.0,
+            "avg_width_90": 232.616441,
+            "wnc_90": 2.047003,
+            "backtest_horizon": 12
           },
           {
             "backend_id": "moving_average",
-            "mae": 50.441571,
-            "rmse": 54.254188,
-            "mape": 1.921794,
-            "smape": 1.943351,
-            "backtest_horizon": 30
-          },
-          {
-            "backend_id": "naive",
-            "mae": 66.083,
-            "rmse": 69.037147,
-            "mape": 2.519541,
-            "smape": 2.554589,
-            "backtest_horizon": 30
+            "mae": 58.095238,
+            "rmse": 76.286539,
+            "mape": 11.569287,
+            "smape": 11.973611,
+            "coverage_80": 1.0,
+            "avg_width_80": 436.269632,
+            "wnc_80": 1.09145,
+            "coverage_90": 1.0,
+            "avg_width_90": 559.940635,
+            "wnc_90": 0.850388,
+            "backtest_horizon": 12
           },
           {
             "backend_id": "stats_arima",
-            "mae": 74.688926,
-            "rmse": 77.686044,
-            "mape": 2.848018,
-            "smape": 2.892489,
-            "backtest_horizon": 30
+            "mae": 66.241675,
+            "rmse": 91.228839,
+            "mape": 12.462033,
+            "smape": 13.792313,
+            "coverage_80": 1.0,
+            "avg_width_80": 439.554005,
+            "wnc_80": 1.083295,
+            "coverage_90": 1.0,
+            "avg_width_90": 564.156041,
+            "wnc_90": 0.844034,
+            "backtest_horizon": 12
+          },
+          {
+            "backend_id": "stream_ewm",
+            "mae": 67.280561,
+            "rmse": 92.129244,
+            "mape": 12.683001,
+            "smape": 14.037941,
+            "coverage_80": 1.0,
+            "avg_width_80": 470.220489,
+            "wnc_80": 1.012646,
+            "coverage_90": 1.0,
+            "avg_width_90": 603.51567,
+            "wnc_90": 0.788988,
+            "backtest_horizon": 12
+          },
+          {
+            "backend_id": "naive",
+            "mae": 76.0,
+            "rmse": 102.976535,
+            "mape": 14.251338,
+            "smape": 16.120845,
+            "coverage_80": 1.0,
+            "avg_width_80": 436.269632,
+            "wnc_80": 1.09145,
+            "coverage_90": 1.0,
+            "avg_width_90": 559.940635,
+            "wnc_90": 0.850388,
+            "backtest_horizon": 12
           }
         ],
+        "conformal": {
+          "enabled": false,
+          "requested_method": "auto",
+          "method": "residual_heuristic",
+          "levels": [
+            80,
+            90
+          ],
+          "calibration_window": 200,
+          "warmup_min": 40,
+          "symmetric": true,
+          "horizon_aware": true,
+          "effective_horizon_aware": false,
+          "calibration_size": 12,
+          "native_levels": [],
+          "fallback_reason": null,
+          "backend_id": "stats_ets",
+          "coverage_backtest": {
+            "80": 0.916667,
+            "90": 0.916667
+          },
+          "mean_interval_width": {
+            "80": 70.49241,
+            "90": 90.47516
+          },
+          "width_normalized_coverage": {
+            "80": 6.191959,
+            "90": 4.824375
+          },
+          "backend_tags": [
+            "accurate",
+            "long_horizon"
+          ]
+        },
+        "conformal_by_backend": {
+          "naive": {
+            "enabled": false,
+            "requested_method": "auto",
+            "method": "residual_heuristic",
+            "levels": [
+              80,
+              90
+            ],
+            "calibration_window": 200,
+            "warmup_min": 40,
+            "symmetric": true,
+            "horizon_aware": true,
+            "effective_horizon_aware": false,
+            "calibration_size": 12,
+            "native_levels": [],
+            "fallback_reason": null,
+            "backend_id": "naive",
+            "coverage_backtest": {
+              "80": 1.0,
+              "90": 1.0
+            },
+            "mean_interval_width": {
+              "80": 436.269632,
+              "90": 559.940635
+            },
+            "width_normalized_coverage": {
+              "80": 1.09145,
+              "90": 0.850388
+            },
+            "backend_tags": [
+              "fast",
+              "low_data"
+            ]
+          },
+          "moving_average": {
+            "enabled": false,
+            "requested_method": "auto",
+            "method": "residual_heuristic",
+            "levels": [
+              80,
+              90
+            ],
+            "calibration_window": 200,
+            "warmup_min": 40,
+            "symmetric": true,
+            "horizon_aware": true,
+            "effective_horizon_aware": false,
+            "calibration_size": 12,
+            "native_levels": [],
+            "fallback_reason": null,
+            "backend_id": "moving_average",
+            "coverage_backtest": {
+              "80": 1.0,
+              "90": 1.0
+            },
+            "mean_interval_width": {
+              "80": 436.269632,
+              "90": 559.940635
+            },
+            "width_normalized_coverage": {
+              "80": 1.09145,
+              "90": 0.850388
+            },
+            "backend_tags": [
+              "fast"
+            ]
+          },
+          "stats_arima": {
+            "enabled": false,
+            "requested_method": "auto",
+            "method": "residual_heuristic",
+            "levels": [
+              80,
+              90
+            ],
+            "calibration_window": 200,
+            "warmup_min": 40,
+            "symmetric": true,
+            "horizon_aware": true,
+            "effective_horizon_aware": false,
+            "calibration_size": 12,
+            "native_levels": [],
+            "fallback_reason": null,
+            "backend_id": "stats_arima",
+            "coverage_backtest": {
+              "80": 1.0,
+              "90": 1.0
+            },
+            "mean_interval_width": {
+              "80": 439.554005,
+              "90": 564.156041
+            },
+            "width_normalized_coverage": {
+              "80": 1.083295,
+              "90": 0.844034
+            },
+            "backend_tags": [
+              "accurate",
+              "low_data"
+            ]
+          },
+          "stats_ets": {
+            "enabled": false,
+            "requested_method": "auto",
+            "method": "residual_heuristic",
+            "levels": [
+              80,
+              90
+            ],
+            "calibration_window": 200,
+            "warmup_min": 40,
+            "symmetric": true,
+            "horizon_aware": true,
+            "effective_horizon_aware": false,
+            "calibration_size": 12,
+            "native_levels": [],
+            "fallback_reason": null,
+            "backend_id": "stats_ets",
+            "coverage_backtest": {
+              "80": 0.916667,
+              "90": 0.916667
+            },
+            "mean_interval_width": {
+              "80": 70.49241,
+              "90": 90.47516
+            },
+            "width_normalized_coverage": {
+              "80": 6.191959,
+              "90": 4.824375
+            },
+            "backend_tags": [
+              "accurate",
+              "long_horizon"
+            ]
+          },
+          "ml_ridge": {
+            "enabled": false,
+            "requested_method": "auto",
+            "method": "residual_heuristic",
+            "levels": [
+              80,
+              90
+            ],
+            "calibration_window": 200,
+            "warmup_min": 40,
+            "symmetric": true,
+            "horizon_aware": true,
+            "effective_horizon_aware": false,
+            "calibration_size": 12,
+            "native_levels": [],
+            "fallback_reason": null,
+            "backend_id": "ml_ridge",
+            "coverage_backtest": {
+              "80": 0.916667,
+              "90": 1.0
+            },
+            "mean_interval_width": {
+              "80": 181.239729,
+              "90": 232.616441
+            },
+            "width_normalized_coverage": {
+              "80": 2.408336,
+              "90": 2.047003
+            },
+            "backend_tags": [
+              "fast",
+              "low_data",
+              "tabular"
+            ]
+          },
+          "stream_ewm": {
+            "enabled": false,
+            "requested_method": "auto",
+            "method": "residual_heuristic",
+            "levels": [
+              80,
+              90
+            ],
+            "calibration_window": 200,
+            "warmup_min": 40,
+            "symmetric": true,
+            "horizon_aware": true,
+            "effective_horizon_aware": false,
+            "calibration_size": 12,
+            "native_levels": [],
+            "fallback_reason": null,
+            "backend_id": "stream_ewm",
+            "coverage_backtest": {
+              "80": 1.0,
+              "90": 1.0
+            },
+            "mean_interval_width": {
+              "80": 470.220489,
+              "90": 603.51567
+            },
+            "width_normalized_coverage": {
+              "80": 1.012646,
+              "90": 0.788988
+            },
+            "backend_tags": [
+              "streaming",
+              "fast",
+              "low_data"
+            ]
+          }
+        },
         "cleanup": {
           "cleanup_applied": false,
           "missing_points_filled": 0,
           "duplicate_timestamps_merged": 0,
-          "inferred_frequency": "D",
-          "step_seconds": 86400.0,
-          "exogenous_cols": [
-            "vix",
-            "dxy",
-            "yield_10y"
-          ],
+          "inferred_frequency": "MS",
+          "step_seconds": 2678400.0,
+          "exogenous_cols": [],
           "future_feature_policy": "use_provided_then_carry_last"
         },
         "routing": {
           "profile": "explicit",
-          "history_len": 180,
-          "horizon": 30,
+          "history_len": 144,
+          "horizon": 12,
           "candidate_backends": [
             "naive",
             "moving_average",
             "stats_arima",
-            "ml_ridge"
+            "stats_ets",
+            "ml_ridge",
+            "stream_ewm"
           ],
           "missing_backends": [],
           "recommended_extras": [],
@@ -194,117 +370,573 @@
         }
       },
       "metrics": {
-        "backend_id": "ml_ridge",
-        "mae": 9.803314,
-        "rmse": 11.061204,
-        "mape": 0.374506,
-        "smape": 0.374609,
-        "backtest_horizon": 30.0
+        "backend_id": "stats_ets",
+        "mae": 13.382172,
+        "rmse": 16.981075,
+        "mape": 2.803138,
+        "smape": 2.795869,
+        "coverage_80": 0.916667,
+        "avg_width_80": 70.49241,
+        "wnc_80": 6.191959,
+        "coverage_90": 0.916667,
+        "avg_width_90": 90.47516,
+        "wnc_90": 4.824375,
+        "backtest_horizon": 12.0
       },
       "artifacts": {
-        "history_csv": "public_gallery/demo_runs/gold/data/history.csv",
-        "forecast_csv": "public_gallery/demo_runs/gold/data/forecast.csv",
-        "leaderboard_csv": "public_gallery/demo_runs/gold/data/leaderboard.csv",
-        "forecast_png": "public_gallery/demo_runs/gold/plots/forecast.png",
-        "forecast_card_png": "public_gallery/demo_runs/gold/plots/forecast_card.png",
-        "comparison_png": "public_gallery/demo_runs/gold/plots/backend_comparison.png",
-        "leaderboard_card_png": "public_gallery/demo_runs/gold/plots/leaderboard_card.png",
-        "delta_card_png": "public_gallery/demo_runs/gold/plots/winner_vs_runnerup_delta.png",
-        "summary_markdown": "public_gallery/demo_runs/gold/reports/summary.md",
-        "metadata_json": "public_gallery/demo_runs/gold/meta/metadata.json"
+        "history_csv": "public_gallery/demo_runs/airline-passengers/data/history.csv",
+        "forecast_csv": "public_gallery/demo_runs/airline-passengers/data/forecast.csv",
+        "leaderboard_csv": "public_gallery/demo_runs/airline-passengers/data/leaderboard.csv",
+        "forecast_png": "public_gallery/demo_runs/airline-passengers/plots/forecast.png",
+        "forecast_card_png": "public_gallery/demo_runs/airline-passengers/plots/forecast_card.png",
+        "comparison_png": "public_gallery/demo_runs/airline-passengers/plots/backend_comparison.png",
+        "leaderboard_card_png": "public_gallery/demo_runs/airline-passengers/plots/leaderboard_card.png",
+        "delta_card_png": "public_gallery/demo_runs/airline-passengers/plots/winner_vs_runnerup_delta.png",
+        "summary_markdown": "public_gallery/demo_runs/airline-passengers/reports/summary.md",
+        "metadata_json": "public_gallery/demo_runs/airline-passengers/meta/metadata.json"
       },
       "public_artifacts": {
-        "history_csv": "assets/gold/history.csv",
-        "forecast_csv": "assets/gold/forecast.csv",
-        "leaderboard_csv": "assets/gold/leaderboard.csv",
-        "forecast_png": "assets/gold/forecast.png",
-        "forecast_card_png": "assets/gold/forecast_card.png",
-        "comparison_png": "assets/gold/backend_comparison.png",
-        "leaderboard_card_png": "assets/gold/leaderboard_card.png",
-        "delta_card_png": "assets/gold/winner_vs_runnerup_delta.png",
-        "summary_markdown": "assets/gold/summary.md",
-        "metadata_json": "assets/gold/metadata.json"
+        "history_csv": "assets/airline-passengers/history.csv",
+        "forecast_csv": "assets/airline-passengers/forecast.csv",
+        "leaderboard_csv": "assets/airline-passengers/leaderboard.csv",
+        "forecast_png": "assets/airline-passengers/forecast.png",
+        "forecast_card_png": "assets/airline-passengers/forecast_card.png",
+        "comparison_png": "assets/airline-passengers/backend_comparison.png",
+        "leaderboard_card_png": "assets/airline-passengers/leaderboard_card.png",
+        "delta_card_png": "assets/airline-passengers/winner_vs_runnerup_delta.png",
+        "summary_markdown": "assets/airline-passengers/summary.md",
+        "metadata_json": "assets/airline-passengers/metadata.json"
       }
     },
     {
-      "slug": "sales",
-      "title": "sales",
-      "headline": "sales: stats_ets won the backend comparison and produced a publishable pack.",
+      "slug": "daily-min-temperatures",
+      "title": "daily_min_temperatures",
+      "headline": "daily_min_temperatures: river_snarimax won the backend comparison and produced a publishable pack.",
+      "backend_selected": "river_snarimax",
+      "summary": {
+        "headline": "daily_min_temperatures: river_snarimax won the backend comparison and produced a publishable pack.",
+        "latest_observed": 13.0,
+        "projected_end": 13.291423694885054,
+        "artifact_count": 10,
+        "narrative": "Compared 1 backend(s) and routed the series to 'river_snarimax'. Exported CSV, chart, card, markdown, and JSON artifacts.",
+        "conformal_method": "residual_heuristic",
+        "routing_reason": "explicit_backend_selected"
+      },
+      "diagnostics": {
+        "leaderboard": [
+          {
+            "backend_id": "river_snarimax",
+            "mae": 1.196384,
+            "rmse": 1.629438,
+            "mape": 9.007428,
+            "smape": 8.695757,
+            "coverage_80": 1.0,
+            "avg_width_80": 23.560135,
+            "wnc_80": 0.590586,
+            "coverage_90": 1.0,
+            "avg_width_90": 30.238816,
+            "wnc_90": 0.460147,
+            "backtest_horizon": 14
+          }
+        ],
+        "conformal": {
+          "enabled": false,
+          "requested_method": "auto",
+          "method": "residual_heuristic",
+          "levels": [
+            80,
+            90
+          ],
+          "calibration_window": 200,
+          "warmup_min": 40,
+          "symmetric": true,
+          "horizon_aware": true,
+          "effective_horizon_aware": false,
+          "calibration_size": 14,
+          "native_levels": [],
+          "fallback_reason": null,
+          "backend_id": "river_snarimax",
+          "coverage_backtest": {
+            "80": 1.0,
+            "90": 1.0
+          },
+          "mean_interval_width": {
+            "80": 23.560135,
+            "90": 30.238816
+          },
+          "width_normalized_coverage": {
+            "80": 0.590586,
+            "90": 0.460147
+          },
+          "backend_tags": [
+            "streaming",
+            "accurate",
+            "supports_conformal_residual",
+            "supports_conformal_horizon"
+          ]
+        },
+        "conformal_by_backend": {
+          "river_snarimax": {
+            "enabled": false,
+            "requested_method": "auto",
+            "method": "residual_heuristic",
+            "levels": [
+              80,
+              90
+            ],
+            "calibration_window": 200,
+            "warmup_min": 40,
+            "symmetric": true,
+            "horizon_aware": true,
+            "effective_horizon_aware": false,
+            "calibration_size": 14,
+            "native_levels": [],
+            "fallback_reason": null,
+            "backend_id": "river_snarimax",
+            "coverage_backtest": {
+              "80": 1.0,
+              "90": 1.0
+            },
+            "mean_interval_width": {
+              "80": 23.560135,
+              "90": 30.238816
+            },
+            "width_normalized_coverage": {
+              "80": 0.590586,
+              "90": 0.460147
+            },
+            "backend_tags": [
+              "streaming",
+              "accurate",
+              "supports_conformal_residual",
+              "supports_conformal_horizon"
+            ]
+          }
+        },
+        "cleanup": {
+          "cleanup_applied": true,
+          "missing_points_filled": 1,
+          "duplicate_timestamps_merged": 0,
+          "inferred_frequency": "D",
+          "step_seconds": 86400.0,
+          "exogenous_cols": [],
+          "future_feature_policy": "use_provided_then_carry_last"
+        },
+        "routing": {
+          "profile": "explicit",
+          "history_len": 1096,
+          "horizon": 14,
+          "candidate_backends": [
+            "river_snarimax"
+          ],
+          "missing_backends": [],
+          "recommended_extras": [],
+          "reason": "explicit_backend_selected"
+        },
+        "streaming": {
+          "backend_family": "streaming",
+          "rolling_mae_last_5": 0.9286098664401585,
+          "baseline_mae_first_5": 1.9675921330184984,
+          "drift_ratio": 0.4719524188255271,
+          "drift_alert": false
+        }
+      },
+      "metrics": {
+        "backend_id": "river_snarimax",
+        "mae": 1.196384,
+        "rmse": 1.629438,
+        "mape": 9.007428,
+        "smape": 8.695757,
+        "coverage_80": 1.0,
+        "avg_width_80": 23.560135,
+        "wnc_80": 0.590586,
+        "coverage_90": 1.0,
+        "avg_width_90": 30.238816,
+        "wnc_90": 0.460147,
+        "backtest_horizon": 14.0
+      },
+      "artifacts": {
+        "history_csv": "public_gallery/demo_runs/daily-min-temperatures/data/history.csv",
+        "forecast_csv": "public_gallery/demo_runs/daily-min-temperatures/data/forecast.csv",
+        "leaderboard_csv": "public_gallery/demo_runs/daily-min-temperatures/data/leaderboard.csv",
+        "forecast_png": "public_gallery/demo_runs/daily-min-temperatures/plots/forecast.png",
+        "forecast_card_png": "public_gallery/demo_runs/daily-min-temperatures/plots/forecast_card.png",
+        "comparison_png": "public_gallery/demo_runs/daily-min-temperatures/plots/backend_comparison.png",
+        "leaderboard_card_png": "public_gallery/demo_runs/daily-min-temperatures/plots/leaderboard_card.png",
+        "delta_card_png": "public_gallery/demo_runs/daily-min-temperatures/plots/winner_vs_runnerup_delta.png",
+        "summary_markdown": "public_gallery/demo_runs/daily-min-temperatures/reports/summary.md",
+        "metadata_json": "public_gallery/demo_runs/daily-min-temperatures/meta/metadata.json",
+        "drift_alert_card_png": "public_gallery/demo_runs/daily-min-temperatures/plots/drift_alert_card.png"
+      },
+      "public_artifacts": {
+        "history_csv": "assets/daily-min-temperatures/history.csv",
+        "forecast_csv": "assets/daily-min-temperatures/forecast.csv",
+        "leaderboard_csv": "assets/daily-min-temperatures/leaderboard.csv",
+        "forecast_png": "assets/daily-min-temperatures/forecast.png",
+        "forecast_card_png": "assets/daily-min-temperatures/forecast_card.png",
+        "comparison_png": "assets/daily-min-temperatures/backend_comparison.png",
+        "leaderboard_card_png": "assets/daily-min-temperatures/leaderboard_card.png",
+        "delta_card_png": "assets/daily-min-temperatures/winner_vs_runnerup_delta.png",
+        "summary_markdown": "assets/daily-min-temperatures/summary.md",
+        "metadata_json": "assets/daily-min-temperatures/metadata.json",
+        "drift_alert_card_png": "assets/daily-min-temperatures/drift_alert_card.png"
+      }
+    },
+    {
+      "slug": "monthly-car-sales",
+      "title": "monthly_car_sales",
+      "headline": "monthly_car_sales: stats_ets won the backend comparison and produced a publishable pack.",
       "backend_selected": "stats_ets",
       "summary": {
-        "headline": "sales: stats_ets won the backend comparison and produced a publishable pack.",
-        "latest_observed": 164.04,
-        "projected_end": 168.99328033812077,
+        "headline": "monthly_car_sales: stats_ets won the backend comparison and produced a publishable pack.",
+        "latest_observed": 14577.0,
+        "projected_end": 17096.390628646346,
         "artifact_count": 10,
         "narrative": "Compared 6 backend(s) and routed the series to 'stats_ets'. Exported CSV, chart, card, markdown, and JSON artifacts.",
-        "routing_reason": "exogenous_features_available"
+        "conformal_method": "residual_heuristic",
+        "routing_reason": "default_fast_path"
       },
       "diagnostics": {
         "leaderboard": [
           {
             "backend_id": "stats_ets",
-            "mae": 2.668245,
-            "rmse": 3.34,
-            "mape": 1.660057,
-            "smape": 1.662909,
-            "backtest_horizon": 14
+            "mae": 1325.070689,
+            "rmse": 1691.224248,
+            "mape": 7.211908,
+            "smape": 7.493997,
+            "coverage_80": 1.0,
+            "avg_width_80": 10260.435339,
+            "wnc_80": 1.776549,
+            "coverage_90": 1.0,
+            "avg_width_90": 13168.999758,
+            "wnc_90": 1.384172,
+            "backtest_horizon": 12
           },
           {
             "backend_id": "ml_ridge",
-            "mae": 3.331871,
-            "rmse": 4.084696,
-            "mape": 2.068253,
-            "smape": 2.092819,
-            "backtest_horizon": 14
+            "mae": 1706.528926,
+            "rmse": 2073.438587,
+            "mape": 9.164544,
+            "smape": 8.976373,
+            "coverage_80": 1.0,
+            "avg_width_80": 12559.140384,
+            "wnc_80": 1.451386,
+            "coverage_90": 1.0,
+            "avg_width_90": 16119.327417,
+            "wnc_90": 1.130827,
+            "backtest_horizon": 12
           },
           {
             "backend_id": "seasonal_naive",
-            "mae": 4.409286,
-            "rmse": 5.815405,
-            "mape": 2.725862,
-            "smape": 2.789142,
-            "backtest_horizon": 14
-          },
-          {
-            "backend_id": "naive",
-            "mae": 7.069286,
-            "rmse": 8.145321,
-            "mape": 4.325824,
-            "smape": 4.383461,
-            "backtest_horizon": 14
+            "mae": 1959.5,
+            "rmse": 2290.827252,
+            "mape": 10.832418,
+            "smape": 11.667141,
+            "coverage_80": 1.0,
+            "avg_width_80": 10746.499621,
+            "wnc_80": 1.696196,
+            "coverage_90": 1.0,
+            "avg_width_90": 13792.85052,
+            "wnc_90": 1.321566,
+            "backtest_horizon": 12
           },
           {
             "backend_id": "moving_average",
-            "mae": 7.383367,
-            "rmse": 8.441226,
-            "mape": 4.503556,
-            "smape": 4.581437,
-            "backtest_horizon": 14
+            "mae": 3567.904762,
+            "rmse": 4479.059687,
+            "mape": 17.854834,
+            "smape": 19.742866,
+            "coverage_80": 1.0,
+            "avg_width_80": 26157.614268,
+            "wnc_80": 0.696859,
+            "coverage_90": 1.0,
+            "avg_width_90": 33572.612133,
+            "wnc_90": 0.542948,
+            "backtest_horizon": 12
+          },
+          {
+            "backend_id": "naive",
+            "mae": 4599.0,
+            "rmse": 5865.37383,
+            "mape": 22.268844,
+            "smape": 26.596471,
+            "coverage_80": 0.916667,
+            "avg_width_80": 26157.614268,
+            "wnc_80": 0.638787,
+            "coverage_90": 1.0,
+            "avg_width_90": 33572.612133,
+            "wnc_90": 0.542948,
+            "backtest_horizon": 12
           },
           {
             "backend_id": "stream_ewm",
-            "mae": 8.835582,
-            "rmse": 10.343119,
-            "mape": 5.328184,
-            "smape": 5.508338,
-            "backtest_horizon": 14
+            "mae": 5123.309501,
+            "rmse": 6107.26662,
+            "mape": 25.693011,
+            "smape": 30.533922,
+            "coverage_80": 0.916667,
+            "avg_width_80": 25988.408279,
+            "wnc_80": 0.642946,
+            "coverage_90": 1.0,
+            "avg_width_90": 33355.440683,
+            "wnc_90": 0.546483,
+            "backtest_horizon": 12
           }
         ],
+        "conformal": {
+          "enabled": false,
+          "requested_method": "auto",
+          "method": "residual_heuristic",
+          "levels": [
+            80,
+            90
+          ],
+          "calibration_window": 200,
+          "warmup_min": 40,
+          "symmetric": true,
+          "horizon_aware": true,
+          "effective_horizon_aware": false,
+          "calibration_size": 12,
+          "native_levels": [],
+          "fallback_reason": null,
+          "backend_id": "stats_ets",
+          "coverage_backtest": {
+            "80": 1.0,
+            "90": 1.0
+          },
+          "mean_interval_width": {
+            "80": 10260.435339,
+            "90": 13168.999758
+          },
+          "width_normalized_coverage": {
+            "80": 1.776549,
+            "90": 1.384172
+          },
+          "backend_tags": [
+            "accurate",
+            "long_horizon"
+          ]
+        },
+        "conformal_by_backend": {
+          "naive": {
+            "enabled": false,
+            "requested_method": "auto",
+            "method": "residual_heuristic",
+            "levels": [
+              80,
+              90
+            ],
+            "calibration_window": 200,
+            "warmup_min": 40,
+            "symmetric": true,
+            "horizon_aware": true,
+            "effective_horizon_aware": false,
+            "calibration_size": 12,
+            "native_levels": [],
+            "fallback_reason": null,
+            "backend_id": "naive",
+            "coverage_backtest": {
+              "80": 0.916667,
+              "90": 1.0
+            },
+            "mean_interval_width": {
+              "80": 26157.614268,
+              "90": 33572.612133
+            },
+            "width_normalized_coverage": {
+              "80": 0.638787,
+              "90": 0.542948
+            },
+            "backend_tags": [
+              "fast",
+              "low_data"
+            ]
+          },
+          "seasonal_naive": {
+            "enabled": false,
+            "requested_method": "auto",
+            "method": "residual_heuristic",
+            "levels": [
+              80,
+              90
+            ],
+            "calibration_window": 200,
+            "warmup_min": 40,
+            "symmetric": true,
+            "horizon_aware": true,
+            "effective_horizon_aware": false,
+            "calibration_size": 12,
+            "native_levels": [],
+            "fallback_reason": null,
+            "backend_id": "seasonal_naive",
+            "coverage_backtest": {
+              "80": 1.0,
+              "90": 1.0
+            },
+            "mean_interval_width": {
+              "80": 10746.499621,
+              "90": 13792.85052
+            },
+            "width_normalized_coverage": {
+              "80": 1.696196,
+              "90": 1.321566
+            },
+            "backend_tags": [
+              "fast",
+              "long_horizon"
+            ]
+          },
+          "moving_average": {
+            "enabled": false,
+            "requested_method": "auto",
+            "method": "residual_heuristic",
+            "levels": [
+              80,
+              90
+            ],
+            "calibration_window": 200,
+            "warmup_min": 40,
+            "symmetric": true,
+            "horizon_aware": true,
+            "effective_horizon_aware": false,
+            "calibration_size": 12,
+            "native_levels": [],
+            "fallback_reason": null,
+            "backend_id": "moving_average",
+            "coverage_backtest": {
+              "80": 1.0,
+              "90": 1.0
+            },
+            "mean_interval_width": {
+              "80": 26157.614268,
+              "90": 33572.612133
+            },
+            "width_normalized_coverage": {
+              "80": 0.696859,
+              "90": 0.542948
+            },
+            "backend_tags": [
+              "fast"
+            ]
+          },
+          "stream_ewm": {
+            "enabled": false,
+            "requested_method": "auto",
+            "method": "residual_heuristic",
+            "levels": [
+              80,
+              90
+            ],
+            "calibration_window": 200,
+            "warmup_min": 40,
+            "symmetric": true,
+            "horizon_aware": true,
+            "effective_horizon_aware": false,
+            "calibration_size": 12,
+            "native_levels": [],
+            "fallback_reason": null,
+            "backend_id": "stream_ewm",
+            "coverage_backtest": {
+              "80": 0.916667,
+              "90": 1.0
+            },
+            "mean_interval_width": {
+              "80": 25988.408279,
+              "90": 33355.440683
+            },
+            "width_normalized_coverage": {
+              "80": 0.642946,
+              "90": 0.546483
+            },
+            "backend_tags": [
+              "streaming",
+              "fast",
+              "low_data"
+            ]
+          },
+          "ml_ridge": {
+            "enabled": false,
+            "requested_method": "auto",
+            "method": "residual_heuristic",
+            "levels": [
+              80,
+              90
+            ],
+            "calibration_window": 200,
+            "warmup_min": 40,
+            "symmetric": true,
+            "horizon_aware": true,
+            "effective_horizon_aware": false,
+            "calibration_size": 12,
+            "native_levels": [],
+            "fallback_reason": null,
+            "backend_id": "ml_ridge",
+            "coverage_backtest": {
+              "80": 1.0,
+              "90": 1.0
+            },
+            "mean_interval_width": {
+              "80": 12559.140384,
+              "90": 16119.327417
+            },
+            "width_normalized_coverage": {
+              "80": 1.451386,
+              "90": 1.130827
+            },
+            "backend_tags": [
+              "fast",
+              "low_data",
+              "tabular"
+            ]
+          },
+          "stats_ets": {
+            "enabled": false,
+            "requested_method": "auto",
+            "method": "residual_heuristic",
+            "levels": [
+              80,
+              90
+            ],
+            "calibration_window": 200,
+            "warmup_min": 40,
+            "symmetric": true,
+            "horizon_aware": true,
+            "effective_horizon_aware": false,
+            "calibration_size": 12,
+            "native_levels": [],
+            "fallback_reason": null,
+            "backend_id": "stats_ets",
+            "coverage_backtest": {
+              "80": 1.0,
+              "90": 1.0
+            },
+            "mean_interval_width": {
+              "80": 10260.435339,
+              "90": 13168.999758
+            },
+            "width_normalized_coverage": {
+              "80": 1.776549,
+              "90": 1.384172
+            },
+            "backend_tags": [
+              "accurate",
+              "long_horizon"
+            ]
+          }
+        },
         "cleanup": {
           "cleanup_applied": false,
           "missing_points_filled": 0,
           "duplicate_timestamps_merged": 0,
-          "inferred_frequency": "D",
-          "step_seconds": 86400.0,
-          "exogenous_cols": [
-            "promo_index"
-          ],
+          "inferred_frequency": "MS",
+          "step_seconds": 2678400.0,
+          "exogenous_cols": [],
           "future_feature_policy": "use_provided_then_carry_last"
         },
         "routing": {
           "profile": "fast",
-          "history_len": 120,
-          "horizon": 14,
+          "history_len": 108,
+          "horizon": 12,
           "candidate_backends": [
             "naive",
             "seasonal_naive",
@@ -315,40 +947,46 @@
           ],
           "missing_backends": [],
           "recommended_extras": [],
-          "reason": "exogenous_features_available"
+          "reason": "default_fast_path"
         }
       },
       "metrics": {
         "backend_id": "stats_ets",
-        "mae": 2.668245,
-        "rmse": 3.34,
-        "mape": 1.660057,
-        "smape": 1.662909,
-        "backtest_horizon": 14.0
+        "mae": 1325.070689,
+        "rmse": 1691.224248,
+        "mape": 7.211908,
+        "smape": 7.493997,
+        "coverage_80": 1.0,
+        "avg_width_80": 10260.435339,
+        "wnc_80": 1.776549,
+        "coverage_90": 1.0,
+        "avg_width_90": 13168.999758,
+        "wnc_90": 1.384172,
+        "backtest_horizon": 12.0
       },
       "artifacts": {
-        "history_csv": "public_gallery/demo_runs/sales/data/history.csv",
-        "forecast_csv": "public_gallery/demo_runs/sales/data/forecast.csv",
-        "leaderboard_csv": "public_gallery/demo_runs/sales/data/leaderboard.csv",
-        "forecast_png": "public_gallery/demo_runs/sales/plots/forecast.png",
-        "forecast_card_png": "public_gallery/demo_runs/sales/plots/forecast_card.png",
-        "comparison_png": "public_gallery/demo_runs/sales/plots/backend_comparison.png",
-        "leaderboard_card_png": "public_gallery/demo_runs/sales/plots/leaderboard_card.png",
-        "delta_card_png": "public_gallery/demo_runs/sales/plots/winner_vs_runnerup_delta.png",
-        "summary_markdown": "public_gallery/demo_runs/sales/reports/summary.md",
-        "metadata_json": "public_gallery/demo_runs/sales/meta/metadata.json"
+        "history_csv": "public_gallery/demo_runs/monthly-car-sales/data/history.csv",
+        "forecast_csv": "public_gallery/demo_runs/monthly-car-sales/data/forecast.csv",
+        "leaderboard_csv": "public_gallery/demo_runs/monthly-car-sales/data/leaderboard.csv",
+        "forecast_png": "public_gallery/demo_runs/monthly-car-sales/plots/forecast.png",
+        "forecast_card_png": "public_gallery/demo_runs/monthly-car-sales/plots/forecast_card.png",
+        "comparison_png": "public_gallery/demo_runs/monthly-car-sales/plots/backend_comparison.png",
+        "leaderboard_card_png": "public_gallery/demo_runs/monthly-car-sales/plots/leaderboard_card.png",
+        "delta_card_png": "public_gallery/demo_runs/monthly-car-sales/plots/winner_vs_runnerup_delta.png",
+        "summary_markdown": "public_gallery/demo_runs/monthly-car-sales/reports/summary.md",
+        "metadata_json": "public_gallery/demo_runs/monthly-car-sales/meta/metadata.json"
       },
       "public_artifacts": {
-        "history_csv": "assets/sales/history.csv",
-        "forecast_csv": "assets/sales/forecast.csv",
-        "leaderboard_csv": "assets/sales/leaderboard.csv",
-        "forecast_png": "assets/sales/forecast.png",
-        "forecast_card_png": "assets/sales/forecast_card.png",
-        "comparison_png": "assets/sales/backend_comparison.png",
-        "leaderboard_card_png": "assets/sales/leaderboard_card.png",
-        "delta_card_png": "assets/sales/winner_vs_runnerup_delta.png",
-        "summary_markdown": "assets/sales/summary.md",
-        "metadata_json": "assets/sales/metadata.json"
+        "history_csv": "assets/monthly-car-sales/history.csv",
+        "forecast_csv": "assets/monthly-car-sales/forecast.csv",
+        "leaderboard_csv": "assets/monthly-car-sales/leaderboard.csv",
+        "forecast_png": "assets/monthly-car-sales/forecast.png",
+        "forecast_card_png": "assets/monthly-car-sales/forecast_card.png",
+        "comparison_png": "assets/monthly-car-sales/backend_comparison.png",
+        "leaderboard_card_png": "assets/monthly-car-sales/leaderboard_card.png",
+        "delta_card_png": "assets/monthly-car-sales/winner_vs_runnerup_delta.png",
+        "summary_markdown": "assets/monthly-car-sales/summary.md",
+        "metadata_json": "assets/monthly-car-sales/metadata.json"
       }
     }
   ],

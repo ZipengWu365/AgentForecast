@@ -269,6 +269,8 @@ python -m agentforecast.cli run-case time-series-regression-lab --outdir case_de
 
 The repository now includes a tutorial-style examples hub with real generated outputs, copied artifacts, and runnable source scripts.
 
+The examples hub is built from packaged real public series such as monthly car sales, airline passengers, and daily temperatures, rather than the synthetic bundled quickstart datasets.
+
 Generate everything:
 
 ```bash
@@ -309,11 +311,11 @@ examples/
 
 The curated cases cover:
 
-- first forecast pack onboarding
-- backend comparison and leaderboard reading
-- time series to regression with lag features and optional tsfresh
-- calibrated prediction intervals
-- streaming drift monitoring
+- first forecast pack onboarding on real monthly car sales
+- backend comparison and leaderboard reading on airline passengers
+- time series to regression with lag features and optional tsfresh on daily temperatures
+- calibrated prediction intervals on a real seasonal series
+- streaming drift monitoring on a real daily series
 
 ## Hosted gallery
 

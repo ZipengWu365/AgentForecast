@@ -67,6 +67,25 @@ class FeatureSpec:
         return payload
 
 
+def infer_frequency_alias(ds: pd.Series) -> str | None:
+    ordered = pd.Series(pd.to_datetime(ds, errors="coerce")).dropna().sort_values().drop_duplicates()
+    if len(ordered) >= 3:
+        try:
+            inferred = pd.infer_freq(ordered)
+        except ValueError:
+            inferred = None
+        if inferred:
+            return str(inferred)
+    step = _infer_step(ordered)
+    if step == pd.Timedelta(hours=1):
+        return "H"
+    if step == pd.Timedelta(days=1):
+        return "D"
+    if step == pd.Timedelta(days=7):
+        return "W"
+    return None
+
+
 def _infer_step(ds: pd.Series) -> pd.Timedelta:
     diffs = ds.sort_values().diff().dropna()
     if diffs.empty:
@@ -90,7 +109,19 @@ def _infer_frequency(step: pd.Timedelta) -> str:
     return "custom"
 
 
-def infer_season_length(step: pd.Timedelta) -> int | None:
+def infer_season_length(step: pd.Timedelta, freq_alias: str | None = None) -> int | None:
+    if freq_alias:
+        normalized = str(freq_alias).upper()
+        if normalized.startswith(("MS", "ME", "M")):
+            return 12
+        if normalized.startswith(("QS", "QE", "Q")):
+            return 4
+        if normalized.startswith("H"):
+            return 24
+        if normalized.startswith("D"):
+            return 7
+        if normalized.startswith("W"):
+            return 4
     if step == pd.Timedelta(hours=1):
         return 24
     if step == pd.Timedelta(days=1):
@@ -98,6 +129,23 @@ def infer_season_length(step: pd.Timedelta) -> int | None:
     if step == pd.Timedelta(days=7):
         return 4
     return None
+
+
+def build_future_index(
+    ds: pd.Series,
+    horizon: int,
+    *,
+    freq_alias: str | None = None,
+    step: pd.Timedelta | None = None,
+) -> pd.DatetimeIndex:
+    ordered = pd.Series(pd.to_datetime(ds, errors="coerce")).dropna().sort_values().drop_duplicates()
+    if ordered.empty:
+        return pd.DatetimeIndex([])
+    resolved_freq = freq_alias or infer_frequency_alias(ordered)
+    if resolved_freq:
+        return pd.date_range(start=pd.Timestamp(ordered.iloc[-1]), periods=horizon + 1, freq=resolved_freq)[1:]
+    resolved_step = step or _infer_step(ordered)
+    return pd.date_range(start=pd.Timestamp(ordered.iloc[-1]) + resolved_step, periods=horizon, freq=resolved_step)
 
 
 def infer_series_kind(values: pd.Series) -> str:
@@ -134,8 +182,9 @@ def prepare_series_frame(frame: pd.DataFrame, *, date_col: str = "ds", value_col
     history = history.groupby(date_col, as_index=False).agg(agg_map)
 
     step = _infer_step(history[date_col])
-    inferred_frequency = _infer_frequency(step)
-    full_index = pd.date_range(history[date_col].min(), history[date_col].max(), freq=step)
+    freq_alias = infer_frequency_alias(history[date_col])
+    inferred_frequency = freq_alias or _infer_frequency(step)
+    full_index = pd.date_range(history[date_col].min(), history[date_col].max(), freq=freq_alias or step)
     reindexed = history.set_index(date_col).reindex(full_index)
     missing_points = int(reindexed[value_col].isna().sum())
     reindexed[value_col] = reindexed[value_col].interpolate(limit_direction="both").ffill().bfill()
@@ -407,7 +456,6 @@ def future_exog_map(
 ) -> list[dict[str, float]]:
     if not exogenous_cols:
         return [{} for _ in range(horizon)]
-    last_ds = pd.to_datetime(history["ds"].iloc[-1])
     last_values = {col: float(history[col].iloc[-1]) for col in exogenous_cols}
     records = []
     future_by_ds = {}
@@ -416,8 +464,9 @@ def future_exog_map(
         temp["ds"] = pd.to_datetime(temp["ds"])
         for _, row in temp.iterrows():
             future_by_ds[pd.Timestamp(row["ds"])] = {col: float(row[col]) for col in exogenous_cols if col in row and pd.notna(row[col])}
-    for i in range(1, horizon + 1):
-        ds = pd.Timestamp(last_ds + i * step)
+    future_ds = build_future_index(history["ds"], horizon, step=step)
+    for ds in future_ds:
+        ds = pd.Timestamp(ds)
         values = dict(last_values)
         if ds in future_by_ds:
             values.update(future_by_ds[ds])

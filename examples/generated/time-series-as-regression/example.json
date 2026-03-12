@@ -2,9 +2,9 @@
   "example_id": "time-series-as-regression",
   "category": "Time Series As Regression",
   "title": "Time series to regression with custom lags",
-  "lead": "Turn a sequence with exogenous signals into a supervised regression problem with lag points, spaced delays, rolling windows, and optional tsfresh descriptors.",
-  "dataset_id": "gold-exogenous",
-  "why_it_matters": "This is the clearest example of the package framing a time series as a tabular regression problem instead of hiding the feature layer.",
+  "lead": "Turn a real daily temperature series into a supervised regression problem with lag points, spaced delays, rolling windows, and optional tsfresh descriptors.",
+  "dataset_id": "daily-min-temperatures",
+  "why_it_matters": "This example focuses on the regression framing itself. It does not need synthetic exogenous columns to show how lag engineering works.",
   "tutorial_steps": [
     "Choose explicit lag points for short and medium memory.",
     "Add evenly spaced delay features with lag_step and lag_count.",
@@ -17,13 +17,14 @@
   ],
   "script_path": "examples/scripts/time_series_as_regression.py",
   "pack_dir": "run",
-  "cli_command": "python -m agentforecast.cli forecast-dataset gold-exogenous --backend ml_ridge --lag-points 1,2,3,7,14,28 --lag-step 7 --lag-count 4 --rolling-windows 3,7,14,28 --outdir examples/generated/time-series-as-regression --tsfresh --tsfresh-window 28",
+  "cli_command": "python -m agentforecast.cli forecast-csv C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv --backend ml_ridge --lag-points 1,2,3,7,14,28 --lag-step 7 --lag-count 4 --rolling-windows 3,7,14,28 --outdir examples/generated/time-series-as-regression --tsfresh --tsfresh-window 28",
   "runtime_notes": [
+    "Source data: Daily minimum temperatures.",
     "`tsfresh` was installed in this environment, so compact tsfresh descriptors were included."
   ],
-  "script_source": "from __future__ import annotations\n\nfrom pathlib import Path\nimport importlib.util\nimport sys\n\nROOT = Path(__file__).resolve().parents[2]\nsys.path.insert(0, str(ROOT))\n\nfrom agentforecast import FeatureSpec, forecast_dataset\n\n\ndef main() -> None:\n    outdir = ROOT / \"examples\" / \"generated\" / \"time-series-as-regression\"\n    include_tsfresh = importlib.util.find_spec(\"tsfresh\") is not None\n    feature_spec = FeatureSpec(\n        mode=\"tutorial_regression\",\n        lag_points=(1, 2, 3, 7, 14, 28),\n        lag_step=7,\n        lag_count=4,\n        rolling_windows=(3, 7, 14, 28),\n        include_tsfresh=include_tsfresh,\n        tsfresh_window=28,\n    )\n    result = forecast_dataset(\"gold-exogenous\", backend=\"ml_ridge\", outdir=outdir, feature_spec=feature_spec)\n    print(result.summary[\"headline\"])\n    print((outdir / \"gold-exogenous\" / \"plots\" / \"forecast.png\").resolve())\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "script_source": "from __future__ import annotations\n\nfrom pathlib import Path\nimport importlib.util\nimport sys\n\nROOT = Path(__file__).resolve().parents[2]\nsys.path.insert(0, str(ROOT))\n\nfrom agentforecast import FeatureSpec, forecast_csv\nfrom agentforecast.public_examples import public_example_path\n\n\ndef main() -> None:\n    outdir = ROOT / \"examples\" / \"generated\" / \"time-series-as-regression\"\n    include_tsfresh = importlib.util.find_spec(\"tsfresh\") is not None\n    feature_spec = FeatureSpec(\n        mode=\"tutorial_regression\",\n        lag_points=(1, 2, 3, 7, 14, 28),\n        lag_step=7,\n        lag_count=4,\n        rolling_windows=(3, 7, 14, 28),\n        include_tsfresh=include_tsfresh,\n        tsfresh_window=28,\n    )\n    result = forecast_csv(public_example_path(\"daily-min-temperatures\"), backend=\"ml_ridge\", outdir=outdir, horizon=30, feature_spec=feature_spec)\n    print(result.summary[\"headline\"])\n    print((outdir / \"daily-min-temperatures-real\" / \"plots\" / \"forecast.png\").resolve())\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "result": {
-    "run_type": "forecast_dataset",
+    "run_type": "forecast_csv",
     "backend_selected": "ml_ridge",
     "candidate_backends": [
       "ml_ridge"
@@ -80,30 +81,25 @@
         "sample_entropy"
       ],
       "include_exogenous": true,
-      "exogenous_cols": [
-        "dxy",
-        "vix",
-        "yield_10y"
-      ]
+      "exogenous_cols": []
     },
     "inputs": {
-      "name": "gold_exogenous",
+      "name": "daily_min_temperatures",
       "horizon": 30,
       "strategy": "fast",
-      "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/datasets/gold_exogenous.csv",
+      "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv",
       "date_col": "ds",
       "value_col": "y",
       "series_kind": "price",
       "candidate_backends": [
         "ml_ridge"
       ],
-      "csv_path": "package_data/datasets/gold_exogenous.csv",
-      "dataset_id": "gold-exogenous"
+      "csv_path": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv"
     },
     "summary": {
-      "headline": "gold_exogenous: ml_ridge won the backend comparison and produced a publishable pack.",
-      "latest_observed": 2108.408657621862,
-      "projected_end": 2124.173359257402,
+      "headline": "daily_min_temperatures: ml_ridge won the backend comparison and produced a publishable pack.",
+      "latest_observed": 13.0,
+      "projected_end": 17.329831504114026,
       "artifact_count": 10,
       "narrative": "Compared 1 backend(s) and routed the series to 'ml_ridge'. Exported CSV, chart, card, markdown, and JSON artifacts.",
       "conformal_method": "residual_heuristic",
@@ -113,16 +109,16 @@
       "leaderboard": [
         {
           "backend_id": "ml_ridge",
-          "mae": 5.264255,
-          "rmse": 6.578802,
-          "mape": 0.251421,
-          "smape": 0.251003,
+          "mae": 2.151761,
+          "rmse": 2.791653,
+          "mape": 14.747935,
+          "smape": 14.604986,
           "coverage_80": 1.0,
-          "avg_width_80": 38.202136,
-          "wnc_80": 54.648457,
+          "avg_width_80": 27.401123,
+          "wnc_80": 0.525648,
           "coverage_90": 1.0,
-          "avg_width_90": 49.03144,
-          "wnc_90": 42.578553,
+          "avg_width_90": 35.168623,
+          "wnc_90": 0.409551,
           "backtest_horizon": 30
         }
       ],
@@ -148,12 +144,12 @@
           "90": 1.0
         },
         "mean_interval_width": {
-          "80": 38.202136,
-          "90": 49.03144
+          "80": 27.401123,
+          "90": 35.168623
         },
         "width_normalized_coverage": {
-          "80": 54.648457,
-          "90": 42.578553
+          "80": 0.525648,
+          "90": 0.409551
         },
         "backend_tags": [
           "fast",
@@ -184,12 +180,12 @@
             "90": 1.0
           },
           "mean_interval_width": {
-            "80": 38.202136,
-            "90": 49.03144
+            "80": 27.401123,
+            "90": 35.168623
           },
           "width_normalized_coverage": {
-            "80": 54.648457,
-            "90": 42.578553
+            "80": 0.525648,
+            "90": 0.409551
           },
           "backend_tags": [
             "fast",
@@ -199,21 +195,17 @@
         }
       },
       "cleanup": {
-        "cleanup_applied": false,
-        "missing_points_filled": 0,
+        "cleanup_applied": true,
+        "missing_points_filled": 1,
         "duplicate_timestamps_merged": 0,
         "inferred_frequency": "D",
         "step_seconds": 86400.0,
-        "exogenous_cols": [
-          "dxy",
-          "vix",
-          "yield_10y"
-        ],
+        "exogenous_cols": [],
         "future_feature_policy": "use_provided_then_carry_last"
       },
       "routing": {
         "profile": "explicit",
-        "history_len": 220,
+        "history_len": 1096,
         "horizon": 30,
         "candidate_backends": [
           "ml_ridge"
@@ -225,16 +217,16 @@
     },
     "metrics": {
       "backend_id": "ml_ridge",
-      "mae": 5.264255,
-      "rmse": 6.578802,
-      "mape": 0.251421,
-      "smape": 0.251003,
+      "mae": 2.151761,
+      "rmse": 2.791653,
+      "mape": 14.747935,
+      "smape": 14.604986,
       "coverage_80": 1.0,
-      "avg_width_80": 38.202136,
-      "wnc_80": 54.648457,
+      "avg_width_80": 27.401123,
+      "wnc_80": 0.525648,
       "coverage_90": 1.0,
-      "avg_width_90": 49.03144,
-      "wnc_90": 42.578553,
+      "avg_width_90": 35.168623,
+      "wnc_90": 0.409551,
       "backtest_horizon": 30.0
     },
     "artifacts": [

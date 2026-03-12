@@ -2,9 +2,9 @@
   "example_id": "streaming-drift-watch",
   "category": "Streaming Operations",
   "title": "Streaming forecast with drift monitoring",
-  "lead": "Run a streaming backend on ICU bed stress data and publish a drift alert card alongside the forecast pack.",
-  "dataset_id": "icu-bed-stress",
-  "why_it_matters": "This example shows how the same product surface supports monitoring-style time series, not just static offline forecasts.",
+  "lead": "Run a streaming backend on real daily minimum temperatures and publish a drift alert card alongside the forecast pack.",
+  "dataset_id": "daily-min-temperatures",
+  "why_it_matters": "This keeps the monitoring example on real observed data while still showing the streaming and drift artifact path.",
   "tutorial_steps": [
     "Choose a streaming backend and forecast in monitoring mode.",
     "Inspect the drift diagnostics and drift alert card.",
@@ -17,11 +17,12 @@
   ],
   "script_path": "examples/scripts/streaming_drift_watch.py",
   "pack_dir": "run",
-  "cli_command": "python -m agentforecast.cli forecast-stream agentforecast/package_data/datasets/icu_bed_stress.csv --backend river_snarimax --horizon 14 --outdir examples/generated/streaming-drift-watch",
+  "cli_command": "python -m agentforecast.cli forecast-stream C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv --backend river_snarimax --horizon 14 --outdir examples/generated/streaming-drift-watch",
   "runtime_notes": [
+    "Source data: Daily minimum temperatures.",
     "This run used the River streaming forecaster path."
   ],
-  "script_source": "from __future__ import annotations\n\nfrom pathlib import Path\nimport sys\n\nROOT = Path(__file__).resolve().parents[2]\nsys.path.insert(0, str(ROOT))\n\nfrom agentforecast import forecast_stream_csv\nfrom agentforecast.backends import is_backend_available\nfrom agentforecast.datasets import dataset_path\n\n\ndef main() -> None:\n    outdir = ROOT / \"examples\" / \"generated\" / \"streaming-drift-watch\"\n    backend = \"river_snarimax\" if is_backend_available(\"river_snarimax\") else \"stream_ewm\"\n    result = forecast_stream_csv(dataset_path(\"icu-bed-stress\"), backend=backend, horizon=14, outdir=outdir)\n    print(result.summary[\"headline\"])\n    print((outdir / \"icu-bed-stress\" / \"plots\" / \"drift_alert_card.png\").resolve())\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "script_source": "from __future__ import annotations\n\nfrom pathlib import Path\nimport sys\n\nROOT = Path(__file__).resolve().parents[2]\nsys.path.insert(0, str(ROOT))\n\nfrom agentforecast import forecast_stream_csv\nfrom agentforecast.backends import is_backend_available\nfrom agentforecast.public_examples import public_example_path\n\n\ndef main() -> None:\n    outdir = ROOT / \"examples\" / \"generated\" / \"streaming-drift-watch\"\n    backend = \"river_snarimax\" if is_backend_available(\"river_snarimax\") else \"stream_ewm\"\n    result = forecast_stream_csv(public_example_path(\"daily-min-temperatures\"), backend=backend, horizon=14, outdir=outdir)\n    print(result.summary[\"headline\"])\n    print((outdir / \"daily-min-temperatures-real\" / \"plots\" / \"drift_alert_card.png\").resolve())\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "result": {
     "run_type": "forecast_stream_csv",
     "backend_selected": "river_snarimax",
@@ -63,28 +64,25 @@
       "tsfresh_window": 30,
       "tsfresh_features": [],
       "include_exogenous": true,
-      "exogenous_cols": [
-        "respiratory_visits",
-        "staff_shortage_index"
-      ]
+      "exogenous_cols": []
     },
     "inputs": {
-      "name": "icu_bed_stress",
+      "name": "daily_min_temperatures",
       "horizon": 14,
       "strategy": "streaming",
-      "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/datasets/icu_bed_stress.csv",
+      "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv",
       "date_col": "ds",
       "value_col": "y",
       "series_kind": "price",
       "candidate_backends": [
         "river_snarimax"
       ],
-      "csv_path": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/datasets/icu_bed_stress.csv"
+      "csv_path": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv"
     },
     "summary": {
-      "headline": "icu_bed_stress: river_snarimax won the backend comparison and produced a publishable pack.",
-      "latest_observed": 93.42,
-      "projected_end": 94.69035258158456,
+      "headline": "daily_min_temperatures: river_snarimax won the backend comparison and produced a publishable pack.",
+      "latest_observed": 13.0,
+      "projected_end": 13.291423694885054,
       "artifact_count": 10,
       "narrative": "Compared 1 backend(s) and routed the series to 'river_snarimax'. Exported CSV, chart, card, markdown, and JSON artifacts.",
       "conformal_method": "residual_heuristic",
@@ -94,16 +92,16 @@
       "leaderboard": [
         {
           "backend_id": "river_snarimax",
-          "mae": 7.474171,
-          "rmse": 8.4898,
-          "mape": 8.449561,
-          "smape": 8.000926,
+          "mae": 1.196384,
+          "rmse": 1.629438,
+          "mape": 9.007428,
+          "smape": 8.695757,
           "coverage_80": 1.0,
-          "avg_width_80": 30.048472,
-          "wnc_80": 3.015675,
+          "avg_width_80": 23.560135,
+          "wnc_80": 0.590586,
           "coverage_90": 1.0,
-          "avg_width_90": 38.566426,
-          "wnc_90": 2.34962,
+          "avg_width_90": 30.238816,
+          "wnc_90": 0.460147,
           "backtest_horizon": 14
         }
       ],
@@ -129,12 +127,12 @@
           "90": 1.0
         },
         "mean_interval_width": {
-          "80": 30.048472,
-          "90": 38.566426
+          "80": 23.560135,
+          "90": 30.238816
         },
         "width_normalized_coverage": {
-          "80": 3.015675,
-          "90": 2.34962
+          "80": 0.590586,
+          "90": 0.460147
         },
         "backend_tags": [
           "streaming",
@@ -166,12 +164,12 @@
             "90": 1.0
           },
           "mean_interval_width": {
-            "80": 30.048472,
-            "90": 38.566426
+            "80": 23.560135,
+            "90": 30.238816
           },
           "width_normalized_coverage": {
-            "80": 3.015675,
-            "90": 2.34962
+            "80": 0.590586,
+            "90": 0.460147
           },
           "backend_tags": [
             "streaming",
@@ -182,20 +180,17 @@
         }
       },
       "cleanup": {
-        "cleanup_applied": false,
-        "missing_points_filled": 0,
+        "cleanup_applied": true,
+        "missing_points_filled": 1,
         "duplicate_timestamps_merged": 0,
         "inferred_frequency": "D",
         "step_seconds": 86400.0,
-        "exogenous_cols": [
-          "respiratory_visits",
-          "staff_shortage_index"
-        ],
+        "exogenous_cols": [],
         "future_feature_policy": "use_provided_then_carry_last"
       },
       "routing": {
         "profile": "explicit",
-        "history_len": 100,
+        "history_len": 1096,
         "horizon": 14,
         "candidate_backends": [
           "river_snarimax"
@@ -206,24 +201,24 @@
       },
       "streaming": {
         "backend_family": "streaming",
-        "rolling_mae_last_5": 4.216268548128037,
-        "baseline_mae_first_5": 3.5716218131969297,
-        "drift_ratio": 1.1804913198114022,
+        "rolling_mae_last_5": 0.9286098664401585,
+        "baseline_mae_first_5": 1.9675921330184984,
+        "drift_ratio": 0.4719524188255271,
         "drift_alert": false
       }
     },
     "metrics": {
       "backend_id": "river_snarimax",
-      "mae": 7.474171,
-      "rmse": 8.4898,
-      "mape": 8.449561,
-      "smape": 8.000926,
+      "mae": 1.196384,
+      "rmse": 1.629438,
+      "mape": 9.007428,
+      "smape": 8.695757,
       "coverage_80": 1.0,
-      "avg_width_80": 30.048472,
-      "wnc_80": 3.015675,
+      "avg_width_80": 23.560135,
+      "wnc_80": 0.590586,
       "coverage_90": 1.0,
-      "avg_width_90": 38.566426,
-      "wnc_90": 2.34962,
+      "avg_width_90": 30.238816,
+      "wnc_90": 0.460147,
       "backtest_horizon": 14.0
     },
     "artifacts": [

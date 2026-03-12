@@ -87,6 +87,7 @@ include = ["agentforecast*"]
 [tool.setuptools.package-data]
 agentforecast = [
   "package_data/datasets/*.csv",
+  "package_data/public_examples/*.csv",
   "package_data/manifests/*.json",
   "package_data/schemas/*.json",
   "package_data/benchmarks/*.csv"

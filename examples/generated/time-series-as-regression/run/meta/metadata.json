@@ -1,5 +1,5 @@
 {
-  "run_type": "forecast_dataset",
+  "run_type": "forecast_csv",
   "backend_selected": "ml_ridge",
   "candidate_backends": [
     "ml_ridge"
@@ -56,30 +56,25 @@
       "sample_entropy"
     ],
     "include_exogenous": true,
-    "exogenous_cols": [
-      "dxy",
-      "vix",
-      "yield_10y"
-    ]
+    "exogenous_cols": []
   },
   "inputs": {
-    "name": "gold_exogenous",
+    "name": "daily_min_temperatures",
     "horizon": 30,
     "strategy": "fast",
-    "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/datasets/gold_exogenous.csv",
+    "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv",
     "date_col": "ds",
     "value_col": "y",
     "series_kind": "price",
     "candidate_backends": [
       "ml_ridge"
     ],
-    "csv_path": "package_data/datasets/gold_exogenous.csv",
-    "dataset_id": "gold-exogenous"
+    "csv_path": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv"
   },
   "summary": {
-    "headline": "gold_exogenous: ml_ridge won the backend comparison and produced a publishable pack.",
-    "latest_observed": 2108.408657621862,
-    "projected_end": 2124.173359257402,
+    "headline": "daily_min_temperatures: ml_ridge won the backend comparison and produced a publishable pack.",
+    "latest_observed": 13.0,
+    "projected_end": 17.329831504114026,
     "artifact_count": 10,
     "narrative": "Compared 1 backend(s) and routed the series to 'ml_ridge'. Exported CSV, chart, card, markdown, and JSON artifacts.",
     "conformal_method": "residual_heuristic",
@@ -89,16 +84,16 @@
     "leaderboard": [
       {
         "backend_id": "ml_ridge",
-        "mae": 5.264255,
-        "rmse": 6.578802,
-        "mape": 0.251421,
-        "smape": 0.251003,
+        "mae": 2.151761,
+        "rmse": 2.791653,
+        "mape": 14.747935,
+        "smape": 14.604986,
         "coverage_80": 1.0,
-        "avg_width_80": 38.202136,
-        "wnc_80": 54.648457,
+        "avg_width_80": 27.401123,
+        "wnc_80": 0.525648,
         "coverage_90": 1.0,
-        "avg_width_90": 49.03144,
-        "wnc_90": 42.578553,
+        "avg_width_90": 35.168623,
+        "wnc_90": 0.409551,
         "backtest_horizon": 30
       }
     ],
@@ -124,12 +119,12 @@
         "90": 1.0
       },
       "mean_interval_width": {
-        "80": 38.202136,
-        "90": 49.03144
+        "80": 27.401123,
+        "90": 35.168623
       },
       "width_normalized_coverage": {
-        "80": 54.648457,
-        "90": 42.578553
+        "80": 0.525648,
+        "90": 0.409551
       },
       "backend_tags": [
         "fast",
@@ -160,12 +155,12 @@
           "90": 1.0
         },
         "mean_interval_width": {
-          "80": 38.202136,
-          "90": 49.03144
+          "80": 27.401123,
+          "90": 35.168623
         },
         "width_normalized_coverage": {
-          "80": 54.648457,
-          "90": 42.578553
+          "80": 0.525648,
+          "90": 0.409551
         },
         "backend_tags": [
           "fast",
@@ -175,21 +170,17 @@
       }
     },
     "cleanup": {
-      "cleanup_applied": false,
-      "missing_points_filled": 0,
+      "cleanup_applied": true,
+      "missing_points_filled": 1,
       "duplicate_timestamps_merged": 0,
       "inferred_frequency": "D",
       "step_seconds": 86400.0,
-      "exogenous_cols": [
-        "dxy",
-        "vix",
-        "yield_10y"
-      ],
+      "exogenous_cols": [],
       "future_feature_policy": "use_provided_then_carry_last"
     },
     "routing": {
       "profile": "explicit",
-      "history_len": 220,
+      "history_len": 1096,
       "horizon": 30,
       "candidate_backends": [
         "ml_ridge"
@@ -201,16 +192,16 @@
   },
   "metrics": {
     "backend_id": "ml_ridge",
-    "mae": 5.264255,
-    "rmse": 6.578802,
-    "mape": 0.251421,
-    "smape": 0.251003,
+    "mae": 2.151761,
+    "rmse": 2.791653,
+    "mape": 14.747935,
+    "smape": 14.604986,
     "coverage_80": 1.0,
-    "avg_width_80": 38.202136,
-    "wnc_80": 54.648457,
+    "avg_width_80": 27.401123,
+    "wnc_80": 0.525648,
     "coverage_90": 1.0,
-    "avg_width_90": 49.03144,
-    "wnc_90": 42.578553,
+    "avg_width_90": 35.168623,
+    "wnc_90": 0.409551,
     "backtest_horizon": 30.0
   },
   "artifacts": [

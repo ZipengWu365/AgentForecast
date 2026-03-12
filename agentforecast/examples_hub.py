@@ -11,7 +11,6 @@ import warnings
 
 from .backends import is_backend_available
 from .conformal import ConformalSpec
-from .datasets import dataset_path, get_dataset_spec
 from .features import FeatureSpec
 from .hosted import (
     _BASE_CSS,
@@ -23,7 +22,8 @@ from .hosted import (
     _leaderboard_table,
     _routing_snippet,
 )
-from .local import compare_backends_dataset, forecast_dataset, forecast_stream_csv
+from .local import compare_backends_csv, forecast_csv, forecast_stream_csv
+from .public_examples import get_public_example_spec, public_example_path
 from .utils import ensure_dir, read_json, slugify, write_json
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -111,6 +111,10 @@ _EXTRA_CSS = """
   border-color: rgba(47, 107, 255, 0.18);
 }
 
+.example-card-link {
+  display: block;
+}
+
 .example-card img,
 .media-card img {
   width: 100%;
@@ -195,24 +199,24 @@ _EXAMPLES: tuple[ExampleSpec, ...] = (
         example_id="first-forecast-pack",
         category="Getting Started",
         title="First forecast pack in one command",
-        lead="Route a bundled retail series through backend auto-selection and publish charts, CSV, markdown, and JSON.",
-        dataset_id="sales",
-        why_it_matters="This is the smallest end-to-end workflow. It teaches the artifact contract before any model tuning.",
+        lead="Run a real monthly car sales series through backend auto-selection and publish charts, CSV, markdown, and JSON.",
+        dataset_id="monthly-car-sales",
+        why_it_matters="This is the smallest end-to-end workflow, but it now uses a real public time series instead of a synthetic demo curve.",
         tutorial_steps=(
-            "Start with a bundled dataset so the entire flow is reproducible.",
+            "Start with a packaged real public series so the entire flow stays reproducible.",
             "Inspect the selected backend and the pack written under data, plots, reports, and meta.",
             "Reuse the generated CSV and JSON instead of rebuilding post-processing by hand.",
         ),
-        tags=("quickstart", "artifact-contract", "auto-routing"),
+        tags=("quickstart", "artifact-contract", "real-data"),
         script_path="examples/scripts/first_forecast_pack.py",
     ),
     ExampleSpec(
         example_id="backend-arena",
         category="Model Selection",
-        title="Backend arena on the gold series",
-        lead="Compare baseline, classical, tabular, and streaming backends on one market-style series.",
-        dataset_id="gold",
-        why_it_matters="This example shows that the package is not tied to one model family. The point is the common output surface and leaderboard diagnostics.",
+        title="Backend arena on airline passengers",
+        lead="Compare baseline, classical, tabular, and streaming backends on a real airline passenger series.",
+        dataset_id="airline-passengers",
+        why_it_matters="The comparison page is more convincing when the leaderboard is built on a real historical benchmark instead of a synthetic stand-in.",
         tutorial_steps=(
             "Run several backend families on the same target.",
             "Read the leaderboard before trusting the winner.",
@@ -225,9 +229,9 @@ _EXAMPLES: tuple[ExampleSpec, ...] = (
         example_id="time-series-as-regression",
         category="Time Series As Regression",
         title="Time series to regression with custom lags",
-        lead="Turn a sequence with exogenous signals into a supervised regression problem with lag points, spaced delays, rolling windows, and optional tsfresh descriptors.",
-        dataset_id="gold-exogenous",
-        why_it_matters="This is the clearest example of the package framing a time series as a tabular regression problem instead of hiding the feature layer.",
+        lead="Turn a real daily temperature series into a supervised regression problem with lag points, spaced delays, rolling windows, and optional tsfresh descriptors.",
+        dataset_id="daily-min-temperatures",
+        why_it_matters="This example focuses on the regression framing itself. It does not need synthetic exogenous columns to show how lag engineering works.",
         tutorial_steps=(
             "Choose explicit lag points for short and medium memory.",
             "Add evenly spaced delay features with lag_step and lag_count.",
@@ -241,8 +245,8 @@ _EXAMPLES: tuple[ExampleSpec, ...] = (
         category="Uncertainty",
         title="Calibrated prediction intervals",
         lead="Generate interval bands without changing the forecast.csv contract and inspect coverage and width diagnostics.",
-        dataset_id="sales",
-        why_it_matters="The interval example proves the package can emit calibrated uncertainty artifacts rather than only point forecasts.",
+        dataset_id="airline-passengers",
+        why_it_matters="Intervals are easier to evaluate when the series is a real historical benchmark with a familiar seasonal pattern.",
         tutorial_steps=(
             "Enable conformal intervals with a stable list of levels.",
             "Inspect lower_* and upper_* columns in forecast.csv.",
@@ -255,9 +259,9 @@ _EXAMPLES: tuple[ExampleSpec, ...] = (
         example_id="streaming-drift-watch",
         category="Streaming Operations",
         title="Streaming forecast with drift monitoring",
-        lead="Run a streaming backend on ICU bed stress data and publish a drift alert card alongside the forecast pack.",
-        dataset_id="icu-bed-stress",
-        why_it_matters="This example shows how the same product surface supports monitoring-style time series, not just static offline forecasts.",
+        lead="Run a streaming backend on real daily minimum temperatures and publish a drift alert card alongside the forecast pack.",
+        dataset_id="daily-min-temperatures",
+        why_it_matters="This keeps the monitoring example on real observed data while still showing the streaming and drift artifact path.",
         tutorial_steps=(
             "Choose a streaming backend and forecast in monitoring mode.",
             "Inspect the drift diagnostics and drift alert card.",
@@ -321,6 +325,7 @@ def _example_preview(public_artifacts: dict[str, str]) -> str | None:
 def _example_card(entry: dict[str, Any]) -> str:
     preview = _example_preview(entry["public_artifacts"])
     preview_html = f"<img src='{_escape(preview)}' alt='{_escape(entry['title'])}'>" if preview else ""
+    data_spec = get_public_example_spec(entry["dataset_id"])
     metrics = entry["result"].get("metrics", {})
     lead_metric = f"MAE {_format_value(metrics.get('mae', 'n/a'))}"
     if "coverage_90" in metrics:
@@ -329,18 +334,20 @@ def _example_card(entry: dict[str, Any]) -> str:
     if streaming and "drift_ratio" in streaming:
         lead_metric = f"drift_ratio {_format_value(streaming['drift_ratio'])}"
     return (
+        f"<a class='example-card-link' href='examples/{_escape(entry['example_id'])}.html'>"
         "<article class='example-card'>"
         f"{preview_html}"
         "<div class='example-card-body'>"
         f"<div class='mini-row'><span class='badge'>{_escape(entry['category'])}</span><span class='muted'>{_escape(entry['result']['backend_selected'])}</span></div>"
-        f"<h3><a href='examples/{_escape(entry['example_id'])}.html'>{_escape(entry['title'])}</a></h3>"
+        f"<h3>{_escape(entry['title'])}</h3>"
         f"<p>{_escape(entry['lead'])}</p>"
         "<div class='example-meta'>"
-        f"<span class='pill'>{_escape(entry['dataset_id'])}</span>"
+        f"<span class='pill'>{_escape(data_spec.title)}</span>"
         f"<span class='pill pill-blue'>{_escape(lead_metric)}</span>"
         "</div>"
         "</div>"
         "</article>"
+        "</a>"
     )
 
 
@@ -348,9 +355,10 @@ def _metric_grid(entry: dict[str, Any]) -> str:
     result = entry["result"]
     summary = result.get("summary", {})
     metrics = result.get("metrics", {})
+    data_spec = get_public_example_spec(entry["dataset_id"])
     cards: list[tuple[str, Any]] = [
         ("Selected backend", result.get("backend_selected", "unknown")),
-        ("Dataset", entry["dataset_id"]),
+        ("Dataset", data_spec.title),
         ("Horizon", result.get("inputs", {}).get("horizon", "n/a")),
         ("MAE", metrics.get("mae", "n/a")),
         ("Projected end", summary.get("projected_end", "n/a")),
@@ -509,7 +517,7 @@ def _write_example_page(site_dir: Path, entry: dict[str, Any]) -> None:
     public_artifacts = entry["public_artifacts"]
     result = entry["result"]
     diagnostics = result.get("diagnostics", {})
-    dataset = get_dataset_spec(entry["dataset_id"]).to_dict("en")
+    dataset = get_public_example_spec(entry["dataset_id"]).to_dict()
     tag_html = "".join(f"<span class='tag'>{_escape(tag)}</span>" for tag in entry["tags"])
     topbar = _examples_topbar(
         [("Examples", "../index.html#examples"), ("Feed", "../feed.json")],
@@ -569,6 +577,7 @@ def _write_example_page(site_dir: Path, entry: dict[str, Any]) -> None:
         f"<div class='muted'>{_escape(dataset['title'])}</div>"
         f"<div class='muted'>{_escape(dataset['description'])}</div>"
         f"<div class='muted'>Provenance: {_escape(dataset['provenance'])}</div>"
+        f"<div class='muted'><a href='{_escape(dataset['source_url'])}'>{_escape(dataset['source_url'])}</a></div>"
         "</div>"
         "</section>"
         "<section class='section'>"
@@ -614,13 +623,31 @@ def _write_example_page(site_dir: Path, entry: dict[str, Any]) -> None:
 
 def _run_example(spec: ExampleSpec, outdir: Path) -> tuple[dict[str, Any], str, list[str]]:
     runtime_notes: list[str] = []
+    data_spec = get_public_example_spec(spec.dataset_id)
+    source_path = public_example_path(spec.dataset_id)
     if spec.example_id == "first-forecast-pack":
-        result = forecast_dataset("sales", outdir=outdir, strategy="fast")
-        cli_command = "python -m agentforecast.cli shoot sales --outdir examples/generated/first-forecast-pack"
+        result = forecast_csv(
+            source_path,
+            outdir=outdir,
+            strategy="fast",
+            horizon=data_spec.default_horizon,
+            date_col=data_spec.date_col,
+            value_col=data_spec.value_col,
+            series_kind=data_spec.series_kind,
+        )
+        cli_command = f"python -m agentforecast.cli forecast-csv {source_path.as_posix()} --horizon {data_spec.default_horizon} --outdir examples/generated/first-forecast-pack"
     elif spec.example_id == "backend-arena":
         candidate = [backend_id for backend_id in ["naive", "moving_average", "stats_arima", "stats_ets", "ml_ridge", "stream_ewm"] if is_backend_available(backend_id)]
-        result = compare_backends_dataset("gold", backends=candidate, outdir=outdir)
-        cli_command = "python -m agentforecast.cli compare-dataset gold --backends " + ",".join(candidate) + " --outdir examples/generated/backend-arena"
+        result = compare_backends_csv(
+            source_path,
+            backends=candidate,
+            outdir=outdir,
+            horizon=data_spec.default_horizon,
+            date_col=data_spec.date_col,
+            value_col=data_spec.value_col,
+            series_kind=data_spec.series_kind,
+        )
+        cli_command = f"python -m agentforecast.cli compare-csv {source_path.as_posix()} --backends " + ",".join(candidate) + f" --horizon {data_spec.default_horizon} --outdir examples/generated/backend-arena"
         missing = [backend_id for backend_id in ["stats_arima", "stats_ets", "ml_ridge"] if backend_id not in candidate]
         if missing:
             runtime_notes.append("This run excluded unavailable extras: " + ", ".join(missing) + ".")
@@ -635,9 +662,18 @@ def _run_example(spec: ExampleSpec, outdir: Path) -> tuple[dict[str, Any], str, 
             include_tsfresh=include_tsfresh,
             tsfresh_window=28,
         )
-        result = forecast_dataset("gold-exogenous", backend="ml_ridge", outdir=outdir, feature_spec=feature_spec)
+        result = forecast_csv(
+            source_path,
+            backend="ml_ridge",
+            outdir=outdir,
+            horizon=30,
+            date_col=data_spec.date_col,
+            value_col=data_spec.value_col,
+            series_kind=data_spec.series_kind,
+            feature_spec=feature_spec,
+        )
         cli_command = (
-            "python -m agentforecast.cli forecast-dataset gold-exogenous --backend ml_ridge "
+            f"python -m agentforecast.cli forecast-csv {source_path.as_posix()} --backend ml_ridge "
             "--lag-points 1,2,3,7,14,28 --lag-step 7 --lag-count 4 --rolling-windows 3,7,14,28 "
             "--outdir examples/generated/time-series-as-regression"
         )
@@ -655,11 +691,20 @@ def _run_example(spec: ExampleSpec, outdir: Path) -> tuple[dict[str, Any], str, 
             calibration_window=60,
             warmup_min=10,
         )
-        result = forecast_dataset("sales", backend=backend, outdir=outdir, conformal=conformal)
+        result = forecast_csv(
+            source_path,
+            backend=backend,
+            outdir=outdir,
+            conformal=conformal,
+            horizon=data_spec.default_horizon,
+            date_col=data_spec.date_col,
+            value_col=data_spec.value_col,
+            series_kind=data_spec.series_kind,
+        )
         cli_command = (
-            f"python -m agentforecast.cli forecast-dataset sales --backend {backend} --conformal "
+            f"python -m agentforecast.cli forecast-csv {source_path.as_posix()} --backend {backend} --conformal "
             f"--conformal-method {conformal.method} --levels 80,90,95 --calibration-window 60 --warmup-min 10 "
-            "--outdir examples/generated/calibrated-intervals"
+            f"--horizon {data_spec.default_horizon} --outdir examples/generated/calibrated-intervals"
         )
         if backend == "river_linear":
             runtime_notes.append("This run used River jackknife intervals through `river_linear`.")
@@ -667,9 +712,17 @@ def _run_example(spec: ExampleSpec, outdir: Path) -> tuple[dict[str, Any], str, 
             runtime_notes.append("River was not available, so this run used the rolling residual conformal fallback on `stream_ewm`.")
     elif spec.example_id == "streaming-drift-watch":
         backend = "river_snarimax" if is_backend_available("river_snarimax") else "stream_ewm"
-        result = forecast_stream_csv(dataset_path("icu-bed-stress"), backend=backend, horizon=14, outdir=outdir)
+        result = forecast_stream_csv(
+            source_path,
+            backend=backend,
+            horizon=14,
+            outdir=outdir,
+            date_col=data_spec.date_col,
+            value_col=data_spec.value_col,
+            series_kind=data_spec.series_kind,
+        )
         cli_command = (
-            f"python -m agentforecast.cli forecast-stream agentforecast/package_data/datasets/icu_bed_stress.csv "
+            f"python -m agentforecast.cli forecast-stream {source_path.as_posix()} "
             f"--backend {backend} --horizon 14 --outdir examples/generated/streaming-drift-watch"
         )
         if backend == "river_snarimax":
@@ -680,6 +733,7 @@ def _run_example(spec: ExampleSpec, outdir: Path) -> tuple[dict[str, Any], str, 
         raise ValueError(f"Unknown example '{spec.example_id}'.")
 
     payload = result.to_dict() if hasattr(result, "to_dict") else result
+    runtime_notes.insert(0, f"Source data: {data_spec.title}.")
     return payload, cli_command, runtime_notes
 
 

@@ -12,10 +12,12 @@ from agentforecast import ConformalSpec, FeatureSpec, forecast_dataset, shoot
 from agentforecast.backends import is_backend_available, list_backends, route_backends
 from agentforecast.datasets import dataset_path, get_dataset_spec
 from agentforecast.examples_hub import build_examples_site, demo_examples, list_examples
+from agentforecast.local import compare_backends_csv
 from agentforecast.features import build_feature_spec, prepare_series_frame
 from agentforecast.hosted import build_hosted_site
-from agentforecast.local import compare_backends_dataset, forecast_stream_csv
+from agentforecast.local import compare_backends_dataset, forecast_csv, forecast_stream_csv
 from agentforecast.mcp_server import dispatch_jsonrpc
+from agentforecast.public_examples import public_example_path
 from agentforecast.tool_server import dispatch_tool_call
 
 TSFRESH_AVAILABLE = importlib.util.find_spec("tsfresh") is not None
@@ -167,6 +169,40 @@ class AgentForecastV17Tests(unittest.TestCase):
             self.assertTrue((site / 'examples' / 'first-forecast-pack.html').exists())
             rebuilt = build_examples_site(runs, site)
             self.assertEqual(rebuilt['entry_count'], 2)
+
+    def test_prepare_series_frame_preserves_monthly_calendar_frequency(self) -> None:
+        frame = pd.read_csv(public_example_path('airline-passengers'))
+        prepared = prepare_series_frame(frame)
+        self.assertEqual(prepared.inferred_frequency, 'MS')
+        self.assertEqual(prepared.cleanup['missing_points_filled'], 0)
+        self.assertTrue(prepared.history['ds'].dt.day.eq(1).all())
+
+    def test_forecast_csv_keeps_monthly_future_dates_on_public_example(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            result = forecast_csv(public_example_path('monthly-car-sales'), backend='naive', outdir=tmp, horizon=3)
+            forecast_path = next(Path(tmp).glob('*/data/forecast.csv'))
+            forecast = pd.read_csv(forecast_path)
+            self.assertEqual(result.inputs['name'], 'monthly_car_sales')
+            self.assertEqual(forecast['ds'].tolist(), ['1969-01-01', '1969-02-01', '1969-03-01'])
+
+    def test_compare_backends_on_public_monthly_example_has_nonzero_error(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            result = compare_backends_csv(
+                public_example_path('airline-passengers'),
+                backends=['naive', 'moving_average'],
+                outdir=tmp,
+                horizon=12,
+            )
+            self.assertTrue(all(float(row['mae']) > 0 for row in result.leaderboard))
+
+    def test_build_hosted_site_wraps_gallery_card_in_link(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            runs = Path(tmp) / 'runs'
+            site = Path(tmp) / 'site'
+            shoot('sales', outdir=runs)
+            build_hosted_site(runs, site)
+            text = (site / 'index.html').read_text(encoding='utf-8')
+            self.assertIn("class='gallery-card-link' href='cases/sales.html'", text)
 
     def test_new_cross_domain_dataset_specs_exist(self) -> None:
         for dataset_id in ['gold-exogenous', 'grid-heatwave-stress', 'river-flood-risk', 'outpatient-no-show']:

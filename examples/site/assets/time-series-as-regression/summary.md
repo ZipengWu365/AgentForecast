@@ -1,10 +1,10 @@
-# gold_exogenous
+# daily_min_temperatures
 
 - backend_selected: `ml_ridge`
 - candidate_backends: `ml_ridge`
 - artifact_count: `10`
-- latest_observed: `2108.4087`
-- projected_end: `2124.1734`
+- latest_observed: `13.0000`
+- projected_end: `17.3298`
 
 Compared 1 backend(s) and routed the series to 'ml_ridge'. Exported CSV, chart, card, markdown, and JSON artifacts.
 
@@ -18,7 +18,7 @@ Compared 1 backend(s) and routed the series to 'ml_ridge'. Exported CSV, chart, 
 
 | backend_id | mae | rmse | mape | smape | coverage_80 | avg_width_80 | wnc_80 | coverage_90 | avg_width_90 | wnc_90 | backtest_horizon |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| ml_ridge | 5.26426 | 6.5788 | 0.251421 | 0.251003 | 1 | 38.2021 | 54.6485 | 1 | 49.0314 | 42.5786 | 30 |
+| ml_ridge | 2.15176 | 2.79165 | 14.7479 | 14.605 | 1 | 27.4011 | 0.525648 | 1 | 35.1686 | 0.409551 | 30 |
 
 ## Artifacts
 - `data/history.csv`

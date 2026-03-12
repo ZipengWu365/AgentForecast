@@ -3,8 +3,8 @@
   "category": "Uncertainty",
   "title": "Calibrated prediction intervals",
   "lead": "Generate interval bands without changing the forecast.csv contract and inspect coverage and width diagnostics.",
-  "dataset_id": "sales",
-  "why_it_matters": "The interval example proves the package can emit calibrated uncertainty artifacts rather than only point forecasts.",
+  "dataset_id": "airline-passengers",
+  "why_it_matters": "Intervals are easier to evaluate when the series is a real historical benchmark with a familiar seasonal pattern.",
   "tutorial_steps": [
     "Enable conformal intervals with a stable list of levels.",
     "Inspect lower_* and upper_* columns in forecast.csv.",
@@ -17,13 +17,14 @@
   ],
   "script_path": "examples/scripts/calibrated_intervals.py",
   "pack_dir": "run",
-  "cli_command": "python -m agentforecast.cli forecast-dataset sales --backend river_linear --conformal --conformal-method auto --levels 80,90,95 --calibration-window 60 --warmup-min 10 --outdir examples/generated/calibrated-intervals",
+  "cli_command": "python -m agentforecast.cli forecast-csv C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/airline_passengers.csv --backend river_linear --conformal --conformal-method auto --levels 80,90,95 --calibration-window 60 --warmup-min 10 --horizon 12 --outdir examples/generated/calibrated-intervals",
   "runtime_notes": [
+    "Source data: Airline passengers.",
     "This run used River jackknife intervals through `river_linear`."
   ],
-  "script_source": "from __future__ import annotations\n\nfrom pathlib import Path\nimport sys\n\nROOT = Path(__file__).resolve().parents[2]\nsys.path.insert(0, str(ROOT))\n\nfrom agentforecast import ConformalSpec, forecast_dataset\nfrom agentforecast.backends import is_backend_available\n\n\ndef main() -> None:\n    outdir = ROOT / \"examples\" / \"generated\" / \"calibrated-intervals\"\n    backend = \"river_linear\" if is_backend_available(\"river_linear\") else \"stream_ewm\"\n    conformal = ConformalSpec(\n        enabled=True,\n        method=\"auto\" if backend == \"river_linear\" else \"rolling_residual\",\n        levels=(80, 90, 95),\n        calibration_window=60,\n        warmup_min=10,\n    )\n    result = forecast_dataset(\"sales\", backend=backend, outdir=outdir, conformal=conformal)\n    print(result.summary[\"headline\"])\n    print((outdir / \"sales\" / \"data\" / \"forecast.csv\").resolve())\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "script_source": "from __future__ import annotations\n\nfrom pathlib import Path\nimport sys\n\nROOT = Path(__file__).resolve().parents[2]\nsys.path.insert(0, str(ROOT))\n\nfrom agentforecast import ConformalSpec, forecast_csv\nfrom agentforecast.backends import is_backend_available\nfrom agentforecast.public_examples import public_example_path\n\n\ndef main() -> None:\n    outdir = ROOT / \"examples\" / \"generated\" / \"calibrated-intervals\"\n    backend = \"river_linear\" if is_backend_available(\"river_linear\") else \"stream_ewm\"\n    conformal = ConformalSpec(\n        enabled=True,\n        method=\"auto\" if backend == \"river_linear\" else \"rolling_residual\",\n        levels=(80, 90, 95),\n        calibration_window=60,\n        warmup_min=10,\n    )\n    result = forecast_csv(public_example_path(\"airline-passengers\"), backend=backend, outdir=outdir, horizon=12, conformal=conformal)\n    print(result.summary[\"headline\"])\n    print((outdir / \"airline-passengers-real\" / \"data\" / \"forecast.csv\").resolve())\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "result": {
-    "run_type": "forecast_dataset",
+    "run_type": "forecast_csv",
     "backend_selected": "river_linear",
     "candidate_backends": [
       "river_linear"
@@ -63,15 +64,13 @@
       "tsfresh_window": 30,
       "tsfresh_features": [],
       "include_exogenous": true,
-      "exogenous_cols": [
-        "promo_index"
-      ]
+      "exogenous_cols": []
     },
     "inputs": {
-      "name": "sales",
-      "horizon": 14,
+      "name": "airline_passengers",
+      "horizon": 12,
       "strategy": "fast",
-      "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/datasets/sales.csv",
+      "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/airline_passengers.csv",
       "date_col": "ds",
       "value_col": "y",
       "series_kind": "price",
@@ -91,13 +90,12 @@
         "symmetric": true,
         "horizon_aware": true
       },
-      "csv_path": "package_data/datasets/sales.csv",
-      "dataset_id": "sales"
+      "csv_path": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/airline_passengers.csv"
     },
     "summary": {
-      "headline": "sales: river_linear won the backend comparison and produced a publishable pack.",
-      "latest_observed": 164.04,
-      "projected_end": 127.49613967758008,
+      "headline": "airline_passengers: river_linear won the backend comparison and produced a publishable pack.",
+      "latest_observed": 432.0,
+      "projected_end": 338.846148679324,
       "artifact_count": 10,
       "narrative": "Compared 1 backend(s) and routed the series to 'river_linear'. Exported CSV, chart, card, markdown, and JSON artifacts.",
       "conformal_method": "river_jackknife",
@@ -107,20 +105,20 @@
       "leaderboard": [
         {
           "backend_id": "river_linear",
-          "mae": 45.044058,
-          "rmse": 45.651925,
-          "mape": 27.673847,
-          "smape": 32.204308,
-          "coverage_80": 0.714286,
-          "avg_width_80": 46.472328,
-          "wnc_80": 2.487842,
-          "coverage_90": 0.928571,
-          "avg_width_90": 60.004539,
-          "wnc_90": 2.50482,
-          "coverage_95": 1.0,
-          "avg_width_95": 67.260836,
-          "wnc_95": 2.406484,
-          "backtest_horizon": 14
+          "mae": 174.416179,
+          "rmse": 189.697851,
+          "mape": 35.184324,
+          "smape": 43.495941,
+          "coverage_80": 0.75,
+          "avg_width_80": 155.646406,
+          "wnc_80": 2.294464,
+          "coverage_90": 0.833333,
+          "avg_width_90": 176.395032,
+          "wnc_90": 2.249528,
+          "coverage_95": 0.833333,
+          "avg_width_95": 191.320653,
+          "wnc_95": 2.074034,
+          "backtest_horizon": 12
         }
       ],
       "conformal": {
@@ -137,7 +135,7 @@
         "symmetric": true,
         "horizon_aware": true,
         "effective_horizon_aware": false,
-        "calibration_size": 14,
+        "calibration_size": 12,
         "native_levels": [
           80,
           90,
@@ -146,19 +144,19 @@
         "fallback_reason": null,
         "backend_id": "river_linear",
         "coverage_backtest": {
-          "80": 0.714286,
-          "90": 0.928571,
-          "95": 1.0
+          "80": 0.75,
+          "90": 0.833333,
+          "95": 0.833333
         },
         "mean_interval_width": {
-          "80": 46.472328,
-          "90": 60.004539,
-          "95": 67.260836
+          "80": 155.646406,
+          "90": 176.395032,
+          "95": 191.320653
         },
         "width_normalized_coverage": {
-          "80": 2.487842,
-          "90": 2.50482,
-          "95": 2.406484
+          "80": 2.294464,
+          "90": 2.249528,
+          "95": 2.074034
         },
         "backend_tags": [
           "streaming",
@@ -181,7 +179,7 @@
           "symmetric": true,
           "horizon_aware": true,
           "effective_horizon_aware": false,
-          "calibration_size": 14,
+          "calibration_size": 12,
           "native_levels": [
             80,
             90,
@@ -190,19 +188,19 @@
           "fallback_reason": null,
           "backend_id": "river_linear",
           "coverage_backtest": {
-            "80": 0.714286,
-            "90": 0.928571,
-            "95": 1.0
+            "80": 0.75,
+            "90": 0.833333,
+            "95": 0.833333
           },
           "mean_interval_width": {
-            "80": 46.472328,
-            "90": 60.004539,
-            "95": 67.260836
+            "80": 155.646406,
+            "90": 176.395032,
+            "95": 191.320653
           },
           "width_normalized_coverage": {
-            "80": 2.487842,
-            "90": 2.50482,
-            "95": 2.406484
+            "80": 2.294464,
+            "90": 2.249528,
+            "95": 2.074034
           },
           "backend_tags": [
             "streaming",
@@ -215,17 +213,15 @@
         "cleanup_applied": false,
         "missing_points_filled": 0,
         "duplicate_timestamps_merged": 0,
-        "inferred_frequency": "D",
-        "step_seconds": 86400.0,
-        "exogenous_cols": [
-          "promo_index"
-        ],
+        "inferred_frequency": "MS",
+        "step_seconds": 2678400.0,
+        "exogenous_cols": [],
         "future_feature_policy": "use_provided_then_carry_last"
       },
       "routing": {
         "profile": "explicit",
-        "history_len": 120,
-        "horizon": 14,
+        "history_len": 144,
+        "horizon": 12,
         "candidate_backends": [
           "river_linear"
         ],
@@ -236,20 +232,20 @@
     },
     "metrics": {
       "backend_id": "river_linear",
-      "mae": 45.044058,
-      "rmse": 45.651925,
-      "mape": 27.673847,
-      "smape": 32.204308,
-      "coverage_80": 0.714286,
-      "avg_width_80": 46.472328,
-      "wnc_80": 2.487842,
-      "coverage_90": 0.928571,
-      "avg_width_90": 60.004539,
-      "wnc_90": 2.50482,
-      "coverage_95": 1.0,
-      "avg_width_95": 67.260836,
-      "wnc_95": 2.406484,
-      "backtest_horizon": 14.0
+      "mae": 174.416179,
+      "rmse": 189.697851,
+      "mape": 35.184324,
+      "smape": 43.495941,
+      "coverage_80": 0.75,
+      "avg_width_80": 155.646406,
+      "wnc_80": 2.294464,
+      "coverage_90": 0.833333,
+      "avg_width_90": 176.395032,
+      "wnc_90": 2.249528,
+      "coverage_95": 0.833333,
+      "avg_width_95": 191.320653,
+      "wnc_95": 2.074034,
+      "backtest_horizon": 12.0
     },
     "artifacts": [
       {

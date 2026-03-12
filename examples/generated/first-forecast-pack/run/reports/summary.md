@@ -1,10 +1,10 @@
-# sales
+# monthly_car_sales
 
 - backend_selected: `stats_ets`
-- candidate_backends: `stats_ets, ml_ridge, seasonal_naive, naive, moving_average, stream_ewm`
+- candidate_backends: `stats_ets, ml_ridge, seasonal_naive, moving_average, naive, stream_ewm`
 - artifact_count: `10`
-- latest_observed: `164.0400`
-- projected_end: `168.9933`
+- latest_observed: `14577.0000`
+- projected_end: `17096.3906`
 
 Compared 6 backend(s) and routed the series to 'stats_ets'. Exported CSV, chart, card, markdown, and JSON artifacts.
 
@@ -18,12 +18,12 @@ Compared 6 backend(s) and routed the series to 'stats_ets'. Exported CSV, chart,
 
 | backend_id | mae | rmse | mape | smape | coverage_80 | avg_width_80 | wnc_80 | coverage_90 | avg_width_90 | wnc_90 | backtest_horizon |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| stats_ets | 2.66825 | 3.34 | 1.66006 | 1.66291 | 1 | 23.6706 | 6.83812 | 1 | 30.3805 | 5.32782 | 14 |
-| ml_ridge | 3.33187 | 4.0847 | 2.06825 | 2.09282 | 1 | 25.0098 | 6.47195 | 1 | 32.0994 | 5.04252 | 14 |
-| seasonal_naive | 4.40929 | 5.81541 | 2.72586 | 2.78914 | 1 | 32.5363 | 4.97482 | 1 | 41.7595 | 3.87606 | 14 |
-| naive | 7.06929 | 8.14532 | 4.32582 | 4.38346 | 1 | 65.2027 | 2.48245 | 1 | 83.6859 | 1.93416 | 14 |
-| moving_average | 7.38337 | 8.44123 | 4.50356 | 4.58144 | 1 | 65.2027 | 2.48245 | 1 | 83.6859 | 1.93416 | 14 |
-| stream_ewm | 8.83558 | 10.3431 | 5.32818 | 5.50834 | 1 | 65.2244 | 2.48162 | 1 | 83.7138 | 1.93352 | 14 |
+| stats_ets | 1325.07 | 1691.22 | 7.21191 | 7.494 | 1 | 10260.4 | 1.77655 | 1 | 13169 | 1.38417 | 12 |
+| ml_ridge | 1706.53 | 2073.44 | 9.16454 | 8.97637 | 1 | 12559.1 | 1.45139 | 1 | 16119.3 | 1.13083 | 12 |
+| seasonal_naive | 1959.5 | 2290.83 | 10.8324 | 11.6671 | 1 | 10746.5 | 1.6962 | 1 | 13792.9 | 1.32157 | 12 |
+| moving_average | 3567.9 | 4479.06 | 17.8548 | 19.7429 | 1 | 26157.6 | 0.696859 | 1 | 33572.6 | 0.542948 | 12 |
+| naive | 4599 | 5865.37 | 22.2688 | 26.5965 | 0.916667 | 26157.6 | 0.638787 | 1 | 33572.6 | 0.542948 | 12 |
+| stream_ewm | 5123.31 | 6107.27 | 25.693 | 30.5339 | 0.916667 | 25988.4 | 0.642946 | 1 | 33355.4 | 0.546483 | 12 |
 
 ## Artifacts
 - `data/history.csv`
