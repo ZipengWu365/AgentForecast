@@ -1,17 +1,23 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 import tempfile
 import unittest
 from pathlib import Path
 
-from agentforecast import ConformalSpec, forecast_dataset, shoot
+import pandas as pd
+
+from agentforecast import ConformalSpec, FeatureSpec, forecast_dataset, shoot
 from agentforecast.backends import is_backend_available, list_backends, route_backends
 from agentforecast.datasets import dataset_path, get_dataset_spec
+from agentforecast.features import build_feature_spec, prepare_series_frame
 from agentforecast.hosted import build_hosted_site
 from agentforecast.local import compare_backends_dataset, forecast_stream_csv
 from agentforecast.mcp_server import dispatch_jsonrpc
 from agentforecast.tool_server import dispatch_tool_call
+
+TSFRESH_AVAILABLE = importlib.util.find_spec("tsfresh") is not None
 
 
 class AgentForecastV17Tests(unittest.TestCase):
@@ -97,6 +103,51 @@ class AgentForecastV17Tests(unittest.TestCase):
             self.assertIn('upper_95', forecast_text)
             self.assertIn('coverage_90', result.metrics)
             self.assertIn('avg_width_90', result.metrics)
+
+    def test_build_feature_spec_supports_custom_lag_and_delay_features(self) -> None:
+        frame = pd.read_csv(dataset_path('gold-exogenous'))
+        prepared = prepare_series_frame(frame)
+        spec = build_feature_spec(
+            prepared.history,
+            feature_spec=FeatureSpec(
+                lag_points=(1, 5, 9),
+                lag_step=7,
+                lag_count=4,
+                rolling_windows=(3, 8, 21),
+                include_tsfresh=TSFRESH_AVAILABLE,
+                tsfresh_window=21,
+            ),
+        )
+        self.assertEqual(spec['lags'], [1, 5, 7, 9, 14, 21, 28])
+        self.assertEqual(spec['rolling_windows'], [3, 8, 21])
+        self.assertEqual(spec['lag_step'], 7)
+        self.assertEqual(spec['lag_count'], 4)
+        self.assertEqual(spec['include_tsfresh'], TSFRESH_AVAILABLE)
+        if TSFRESH_AVAILABLE:
+            self.assertIn('sample_entropy', spec['tsfresh_features'])
+
+    def test_forecast_dataset_accepts_custom_feature_spec(self) -> None:
+        custom = FeatureSpec(
+            lag_points=(1, 2, 7, 14),
+            lag_step=14,
+            lag_count=3,
+            rolling_windows=(3, 7, 14),
+            include_tsfresh=TSFRESH_AVAILABLE,
+            tsfresh_window=21,
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            result = forecast_dataset('gold-exogenous', backend='ml_ridge', outdir=tmp, feature_spec=custom)
+            self.assertEqual(result.feature_spec['lag_step'], 14)
+            self.assertEqual(result.feature_spec['lag_count'], 3)
+            self.assertIn(14, result.feature_spec['lags'])
+            self.assertEqual(result.feature_spec['include_tsfresh'], TSFRESH_AVAILABLE)
+
+    def test_time_series_regression_case_runs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            result = shoot('time-series-regression-lab', outdir=tmp)
+            self.assertEqual(result.feature_spec['mode'], 'time_series_regression_lab')
+            self.assertIn(result.backend_selected, result.candidate_backends)
+            self.assertIn('lags', result.feature_spec)
 
     def test_new_cross_domain_dataset_specs_exist(self) -> None:
         for dataset_id in ['gold-exogenous', 'grid-heatwave-stress', 'river-flood-risk', 'outpatient-no-show']:

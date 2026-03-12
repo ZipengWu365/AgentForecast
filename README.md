@@ -217,10 +217,52 @@ Optional extras after installation:
 pip install "agentforecast[stats]"
 pip install "agentforecast[ml]"
 pip install "agentforecast[stream]"
+pip install "agentforecast[features]"
 pip install "agentforecast[deep]"
 pip install "agentforecast[automl]"
 pip install "agentforecast[tabpfn]"
-pip install "agentforecast[stats,ml,stream]"
+pip install "agentforecast[stats,ml,stream,features]"
+```
+
+## Time Series To Regression
+
+`agentforecast` can now expose the regression framing directly instead of hiding it behind fixed defaults.
+
+You can choose specific lag points:
+
+```bash
+python -m agentforecast.cli forecast-dataset gold-exogenous \
+  --backend ml_ridge \
+  --lag-points 1,2,3,7,14,28 \
+  --rolling-windows 3,7,14 \
+  --outdir regression_demo
+```
+
+You can generate evenly spaced delay features:
+
+```bash
+python -m agentforecast.cli forecast-dataset gold-exogenous \
+  --backend ml_ridge \
+  --lag-step 7 \
+  --lag-count 6 \
+  --outdir spaced_delay_demo
+```
+
+You can also add a compact optional tsfresh descriptor layer:
+
+```bash
+python -m agentforecast.cli forecast-dataset gold-exogenous \
+  --backend ml_ridge \
+  --lag-points 1,2,3,7,14,28 \
+  --tsfresh \
+  --tsfresh-window 28 \
+  --outdir tsfresh_regression_demo
+```
+
+There is now a built-in runnable case for this workflow:
+
+```bash
+python -m agentforecast.cli run-case time-series-regression-lab --outdir case_demo
 ```
 
 ## Hosted gallery
@@ -288,6 +330,7 @@ Built-in cases include:
 
 - `github-breakout-radar`
 - `gold-forecaster-arena`
+- `time-series-regression-lab`
 - `air-quality-smoke-watch`
 - `icu-bed-stress-watch`
 - `beamline-drift-watch`

@@ -41,6 +41,9 @@ ml = [
 stream = [
   "river>=0.23"
 ]
+features = [
+  "tsfresh>=0.21"
+]
 deep = [
   "neuralforecast"
 ]
@@ -59,6 +62,7 @@ all = [
   "catboost>=1.2",
   "mlforecast",
   "river>=0.23",
+  "tsfresh>=0.21",
   "neuralforecast",
   "autogluon.timeseries",
   "tabpfn"
