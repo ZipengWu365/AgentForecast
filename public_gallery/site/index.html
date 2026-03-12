@@ -312,6 +312,10 @@ img {
   gap: 18px;
 }
 
+.hero-panel .stat-grid {
+  grid-template-columns: repeat(2, minmax(160px, 1fr));
+}
+
 .stat-grid,
 .feature-grid,
 .card-grid,
@@ -416,7 +420,9 @@ img {
   font-size: 0.88rem;
   color: #163063;
   overflow-x: auto;
-  white-space: pre;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .gallery-card {
@@ -635,6 +641,10 @@ img {
   .workflow-grid,
   .metric-grid,
   .artifact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-panel .stat-grid {
     grid-template-columns: 1fr;
   }
 }

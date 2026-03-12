@@ -93,16 +93,16 @@
         "backtest_horizon": 24.0
       },
       "artifacts": {
-        "history_csv": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/github-breakout/data/history.csv",
-        "forecast_csv": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/github-breakout/data/forecast.csv",
-        "leaderboard_csv": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/github-breakout/data/leaderboard.csv",
-        "forecast_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/github-breakout/plots/forecast.png",
-        "forecast_card_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/github-breakout/plots/forecast_card.png",
-        "comparison_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/github-breakout/plots/backend_comparison.png",
-        "leaderboard_card_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/github-breakout/plots/leaderboard_card.png",
-        "delta_card_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/github-breakout/plots/winner_vs_runnerup_delta.png",
-        "summary_markdown": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/github-breakout/reports/summary.md",
-        "metadata_json": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/github-breakout/meta/metadata.json"
+        "history_csv": "public_gallery/demo_runs/github-breakout/data/history.csv",
+        "forecast_csv": "public_gallery/demo_runs/github-breakout/data/forecast.csv",
+        "leaderboard_csv": "public_gallery/demo_runs/github-breakout/data/leaderboard.csv",
+        "forecast_png": "public_gallery/demo_runs/github-breakout/plots/forecast.png",
+        "forecast_card_png": "public_gallery/demo_runs/github-breakout/plots/forecast_card.png",
+        "comparison_png": "public_gallery/demo_runs/github-breakout/plots/backend_comparison.png",
+        "leaderboard_card_png": "public_gallery/demo_runs/github-breakout/plots/leaderboard_card.png",
+        "delta_card_png": "public_gallery/demo_runs/github-breakout/plots/winner_vs_runnerup_delta.png",
+        "summary_markdown": "public_gallery/demo_runs/github-breakout/reports/summary.md",
+        "metadata_json": "public_gallery/demo_runs/github-breakout/meta/metadata.json"
       },
       "public_artifacts": {
         "history_csv": "assets/github-breakout/history.csv",
@@ -202,16 +202,16 @@
         "backtest_horizon": 30.0
       },
       "artifacts": {
-        "history_csv": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/gold/data/history.csv",
-        "forecast_csv": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/gold/data/forecast.csv",
-        "leaderboard_csv": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/gold/data/leaderboard.csv",
-        "forecast_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/gold/plots/forecast.png",
-        "forecast_card_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/gold/plots/forecast_card.png",
-        "comparison_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/gold/plots/backend_comparison.png",
-        "leaderboard_card_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/gold/plots/leaderboard_card.png",
-        "delta_card_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/gold/plots/winner_vs_runnerup_delta.png",
-        "summary_markdown": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/gold/reports/summary.md",
-        "metadata_json": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/gold/meta/metadata.json"
+        "history_csv": "public_gallery/demo_runs/gold/data/history.csv",
+        "forecast_csv": "public_gallery/demo_runs/gold/data/forecast.csv",
+        "leaderboard_csv": "public_gallery/demo_runs/gold/data/leaderboard.csv",
+        "forecast_png": "public_gallery/demo_runs/gold/plots/forecast.png",
+        "forecast_card_png": "public_gallery/demo_runs/gold/plots/forecast_card.png",
+        "comparison_png": "public_gallery/demo_runs/gold/plots/backend_comparison.png",
+        "leaderboard_card_png": "public_gallery/demo_runs/gold/plots/leaderboard_card.png",
+        "delta_card_png": "public_gallery/demo_runs/gold/plots/winner_vs_runnerup_delta.png",
+        "summary_markdown": "public_gallery/demo_runs/gold/reports/summary.md",
+        "metadata_json": "public_gallery/demo_runs/gold/meta/metadata.json"
       },
       "public_artifacts": {
         "history_csv": "assets/gold/history.csv",
@@ -327,16 +327,16 @@
         "backtest_horizon": 14.0
       },
       "artifacts": {
-        "history_csv": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/sales/data/history.csv",
-        "forecast_csv": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/sales/data/forecast.csv",
-        "leaderboard_csv": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/sales/data/leaderboard.csv",
-        "forecast_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/sales/plots/forecast.png",
-        "forecast_card_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/sales/plots/forecast_card.png",
-        "comparison_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/sales/plots/backend_comparison.png",
-        "leaderboard_card_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/sales/plots/leaderboard_card.png",
-        "delta_card_png": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/sales/plots/winner_vs_runnerup_delta.png",
-        "summary_markdown": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/sales/reports/summary.md",
-        "metadata_json": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/public_gallery/demo_runs/sales/meta/metadata.json"
+        "history_csv": "public_gallery/demo_runs/sales/data/history.csv",
+        "forecast_csv": "public_gallery/demo_runs/sales/data/forecast.csv",
+        "leaderboard_csv": "public_gallery/demo_runs/sales/data/leaderboard.csv",
+        "forecast_png": "public_gallery/demo_runs/sales/plots/forecast.png",
+        "forecast_card_png": "public_gallery/demo_runs/sales/plots/forecast_card.png",
+        "comparison_png": "public_gallery/demo_runs/sales/plots/backend_comparison.png",
+        "leaderboard_card_png": "public_gallery/demo_runs/sales/plots/leaderboard_card.png",
+        "delta_card_png": "public_gallery/demo_runs/sales/plots/winner_vs_runnerup_delta.png",
+        "summary_markdown": "public_gallery/demo_runs/sales/reports/summary.md",
+        "metadata_json": "public_gallery/demo_runs/sales/meta/metadata.json"
       },
       "public_artifacts": {
         "history_csv": "assets/sales/history.csv",
