@@ -1,0 +1,852 @@
+<!doctype html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>Time series to regression with custom lags</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+  --bg: #ffffff;
+  --bg-soft: #fffdf5;
+  --surface: #fafafa;
+  --surface-strong: #ffffff;
+  --card: #fafafa;
+  --text: #1f2937;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --border-strong: #d8dde6;
+  --sun: #ffc83d;
+  --sun-soft: #fff4c2;
+  --sun-strong: #efb81c;
+  --blue: #2f6bff;
+  --blue-soft: #eef4ff;
+  --success: #1f8a5b;
+  --warning: #ac6a00;
+  --shadow-sm: 0 10px 30px rgba(31, 41, 55, 0.06);
+  --shadow-lg: 0 18px 60px rgba(31, 41, 55, 0.1);
+  --radius-xl: 28px;
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  background:
+    radial-gradient(circle at top left, rgba(255, 244, 194, 0.68), transparent 28%),
+    radial-gradient(circle at top right, rgba(47, 107, 255, 0.08), transparent 26%),
+    var(--bg);
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--text);
+  line-height: 1.55;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+.shell {
+  width: min(1180px, calc(100vw - 32px));
+  margin: 0 auto;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.84);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.9);
+}
+
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.brand-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, var(--sun), #ffe27a);
+  color: #111827;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.brand-copy small,
+.eyebrow,
+.meta-line,
+.muted,
+.footer-note {
+  color: var(--text-muted);
+}
+
+.brand-copy strong {
+  display: block;
+  font-size: 0.97rem;
+}
+
+.brand-copy small {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.76rem;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  color: var(--text-muted);
+  font-size: 0.94rem;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+}
+
+.button-primary {
+  background: linear-gradient(135deg, var(--sun), #ffe27a);
+  color: #111827;
+  box-shadow: var(--shadow-sm);
+}
+
+.button-secondary {
+  background: var(--surface-strong);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.page {
+  padding: 40px 0 72px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.9fr);
+  gap: 28px;
+  padding: 28px;
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(250, 250, 250, 0.98)),
+    linear-gradient(145deg, rgba(255, 200, 61, 0.12), rgba(47, 107, 255, 0.05));
+  border: 1px solid rgba(229, 231, 235, 0.9);
+  box-shadow: var(--shadow-lg);
+}
+
+.hero h1,
+.section-head h2,
+.case-header h1 {
+  margin: 0;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.hero h1 {
+  font-size: clamp(2.6rem, 5vw, 4.7rem);
+  max-width: 11ch;
+}
+
+.hero-copy p {
+  margin: 18px 0 0;
+  font-size: 1.06rem;
+  max-width: 64ch;
+  color: var(--text-muted);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.eyebrow::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--sun);
+  box-shadow: 0 0 0 6px rgba(255, 200, 61, 0.18);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  color: var(--text-muted);
+  font-size: 0.87rem;
+  font-weight: 600;
+}
+
+.pill-accent {
+  background: var(--sun-soft);
+  border-color: rgba(255, 200, 61, 0.35);
+  color: #805400;
+}
+
+.pill-blue {
+  background: var(--blue-soft);
+  border-color: rgba(47, 107, 255, 0.18);
+  color: var(--blue);
+}
+
+.author-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.author-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.author-pill strong {
+  color: var(--text);
+}
+
+.author-pill-uob {
+  background: rgba(156, 28, 64, 0.08);
+  border-color: rgba(156, 28, 64, 0.18);
+  color: #7b1733;
+}
+
+.author-mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: linear-gradient(145deg, var(--sun), #ffe27a);
+  color: #111827;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.panel {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.hero-panel {
+  padding: 22px;
+  display: grid;
+  gap: 18px;
+}
+
+.hero-panel .stat-grid {
+  grid-template-columns: repeat(2, minmax(160px, 1fr));
+}
+
+.stat-grid,
+.feature-grid,
+.card-grid,
+.workflow-grid,
+.metric-grid,
+.artifact-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.stat-grid,
+.feature-grid,
+.workflow-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.card-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.metric-grid,
+.artifact-grid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.stat-card,
+.feature-card,
+.workflow-card,
+.gallery-card,
+.artifact-card,
+.metric-card,
+.bench-card,
+.case-panel {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+
+.stat-card,
+.metric-card {
+  padding: 16px;
+}
+
+.stat-card strong,
+.metric-card strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 1.42rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.feature-card,
+.workflow-card,
+.bench-card,
+.case-panel {
+  padding: 18px;
+}
+
+.feature-card h3,
+.workflow-card h3,
+.section-head h2,
+.gallery-card h3,
+.bench-card h3,
+.case-panel h3 {
+  margin: 0 0 10px;
+}
+
+.section {
+  margin-top: 28px;
+  padding: 28px;
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(229, 231, 235, 0.9);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--shadow-sm);
+}
+
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.section-head h2 {
+  font-size: clamp(1.9rem, 3vw, 2.7rem);
+}
+
+.section-head p {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.code-block {
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(47, 107, 255, 0.12);
+  background: #f8fbff;
+  padding: 16px 18px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.88rem;
+  color: #163063;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.gallery-card {
+  overflow: hidden;
+  transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
+}
+
+.gallery-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(255, 200, 61, 0.48);
+}
+
+.gallery-card-media {
+  padding: 16px 16px 0;
+}
+
+.gallery-card-media img {
+  border-radius: 16px;
+  border: 1px solid rgba(229, 231, 235, 0.85);
+  background: #fff;
+}
+
+.gallery-card-body {
+  padding: 18px;
+}
+
+.gallery-card-headline {
+  color: var(--text-muted);
+  min-height: 48px;
+}
+
+.gallery-card-footer,
+.mini-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mini-row {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.table thead th {
+  background: #fffdf6;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.table th,
+.table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.table tr:last-child td {
+  border-bottom: 0;
+}
+
+.artifact-card {
+  padding: 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.artifact-card strong {
+  font-size: 0.95rem;
+}
+
+.artifact-card code,
+.mono {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.artifact-card code {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  word-break: break-word;
+}
+
+.artifact-card a {
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.case-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.78fr);
+  gap: 24px;
+  padding: 28px;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+  background: linear-gradient(160deg, rgba(255, 244, 194, 0.28), rgba(255, 255, 255, 0.94) 40%, rgba(47, 107, 255, 0.05));
+  box-shadow: var(--shadow-lg);
+}
+
+.case-header h1 {
+  font-size: clamp(2.2rem, 4vw, 4rem);
+}
+
+.case-lead {
+  color: var(--text-muted);
+  max-width: 64ch;
+}
+
+.case-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.case-media img {
+  border-radius: 20px;
+  border: 1px solid rgba(229, 231, 235, 0.9);
+  box-shadow: var(--shadow-sm);
+}
+
+.stack {
+  display: grid;
+  gap: 18px;
+}
+
+.footer {
+  margin-top: 32px;
+  padding: 24px 0 8px;
+}
+
+.footer-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 22px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: linear-gradient(145deg, #fffefb, #ffffff);
+  box-shadow: var(--shadow-sm);
+}
+
+.footer-note {
+  font-size: 0.92rem;
+}
+
+@media (max-width: 980px) {
+  .hero,
+  .case-header {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-grid,
+  .feature-grid,
+  .workflow-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .shell {
+    width: min(100vw - 20px, 1180px);
+  }
+
+  .topbar-inner,
+  .section-head,
+  .footer-card,
+  .gallery-card-footer,
+  .mini-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .page {
+    padding: 24px 0 48px;
+  }
+
+  .hero,
+  .section,
+  .case-header {
+    padding: 20px;
+  }
+
+  .hero h1,
+  .case-header h1 {
+    max-width: none;
+  }
+
+  .stat-grid,
+  .feature-grid,
+  .workflow-grid,
+  .metric-grid,
+  .artifact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-panel .stat-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.example-card-grid,
+.media-grid,
+.learn-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.example-card-grid,
+.media-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.learn-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.learn-card,
+.note-card,
+.media-card {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.learn-card,
+.note-card {
+  padding: 18px;
+}
+
+.learn-card strong,
+.note-card strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.example-meta,
+.breadcrumbs,
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.breadcrumbs {
+  margin-bottom: 18px;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.breadcrumbs a {
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: var(--sun-soft);
+  border: 1px solid rgba(255, 200, 61, 0.35);
+  color: #805400;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.example-card {
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
+}
+
+.example-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(47, 107, 255, 0.18);
+}
+
+.example-card img,
+.media-card img {
+  width: 100%;
+  border-bottom: 1px solid var(--border);
+}
+
+.example-card-body,
+.media-card-body {
+  padding: 18px;
+}
+
+.example-card p,
+.media-card p {
+  color: var(--text-muted);
+}
+
+.section-kicker {
+  margin: 0 0 10px;
+  color: var(--blue);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.note-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.media-card h3 {
+  margin: 0 0 10px;
+}
+
+@media (max-width: 720px) {
+  .example-card-grid,
+  .media-grid,
+  .learn-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+<header class='topbar'><div class='shell topbar-inner'><a class='brand' href='../index.html'><span class='brand-mark'>AF</span><span class='brand-copy'><strong>agentforecast</strong><small>tutorial-grade runnable examples</small></span></a><nav class='nav-links'><a class='nav-link' href='../index.html#examples'>Examples</a><a class='nav-link' href='../feed.json'>Feed</a><a class='button button-primary' href='../index.html#examples'>Browse examples</a></nav></div></header><main class='page'><div class='shell'><div class='breadcrumbs'><a href='../index.html'>Examples</a><span>/</span><span>Time series to regression with custom lags</span></div><section class='case-header'><div><div class='eyebrow'>Time Series As Regression</div><h1>Time series to regression with custom lags</h1><p class='case-lead'>Turn a sequence with exogenous signals into a supervised regression problem with lag points, spaced delays, rolling windows, and optional tsfresh descriptors.</p><div class='tag-row'><span class='tag'>lag-features</span><span class='tag'>regression</span><span class='tag'>tsfresh</span></div><div class='author-strip'><a class='author-pill' href='mailto:zxw365@student.bham.ac.uk'><span class='author-mark'>ZW</span><span><strong>Zipeng Wu</strong></span></a><span class='author-pill author-pill-uob'>The University of Birmingham</span><a class='author-pill' href='mailto:zxw365@student.bham.ac.uk'>zxw365@student.bham.ac.uk</a></div></div><div class='case-panel'><h3>Dataset context</h3><div class='muted'>Gold with exogenous signals</div><div class='muted'>Gold-like target with demo DXY, VIX, and 10Y-yield style exogenous columns.</div><div class='muted'>Provenance: Bundled synthetic exogenous-feature demo dataset.</div></div></section><section class='section'><div class='section-head'><div><div class='section-kicker'>Why this example</div><h2>What it teaches</h2></div><p>This is the clearest example of the package framing a time series as a tabular regression problem instead of hiding the feature layer.</p></div><div class='learn-grid'><article class='learn-card'><strong>Step 1</strong><div class='muted'>Choose explicit lag points for short and medium memory.</div></article><article class='learn-card'><strong>Step 2</strong><div class='muted'>Add evenly spaced delay features with lag_step and lag_count.</div></article><article class='learn-card'><strong>Step 3</strong><div class='muted'>Optionally extend the feature block with tsfresh descriptors when the extra is installed.</div></article></div><div class='note-stack'><article class='note-card'><strong>Note</strong><div class='muted'>`tsfresh` was installed in this environment, so compact tsfresh descriptors were included.</div></article></div></section><section class='section'><div class='section-head'><div><div class='section-kicker'>Run it</div><h2>CLI and source</h2></div><p>Use the command below or adapt the source script directly.</p></div><div class='code-block'>python -m agentforecast.cli forecast-dataset gold-exogenous --backend ml_ridge --lag-points 1,2,3,7,14,28 --lag-step 7 --lag-count 4 --rolling-windows 3,7,14,28 --outdir examples/generated/time-series-as-regression --tsfresh --tsfresh-window 28</div><div class='code-block'>from __future__ import annotations
+
+from pathlib import Path
+import importlib.util
+import sys
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+
+from agentforecast import FeatureSpec, forecast_dataset
+
+
+def main() -&gt; None:
+    outdir = ROOT / &quot;examples&quot; / &quot;generated&quot; / &quot;time-series-as-regression&quot;
+    include_tsfresh = importlib.util.find_spec(&quot;tsfresh&quot;) is not None
+    feature_spec = FeatureSpec(
+        mode=&quot;tutorial_regression&quot;,
+        lag_points=(1, 2, 3, 7, 14, 28),
+        lag_step=7,
+        lag_count=4,
+        rolling_windows=(3, 7, 14, 28),
+        include_tsfresh=include_tsfresh,
+        tsfresh_window=28,
+    )
+    result = forecast_dataset(&quot;gold-exogenous&quot;, backend=&quot;ml_ridge&quot;, outdir=outdir, feature_spec=feature_spec)
+    print(result.summary[&quot;headline&quot;])
+    print((outdir / &quot;gold-exogenous&quot; / &quot;plots&quot; / &quot;forecast.png&quot;).resolve())
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</div></section><section class='section'><div class='section-head'><div><div class='section-kicker'>Result</div><h2>Executed outcome</h2></div><p>Compared 1 backend(s) and routed the series to &#x27;ml_ridge&#x27;. Exported CSV, chart, card, markdown, and JSON artifacts.</p></div><div class='metric-grid'><article class='metric-card'><div class='muted'>Selected backend</div><strong>ml_ridge</strong></article><article class='metric-card'><div class='muted'>Dataset</div><strong>gold-exogenous</strong></article><article class='metric-card'><div class='muted'>Horizon</div><strong>30</strong></article><article class='metric-card'><div class='muted'>MAE</div><strong>5.264</strong></article><article class='metric-card'><div class='muted'>Projected end</div><strong>2,124</strong></article><article class='metric-card'><div class='muted'>Artifacts</div><strong>12</strong></article><article class='metric-card'><div class='muted'>Coverage 90</div><strong>1</strong></article><article class='metric-card'><div class='muted'>Avg width 90</div><strong>49.031</strong></article></div></section><section class='section'><div class='section-head'><div><div class='section-kicker'>Visuals</div><h2>Generated charts and cards</h2></div><p>These previews are copied from the real run artifacts written under the example output directory.</p></div><div class='media-grid'><article class='media-card'><a href='../assets/time-series-as-regression/forecast.png'><img src='../assets/time-series-as-regression/forecast.png' alt='Forecast chart'></a><div class='media-card-body'><h3>Forecast chart</h3><p>forecast_png</p></div></article><article class='media-card'><a href='../assets/time-series-as-regression/backend_comparison.png'><img src='../assets/time-series-as-regression/backend_comparison.png' alt='Backend comparison'></a><div class='media-card-body'><h3>Backend comparison</h3><p>comparison_png</p></div></article><article class='media-card'><a href='../assets/time-series-as-regression/forecast_card.png'><img src='../assets/time-series-as-regression/forecast_card.png' alt='Forecast card'></a><div class='media-card-body'><h3>Forecast card</h3><p>forecast_card_png</p></div></article><article class='media-card'><a href='../assets/time-series-as-regression/leaderboard_card.png'><img src='../assets/time-series-as-regression/leaderboard_card.png' alt='Leaderboard card'></a><div class='media-card-body'><h3>Leaderboard card</h3><p>leaderboard_card_png</p></div></article><article class='media-card'><a href='../assets/time-series-as-regression/winner_vs_runnerup_delta.png'><img src='../assets/time-series-as-regression/winner_vs_runnerup_delta.png' alt='Winner delta card'></a><div class='media-card-body'><h3>Winner delta card</h3><p>delta_card_png</p></div></article></div></section><section class='section'><div class='section-head'><div><div class='section-kicker'>Leaderboard</div><h2>Backend evidence</h2></div><p>The winning backend is shown together with the competing candidates.</p></div><div class='table-wrap'><table class='table'><thead><tr><th>Backend</th><th>MAE</th><th>RMSE</th><th>sMAPE</th></tr></thead><tbody><tr><td><span class='badge'>ml_ridge</span></td><td>5.264</td><td>6.579</td><td>0.251</td></tr></tbody></table></div></section><section class='section'><div class='section-head'><div><div class='section-kicker'>Routing</div><h2>Routing rationale</h2></div><p>The package keeps routing visible so backend choice is inspectable.</p></div><div class='code-block'>{
+  &quot;profile&quot;: &quot;explicit&quot;,
+  &quot;reason&quot;: &quot;explicit_backend_selected&quot;,
+  &quot;candidate_backends&quot;: [
+    &quot;ml_ridge&quot;
+  ],
+  &quot;recommended_extras&quot;: []
+}</div></section><section class='section'><div class='section-head'><div><div class='section-kicker'>Uncertainty</div><h2>Conformal diagnostics</h2></div><p>Coverage and interval width are part of the example, not an afterthought.</p></div><div class='code-block'>{
+  &quot;enabled&quot;: false,
+  &quot;requested_method&quot;: &quot;auto&quot;,
+  &quot;method&quot;: &quot;residual_heuristic&quot;,
+  &quot;levels&quot;: [
+    80,
+    90
+  ],
+  &quot;calibration_window&quot;: 200,
+  &quot;warmup_min&quot;: 40,
+  &quot;symmetric&quot;: true,
+  &quot;horizon_aware&quot;: true,
+  &quot;effective_horizon_aware&quot;: false,
+  &quot;calibration_size&quot;: 30,
+  &quot;native_levels&quot;: [],
+  &quot;fallback_reason&quot;: null,
+  &quot;backend_id&quot;: &quot;ml_ridge&quot;,
+  &quot;coverage_backtest&quot;: {
+    &quot;80&quot;: 1.0,
+    &quot;90&quot;: 1.0
+  },
+  &quot;mean_interval_width&quot;: {
+    &quot;80&quot;: 38.202136,
+    &quot;90&quot;: 49.03144
+  },
+  &quot;width_normalized_coverage&quot;: {
+    &quot;80&quot;: 54.648457,
+    &quot;90&quot;: 42.578553
+  },
+  &quot;backend_tags&quot;: [
+    &quot;fast&quot;,
+    &quot;low_data&quot;,
+    &quot;tabular&quot;
+  ]
+}</div></section><section class='section'><div class='section-head'><div><div class='section-kicker'>Artifacts</div><h2>Open exported files</h2></div><p>The example page links directly to the copied artifacts so you can inspect data, reports, and metadata without leaving the site.</p></div><div class='artifact-grid'><article class='artifact-card'><strong>history_csv</strong><code>assets/time-series-as-regression/history.csv</code><a href='../assets/time-series-as-regression/history.csv'>Open artifact</a></article><article class='artifact-card'><strong>forecast_csv</strong><code>assets/time-series-as-regression/forecast.csv</code><a href='../assets/time-series-as-regression/forecast.csv'>Open artifact</a></article><article class='artifact-card'><strong>leaderboard_csv</strong><code>assets/time-series-as-regression/leaderboard.csv</code><a href='../assets/time-series-as-regression/leaderboard.csv'>Open artifact</a></article><article class='artifact-card'><strong>forecast_png</strong><code>assets/time-series-as-regression/forecast.png</code><a href='../assets/time-series-as-regression/forecast.png'>Open artifact</a></article><article class='artifact-card'><strong>forecast_card_png</strong><code>assets/time-series-as-regression/forecast_card.png</code><a href='../assets/time-series-as-regression/forecast_card.png'>Open artifact</a></article><article class='artifact-card'><strong>comparison_png</strong><code>assets/time-series-as-regression/backend_comparison.png</code><a href='../assets/time-series-as-regression/backend_comparison.png'>Open artifact</a></article><article class='artifact-card'><strong>leaderboard_card_png</strong><code>assets/time-series-as-regression/leaderboard_card.png</code><a href='../assets/time-series-as-regression/leaderboard_card.png'>Open artifact</a></article><article class='artifact-card'><strong>delta_card_png</strong><code>assets/time-series-as-regression/winner_vs_runnerup_delta.png</code><a href='../assets/time-series-as-regression/winner_vs_runnerup_delta.png'>Open artifact</a></article><article class='artifact-card'><strong>summary_markdown</strong><code>assets/time-series-as-regression/summary.md</code><a href='../assets/time-series-as-regression/summary.md'>Open artifact</a></article><article class='artifact-card'><strong>metadata_json</strong><code>assets/time-series-as-regression/metadata.json</code><a href='../assets/time-series-as-regression/metadata.json'>Open artifact</a></article><article class='artifact-card'><strong>source_py</strong><code>assets/time-series-as-regression/time_series_as_regression.py</code><a href='../assets/time-series-as-regression/time_series_as_regression.py'>Open artifact</a></article><article class='artifact-card'><strong>example_json</strong><code>assets/time-series-as-regression/example.json</code><a href='../assets/time-series-as-regression/example.json'>Open artifact</a></article></div></section></div></main>
+</body>
+</html>

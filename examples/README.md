@@ -1,54 +1,91 @@
 # Examples
 
-This folder is organized around the easiest paths for first-time users.
+`agentforecast` now ships with a tutorial-style examples hub instead of a thin command list.
 
-## Base quickstart
+Every curated example has:
 
-```bash
-python -m agentforecast.cli shoot sales --outdir demo
-```
+- a runnable source script under `examples/scripts/`
+- a real generated pack under `examples/generated/`
+- a static tutorial page under `examples/site/`
+- copied plots, cards, CSV, markdown, and JSON artifacts
 
-## Compare backends on one dataset
-
-```bash
-python -m agentforecast.cli compare-dataset gold --backends naive,stats_arima,ml_ridge,stream_ewm --outdir arena
-```
-
-## Time series to regression demo
+## Generate The Full Hub
 
 ```bash
-python -m agentforecast.cli run-case time-series-regression-lab --outdir regression_case
-python -m agentforecast.cli forecast-dataset gold-exogenous --backend ml_ridge --lag-points 1,2,3,7,14,28 --tsfresh --outdir regression_features
+python -m agentforecast.cli demo-examples --outdir examples/generated --site-dir examples/site
 ```
 
-## Streaming demo
+Open:
+
+```text
+examples/site/index.html
+```
+
+## Curated Examples
+
+| Example id | Focus | Script |
+| --- | --- | --- |
+| `first-forecast-pack` | first end-to-end forecast pack with the stable artifact contract | `examples/scripts/first_forecast_pack.py` |
+| `backend-arena` | backend comparison and leaderboard-driven model choice | `examples/scripts/backend_arena.py` |
+| `time-series-as-regression` | lag points, spaced delays, rolling windows, optional tsfresh descriptors | `examples/scripts/time_series_as_regression.py` |
+| `calibrated-intervals` | conformal prediction intervals and interval diagnostics | `examples/scripts/calibrated_intervals.py` |
+| `streaming-drift-watch` | streaming forecasting and drift monitoring artifacts | `examples/scripts/streaming_drift_watch.py` |
+
+## Useful Commands
+
+List the curated examples:
 
 ```bash
-python -m agentforecast.cli run-case icu-bed-stress-watch --outdir demo
+python -m agentforecast.cli list-examples
 ```
 
-## Hosted gallery demo
+Rebuild the site from existing generated runs:
 
 ```bash
-python -m agentforecast.cli demo-gallery --outdir public_gallery/demo_runs --site-dir public_gallery/site
+python -m agentforecast.cli build-examples --runs-root examples/generated --site-dir examples/site
 ```
 
-## Beginner notebooks
+Generate only a subset:
 
-- `forecast_your_csv.ipynb`
-- `url_to_pack.ipynb`
-- `messy_csv_cleanup.ipynb`
-- `compare_methods_on_one_series.ipynb`
-- `gold_price_with_exogenous_csv.ipynb`
-- `choose_backend_by_strategy.ipynb`
-- `when_ridge_beats_transformer.ipynb`
+```bash
+python -m agentforecast.cli demo-examples --examples first-forecast-pack,time-series-as-regression --outdir examples/generated --site-dir examples/site
+```
+
+## Direct Commands
+
+Quick onboarding:
+
+```bash
+python -m agentforecast.cli shoot sales --outdir examples/generated/first-forecast-pack
+```
+
+Backend arena:
+
+```bash
+python -m agentforecast.cli compare-dataset gold --backends naive,moving_average,stats_arima,stats_ets,ml_ridge,stream_ewm --outdir examples/generated/backend-arena
+```
+
+Time series as regression:
+
+```bash
+python -m agentforecast.cli forecast-dataset gold-exogenous --backend ml_ridge --lag-points 1,2,3,7,14,28 --lag-step 7 --lag-count 4 --rolling-windows 3,7,14,28 --outdir examples/generated/time-series-as-regression
+```
+
+Conformal intervals:
+
+```bash
+python -m agentforecast.cli forecast-dataset sales --backend stream_ewm --conformal --conformal-method rolling_residual --levels 80,90,95 --calibration-window 60 --warmup-min 10 --outdir examples/generated/calibrated-intervals
+```
+
+Streaming watch:
+
+```bash
+python -m agentforecast.cli forecast-stream agentforecast/package_data/datasets/icu_bed_stress.csv --backend stream_ewm --horizon 14 --outdir examples/generated/streaming-drift-watch
+```
+
+## Related Material
+
 - `time_series_to_regression.md`
-
-## Cross-disciplinary notebooks
-
-- `icu_bed_stress_watch.ipynb`
-- `beamline_drift_watch.ipynb`
-- `air_quality_smoke_watch.ipynb`
-- `grid_heatwave_stress_watch.ipynb`
-- `river_flood_risk_watch.ipynb`
-- `outpatient_no_show_watch.ipynb`
+- `examples/scripts/`
+- `examples/generated/`
+- `examples/site/`

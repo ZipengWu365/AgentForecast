@@ -1,0 +1,304 @@
+{
+  "example_id": "streaming-drift-watch",
+  "category": "Streaming Operations",
+  "title": "Streaming forecast with drift monitoring",
+  "lead": "Run a streaming backend on ICU bed stress data and publish a drift alert card alongside the forecast pack.",
+  "dataset_id": "icu-bed-stress",
+  "why_it_matters": "This example shows how the same product surface supports monitoring-style time series, not just static offline forecasts.",
+  "tutorial_steps": [
+    "Choose a streaming backend and forecast in monitoring mode.",
+    "Inspect the drift diagnostics and drift alert card.",
+    "Use the same artifacts for dashboards, alerts, and agent workflows."
+  ],
+  "tags": [
+    "streaming",
+    "monitoring",
+    "drift"
+  ],
+  "script_path": "examples/scripts/streaming_drift_watch.py",
+  "pack_dir": "run",
+  "cli_command": "python -m agentforecast.cli forecast-stream agentforecast/package_data/datasets/icu_bed_stress.csv --backend river_snarimax --horizon 14 --outdir examples/generated/streaming-drift-watch",
+  "runtime_notes": [
+    "This run used the River streaming forecaster path."
+  ],
+  "script_source": "from __future__ import annotations\n\nfrom pathlib import Path\nimport sys\n\nROOT = Path(__file__).resolve().parents[2]\nsys.path.insert(0, str(ROOT))\n\nfrom agentforecast import forecast_stream_csv\nfrom agentforecast.backends import is_backend_available\nfrom agentforecast.datasets import dataset_path\n\n\ndef main() -> None:\n    outdir = ROOT / \"examples\" / \"generated\" / \"streaming-drift-watch\"\n    backend = \"river_snarimax\" if is_backend_available(\"river_snarimax\") else \"stream_ewm\"\n    result = forecast_stream_csv(dataset_path(\"icu-bed-stress\"), backend=backend, horizon=14, outdir=outdir)\n    print(result.summary[\"headline\"])\n    print((outdir / \"icu-bed-stress\" / \"plots\" / \"drift_alert_card.png\").resolve())\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "result": {
+    "run_type": "forecast_stream_csv",
+    "backend_selected": "river_snarimax",
+    "candidate_backends": [
+      "river_snarimax"
+    ],
+    "feature_spec": {
+      "mode": "auto",
+      "lags": [
+        1,
+        2,
+        3,
+        7,
+        14,
+        21,
+        28
+      ],
+      "lag_points": [],
+      "lag_step": null,
+      "lag_count": null,
+      "rolling_windows": [
+        3,
+        7,
+        14
+      ],
+      "include_calendar": true,
+      "calendar_features": [
+        "dayofweek",
+        "month",
+        "day",
+        "dayofyear",
+        "is_month_start",
+        "is_month_end",
+        "ordinal",
+        "sin_dayofyear",
+        "cos_dayofyear"
+      ],
+      "include_tsfresh": false,
+      "tsfresh_window": 30,
+      "tsfresh_features": [],
+      "include_exogenous": true,
+      "exogenous_cols": [
+        "respiratory_visits",
+        "staff_shortage_index"
+      ]
+    },
+    "inputs": {
+      "name": "icu_bed_stress",
+      "horizon": 14,
+      "strategy": "streaming",
+      "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/datasets/icu_bed_stress.csv",
+      "date_col": "ds",
+      "value_col": "y",
+      "series_kind": "price",
+      "candidate_backends": [
+        "river_snarimax"
+      ],
+      "csv_path": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/datasets/icu_bed_stress.csv"
+    },
+    "summary": {
+      "headline": "icu_bed_stress: river_snarimax won the backend comparison and produced a publishable pack.",
+      "latest_observed": 93.42,
+      "projected_end": 94.69035258158456,
+      "artifact_count": 10,
+      "narrative": "Compared 1 backend(s) and routed the series to 'river_snarimax'. Exported CSV, chart, card, markdown, and JSON artifacts.",
+      "conformal_method": "residual_heuristic",
+      "routing_reason": "explicit_backend_selected"
+    },
+    "diagnostics": {
+      "leaderboard": [
+        {
+          "backend_id": "river_snarimax",
+          "mae": 7.474171,
+          "rmse": 8.4898,
+          "mape": 8.449561,
+          "smape": 8.000926,
+          "coverage_80": 1.0,
+          "avg_width_80": 30.048472,
+          "wnc_80": 3.015675,
+          "coverage_90": 1.0,
+          "avg_width_90": 38.566426,
+          "wnc_90": 2.34962,
+          "backtest_horizon": 14
+        }
+      ],
+      "conformal": {
+        "enabled": false,
+        "requested_method": "auto",
+        "method": "residual_heuristic",
+        "levels": [
+          80,
+          90
+        ],
+        "calibration_window": 200,
+        "warmup_min": 40,
+        "symmetric": true,
+        "horizon_aware": true,
+        "effective_horizon_aware": false,
+        "calibration_size": 14,
+        "native_levels": [],
+        "fallback_reason": null,
+        "backend_id": "river_snarimax",
+        "coverage_backtest": {
+          "80": 1.0,
+          "90": 1.0
+        },
+        "mean_interval_width": {
+          "80": 30.048472,
+          "90": 38.566426
+        },
+        "width_normalized_coverage": {
+          "80": 3.015675,
+          "90": 2.34962
+        },
+        "backend_tags": [
+          "streaming",
+          "accurate",
+          "supports_conformal_residual",
+          "supports_conformal_horizon"
+        ]
+      },
+      "conformal_by_backend": {
+        "river_snarimax": {
+          "enabled": false,
+          "requested_method": "auto",
+          "method": "residual_heuristic",
+          "levels": [
+            80,
+            90
+          ],
+          "calibration_window": 200,
+          "warmup_min": 40,
+          "symmetric": true,
+          "horizon_aware": true,
+          "effective_horizon_aware": false,
+          "calibration_size": 14,
+          "native_levels": [],
+          "fallback_reason": null,
+          "backend_id": "river_snarimax",
+          "coverage_backtest": {
+            "80": 1.0,
+            "90": 1.0
+          },
+          "mean_interval_width": {
+            "80": 30.048472,
+            "90": 38.566426
+          },
+          "width_normalized_coverage": {
+            "80": 3.015675,
+            "90": 2.34962
+          },
+          "backend_tags": [
+            "streaming",
+            "accurate",
+            "supports_conformal_residual",
+            "supports_conformal_horizon"
+          ]
+        }
+      },
+      "cleanup": {
+        "cleanup_applied": false,
+        "missing_points_filled": 0,
+        "duplicate_timestamps_merged": 0,
+        "inferred_frequency": "D",
+        "step_seconds": 86400.0,
+        "exogenous_cols": [
+          "respiratory_visits",
+          "staff_shortage_index"
+        ],
+        "future_feature_policy": "use_provided_then_carry_last"
+      },
+      "routing": {
+        "profile": "explicit",
+        "history_len": 100,
+        "horizon": 14,
+        "candidate_backends": [
+          "river_snarimax"
+        ],
+        "missing_backends": [],
+        "recommended_extras": [],
+        "reason": "explicit_backend_selected"
+      },
+      "streaming": {
+        "backend_family": "streaming",
+        "rolling_mae_last_5": 4.216268548128037,
+        "baseline_mae_first_5": 3.5716218131969297,
+        "drift_ratio": 1.1804913198114022,
+        "drift_alert": false
+      }
+    },
+    "metrics": {
+      "backend_id": "river_snarimax",
+      "mae": 7.474171,
+      "rmse": 8.4898,
+      "mape": 8.449561,
+      "smape": 8.000926,
+      "coverage_80": 1.0,
+      "avg_width_80": 30.048472,
+      "wnc_80": 3.015675,
+      "coverage_90": 1.0,
+      "avg_width_90": 38.566426,
+      "wnc_90": 2.34962,
+      "backtest_horizon": 14.0
+    },
+    "artifacts": [
+      {
+        "kind": "history_csv",
+        "path": "data/history.csv",
+        "media_type": "text/csv",
+        "description": "Normalized history"
+      },
+      {
+        "kind": "forecast_csv",
+        "path": "data/forecast.csv",
+        "media_type": "text/csv",
+        "description": "Winner backend forecast"
+      },
+      {
+        "kind": "leaderboard_csv",
+        "path": "data/leaderboard.csv",
+        "media_type": "text/csv",
+        "description": "Backend comparison leaderboard"
+      },
+      {
+        "kind": "forecast_png",
+        "path": "plots/forecast.png",
+        "media_type": "image/png",
+        "description": "Forecast chart"
+      },
+      {
+        "kind": "forecast_card_png",
+        "path": "plots/forecast_card.png",
+        "media_type": "image/png",
+        "description": "Shareable forecast card"
+      },
+      {
+        "kind": "comparison_png",
+        "path": "plots/backend_comparison.png",
+        "media_type": "image/png",
+        "description": "Backend comparison chart"
+      },
+      {
+        "kind": "leaderboard_card_png",
+        "path": "plots/leaderboard_card.png",
+        "media_type": "image/png",
+        "description": "Leaderboard card"
+      },
+      {
+        "kind": "delta_card_png",
+        "path": "plots/winner_vs_runnerup_delta.png",
+        "media_type": "image/png",
+        "description": "Winner vs runner-up delta card"
+      },
+      {
+        "kind": "summary_markdown",
+        "path": "reports/summary.md",
+        "media_type": "text/markdown",
+        "description": "Human-readable report"
+      },
+      {
+        "kind": "metadata_json",
+        "path": "meta/metadata.json",
+        "media_type": "application/json",
+        "description": "Structured compare result"
+      },
+      {
+        "kind": "drift_alert_card_png",
+        "path": "plots/drift_alert_card.png",
+        "media_type": "image/png",
+        "description": "Streaming drift alert card"
+      }
+    ],
+    "warnings": [],
+    "used_live_data": false,
+    "kind": "agentforecast.run_result",
+    "schema_version": "1.0.0",
+    "schema_ref": "package://agentforecast/package_data/schemas/run_result.schema.json",
+    "tool_version": "1.7.0"
+  }
+}

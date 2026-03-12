@@ -265,6 +265,56 @@ There is now a built-in runnable case for this workflow:
 python -m agentforecast.cli run-case time-series-regression-lab --outdir case_demo
 ```
 
+## Examples Hub
+
+The repository now includes a tutorial-style examples hub with real generated outputs, copied artifacts, and runnable source scripts.
+
+Generate everything:
+
+```bash
+python -m agentforecast.cli demo-examples --outdir examples/generated --site-dir examples/site
+```
+
+Inspect the curated examples:
+
+```bash
+python -m agentforecast.cli list-examples
+```
+
+What gets generated:
+
+```text
+examples/
+  scripts/
+    first_forecast_pack.py
+    backend_arena.py
+    time_series_as_regression.py
+    calibrated_intervals.py
+    streaming_drift_watch.py
+  generated/
+    <example-id>/
+      run/
+        data/
+        plots/
+        reports/
+        meta/
+      example.json
+  site/
+    index.html
+    examples/
+      *.html
+    assets/
+      ...copied plots, CSV, markdown, JSON, and source files...
+```
+
+The curated cases cover:
+
+- first forecast pack onboarding
+- backend comparison and leaderboard reading
+- time series to regression with lag features and optional tsfresh
+- calibrated prediction intervals
+- streaming drift monitoring
+
 ## Hosted gallery
 
 `agentforecast` can now turn run directories into a **static hosted gallery**.

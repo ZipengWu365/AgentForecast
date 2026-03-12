@@ -1,0 +1,323 @@
+{
+  "example_id": "calibrated-intervals",
+  "category": "Uncertainty",
+  "title": "Calibrated prediction intervals",
+  "lead": "Generate interval bands without changing the forecast.csv contract and inspect coverage and width diagnostics.",
+  "dataset_id": "sales",
+  "why_it_matters": "The interval example proves the package can emit calibrated uncertainty artifacts rather than only point forecasts.",
+  "tutorial_steps": [
+    "Enable conformal intervals with a stable list of levels.",
+    "Inspect lower_* and upper_* columns in forecast.csv.",
+    "Review empirical coverage and interval width from diagnostics before trusting the band."
+  ],
+  "tags": [
+    "conformal",
+    "intervals",
+    "diagnostics"
+  ],
+  "script_path": "examples/scripts/calibrated_intervals.py",
+  "pack_dir": "run",
+  "cli_command": "python -m agentforecast.cli forecast-dataset sales --backend river_linear --conformal --conformal-method auto --levels 80,90,95 --calibration-window 60 --warmup-min 10 --outdir examples/generated/calibrated-intervals",
+  "runtime_notes": [
+    "This run used River jackknife intervals through `river_linear`."
+  ],
+  "script_source": "from __future__ import annotations\n\nfrom pathlib import Path\nimport sys\n\nROOT = Path(__file__).resolve().parents[2]\nsys.path.insert(0, str(ROOT))\n\nfrom agentforecast import ConformalSpec, forecast_dataset\nfrom agentforecast.backends import is_backend_available\n\n\ndef main() -> None:\n    outdir = ROOT / \"examples\" / \"generated\" / \"calibrated-intervals\"\n    backend = \"river_linear\" if is_backend_available(\"river_linear\") else \"stream_ewm\"\n    conformal = ConformalSpec(\n        enabled=True,\n        method=\"auto\" if backend == \"river_linear\" else \"rolling_residual\",\n        levels=(80, 90, 95),\n        calibration_window=60,\n        warmup_min=10,\n    )\n    result = forecast_dataset(\"sales\", backend=backend, outdir=outdir, conformal=conformal)\n    print(result.summary[\"headline\"])\n    print((outdir / \"sales\" / \"data\" / \"forecast.csv\").resolve())\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "result": {
+    "run_type": "forecast_dataset",
+    "backend_selected": "river_linear",
+    "candidate_backends": [
+      "river_linear"
+    ],
+    "feature_spec": {
+      "mode": "auto",
+      "lags": [
+        1,
+        2,
+        3,
+        7,
+        14,
+        21,
+        28
+      ],
+      "lag_points": [],
+      "lag_step": null,
+      "lag_count": null,
+      "rolling_windows": [
+        3,
+        7,
+        14
+      ],
+      "include_calendar": true,
+      "calendar_features": [
+        "dayofweek",
+        "month",
+        "day",
+        "dayofyear",
+        "is_month_start",
+        "is_month_end",
+        "ordinal",
+        "sin_dayofyear",
+        "cos_dayofyear"
+      ],
+      "include_tsfresh": false,
+      "tsfresh_window": 30,
+      "tsfresh_features": [],
+      "include_exogenous": true,
+      "exogenous_cols": [
+        "promo_index"
+      ]
+    },
+    "inputs": {
+      "name": "sales",
+      "horizon": 14,
+      "strategy": "fast",
+      "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/datasets/sales.csv",
+      "date_col": "ds",
+      "value_col": "y",
+      "series_kind": "price",
+      "candidate_backends": [
+        "river_linear"
+      ],
+      "conformal": {
+        "enabled": true,
+        "method": "auto",
+        "levels": [
+          80,
+          90,
+          95
+        ],
+        "calibration_window": 60,
+        "warmup_min": 10,
+        "symmetric": true,
+        "horizon_aware": true
+      },
+      "csv_path": "package_data/datasets/sales.csv",
+      "dataset_id": "sales"
+    },
+    "summary": {
+      "headline": "sales: river_linear won the backend comparison and produced a publishable pack.",
+      "latest_observed": 164.04,
+      "projected_end": 127.49613967758008,
+      "artifact_count": 10,
+      "narrative": "Compared 1 backend(s) and routed the series to 'river_linear'. Exported CSV, chart, card, markdown, and JSON artifacts.",
+      "conformal_method": "river_jackknife",
+      "routing_reason": "explicit_backend_selected"
+    },
+    "diagnostics": {
+      "leaderboard": [
+        {
+          "backend_id": "river_linear",
+          "mae": 45.044058,
+          "rmse": 45.651925,
+          "mape": 27.673847,
+          "smape": 32.204308,
+          "coverage_80": 0.714286,
+          "avg_width_80": 46.472328,
+          "wnc_80": 2.487842,
+          "coverage_90": 0.928571,
+          "avg_width_90": 60.004539,
+          "wnc_90": 2.50482,
+          "coverage_95": 1.0,
+          "avg_width_95": 67.260836,
+          "wnc_95": 2.406484,
+          "backtest_horizon": 14
+        }
+      ],
+      "conformal": {
+        "enabled": true,
+        "requested_method": "auto",
+        "method": "river_jackknife",
+        "levels": [
+          80,
+          90,
+          95
+        ],
+        "calibration_window": 60,
+        "warmup_min": 10,
+        "symmetric": true,
+        "horizon_aware": true,
+        "effective_horizon_aware": false,
+        "calibration_size": 14,
+        "native_levels": [
+          80,
+          90,
+          95
+        ],
+        "fallback_reason": null,
+        "backend_id": "river_linear",
+        "coverage_backtest": {
+          "80": 0.714286,
+          "90": 0.928571,
+          "95": 1.0
+        },
+        "mean_interval_width": {
+          "80": 46.472328,
+          "90": 60.004539,
+          "95": 67.260836
+        },
+        "width_normalized_coverage": {
+          "80": 2.487842,
+          "90": 2.50482,
+          "95": 2.406484
+        },
+        "backend_tags": [
+          "streaming",
+          "fast",
+          "supports_conformal_native"
+        ]
+      },
+      "conformal_by_backend": {
+        "river_linear": {
+          "enabled": true,
+          "requested_method": "auto",
+          "method": "river_jackknife",
+          "levels": [
+            80,
+            90,
+            95
+          ],
+          "calibration_window": 60,
+          "warmup_min": 10,
+          "symmetric": true,
+          "horizon_aware": true,
+          "effective_horizon_aware": false,
+          "calibration_size": 14,
+          "native_levels": [
+            80,
+            90,
+            95
+          ],
+          "fallback_reason": null,
+          "backend_id": "river_linear",
+          "coverage_backtest": {
+            "80": 0.714286,
+            "90": 0.928571,
+            "95": 1.0
+          },
+          "mean_interval_width": {
+            "80": 46.472328,
+            "90": 60.004539,
+            "95": 67.260836
+          },
+          "width_normalized_coverage": {
+            "80": 2.487842,
+            "90": 2.50482,
+            "95": 2.406484
+          },
+          "backend_tags": [
+            "streaming",
+            "fast",
+            "supports_conformal_native"
+          ]
+        }
+      },
+      "cleanup": {
+        "cleanup_applied": false,
+        "missing_points_filled": 0,
+        "duplicate_timestamps_merged": 0,
+        "inferred_frequency": "D",
+        "step_seconds": 86400.0,
+        "exogenous_cols": [
+          "promo_index"
+        ],
+        "future_feature_policy": "use_provided_then_carry_last"
+      },
+      "routing": {
+        "profile": "explicit",
+        "history_len": 120,
+        "horizon": 14,
+        "candidate_backends": [
+          "river_linear"
+        ],
+        "missing_backends": [],
+        "recommended_extras": [],
+        "reason": "explicit_backend_selected"
+      }
+    },
+    "metrics": {
+      "backend_id": "river_linear",
+      "mae": 45.044058,
+      "rmse": 45.651925,
+      "mape": 27.673847,
+      "smape": 32.204308,
+      "coverage_80": 0.714286,
+      "avg_width_80": 46.472328,
+      "wnc_80": 2.487842,
+      "coverage_90": 0.928571,
+      "avg_width_90": 60.004539,
+      "wnc_90": 2.50482,
+      "coverage_95": 1.0,
+      "avg_width_95": 67.260836,
+      "wnc_95": 2.406484,
+      "backtest_horizon": 14.0
+    },
+    "artifacts": [
+      {
+        "kind": "history_csv",
+        "path": "data/history.csv",
+        "media_type": "text/csv",
+        "description": "Normalized history"
+      },
+      {
+        "kind": "forecast_csv",
+        "path": "data/forecast.csv",
+        "media_type": "text/csv",
+        "description": "Winner backend forecast"
+      },
+      {
+        "kind": "leaderboard_csv",
+        "path": "data/leaderboard.csv",
+        "media_type": "text/csv",
+        "description": "Backend comparison leaderboard"
+      },
+      {
+        "kind": "forecast_png",
+        "path": "plots/forecast.png",
+        "media_type": "image/png",
+        "description": "Forecast chart"
+      },
+      {
+        "kind": "forecast_card_png",
+        "path": "plots/forecast_card.png",
+        "media_type": "image/png",
+        "description": "Shareable forecast card"
+      },
+      {
+        "kind": "comparison_png",
+        "path": "plots/backend_comparison.png",
+        "media_type": "image/png",
+        "description": "Backend comparison chart"
+      },
+      {
+        "kind": "leaderboard_card_png",
+        "path": "plots/leaderboard_card.png",
+        "media_type": "image/png",
+        "description": "Leaderboard card"
+      },
+      {
+        "kind": "delta_card_png",
+        "path": "plots/winner_vs_runnerup_delta.png",
+        "media_type": "image/png",
+        "description": "Winner vs runner-up delta card"
+      },
+      {
+        "kind": "summary_markdown",
+        "path": "reports/summary.md",
+        "media_type": "text/markdown",
+        "description": "Human-readable report"
+      },
+      {
+        "kind": "metadata_json",
+        "path": "meta/metadata.json",
+        "media_type": "application/json",
+        "description": "Structured compare result"
+      }
+    ],
+    "warnings": [],
+    "used_live_data": false,
+    "kind": "agentforecast.run_result",
+    "schema_version": "1.0.0",
+    "schema_ref": "package://agentforecast/package_data/schemas/run_result.schema.json",
+    "tool_version": "1.7.0"
+  }
+}

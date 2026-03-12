@@ -19,6 +19,7 @@ from .live import run_case, list_cases, get_case
 from .datasets import list_datasets, get_dataset_spec, write_dataset
 from .backends import list_backends, list_backend_families, route_backends
 from .resources import describe_package
+from .examples_hub import build_examples_site, demo_examples, list_examples
 from .hosted import build_hosted_site
 
 
@@ -52,5 +53,8 @@ __all__ = [
     "list_backend_families",
     "route_backends",
     "describe_package",
+    "list_examples",
+    "demo_examples",
+    "build_examples_site",
     "build_hosted_site",
 ]

@@ -11,6 +11,7 @@ import pandas as pd
 from agentforecast import ConformalSpec, FeatureSpec, forecast_dataset, shoot
 from agentforecast.backends import is_backend_available, list_backends, route_backends
 from agentforecast.datasets import dataset_path, get_dataset_spec
+from agentforecast.examples_hub import build_examples_site, demo_examples, list_examples
 from agentforecast.features import build_feature_spec, prepare_series_frame
 from agentforecast.hosted import build_hosted_site
 from agentforecast.local import compare_backends_dataset, forecast_stream_csv
@@ -148,6 +149,24 @@ class AgentForecastV17Tests(unittest.TestCase):
             self.assertEqual(result.feature_spec['mode'], 'time_series_regression_lab')
             self.assertIn(result.backend_selected, result.candidate_backends)
             self.assertIn('lags', result.feature_spec)
+
+    def test_list_examples_exposes_curated_hub(self) -> None:
+        examples = list_examples()
+        example_ids = {item['example_id'] for item in examples}
+        self.assertIn('first-forecast-pack', example_ids)
+        self.assertIn('time-series-as-regression', example_ids)
+
+    def test_demo_examples_builds_site(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            runs = Path(tmp) / 'examples_generated'
+            site = Path(tmp) / 'examples_site'
+            payload = demo_examples(runs, site, example_ids=['first-forecast-pack', 'time-series-as-regression'])
+            self.assertEqual(payload['example_count'], 2)
+            self.assertTrue((runs / 'manifest.json').exists())
+            self.assertTrue((site / 'index.html').exists())
+            self.assertTrue((site / 'examples' / 'first-forecast-pack.html').exists())
+            rebuilt = build_examples_site(runs, site)
+            self.assertEqual(rebuilt['entry_count'], 2)
 
     def test_new_cross_domain_dataset_specs_exist(self) -> None:
         for dataset_id in ['gold-exogenous', 'grid-heatwave-stress', 'river-flood-risk', 'outpatient-no-show']:

@@ -17,6 +17,7 @@ def describe_package(language: str = "en") -> dict[str, Any]:
             "python -m pip install agentforecast-1.7.0-py3-none-any.whl",
             "python -m agentforecast.cli shoot sales --outdir demo",
             "python -m agentforecast.cli demo-gallery --outdir demo_gallery_runs --site-dir public_gallery/site",
+            "python -m agentforecast.cli demo-examples --outdir examples/generated --site-dir examples/site",
         ]
     else:
         headline = "Turn any time series into a publishable forecast pack in one command."
@@ -24,6 +25,7 @@ def describe_package(language: str = "en") -> dict[str, Any]:
             "python -m pip install agentforecast-1.7.0-py3-none-any.whl",
             "python -m agentforecast.cli shoot sales --outdir demo",
             "python -m agentforecast.cli demo-gallery --outdir demo_gallery_runs --site-dir public_gallery/site",
+            "python -m agentforecast.cli demo-examples --outdir examples/generated --site-dir examples/site",
         ]
     return {
         "name": "agentforecast",
@@ -58,6 +60,9 @@ def api_catalog() -> list[dict[str, Any]]:
         {"name": "forecast_stream_csv", "purpose": "Run a streaming backend and export drift diagnostics."},
         {"name": "run_case", "purpose": "Run a built-in cross-disciplinary or traffic-oriented case."},
         {"name": "build_hosted_site", "purpose": "Turn run directories into a static gallery site with HTML and feed.json."},
+        {"name": "list_examples", "purpose": "List curated tutorial-grade runnable examples."},
+        {"name": "demo_examples", "purpose": "Generate curated example runs and build a static examples site with real artifacts."},
+        {"name": "build_examples_site", "purpose": "Build the tutorial-style examples site from previously generated example runs."},
     ]
 
 
@@ -83,6 +88,14 @@ def package_overview(language: str = "en") -> dict[str, Any]:
             "commands": [
                 "python -m agentforecast.cli demo-gallery --outdir demo_gallery_runs --site-dir public_gallery/site",
                 "python -m agentforecast.cli build-gallery --runs-root demo_gallery_runs --site-dir public_gallery/site",
+            ],
+        },
+        "examples_hub": {
+            "description": "Tutorial-style examples hub with real runs, plots, source scripts, and copied artifacts.",
+            "commands": [
+                "python -m agentforecast.cli demo-examples --outdir examples/generated --site-dir examples/site",
+                "python -m agentforecast.cli build-examples --runs-root examples/generated --site-dir examples/site",
+                "python -m agentforecast.cli list-examples",
             ],
         },
     }

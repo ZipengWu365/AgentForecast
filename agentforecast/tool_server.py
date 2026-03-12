@@ -5,6 +5,7 @@ import sys
 from typing import Any
 
 from .errors import AgentForecastError
+from .examples_hub import build_examples_site, demo_examples, list_examples
 from .hosted import build_hosted_site
 from .local import (
     compare_backends_csv,
@@ -40,6 +41,9 @@ def _tool_catalog() -> list[dict[str, Any]]:
         {"name": "forecast_stream_csv", "description": "Run a streaming backend."},
         {"name": "run_case", "description": "Run a built-in case."},
         {"name": "build_hosted_site", "description": "Build a static HTML gallery from forecast runs."},
+        {"name": "list_examples", "description": "List curated runnable examples."},
+        {"name": "demo_examples", "description": "Generate curated example runs and build the examples site."},
+        {"name": "build_examples_site", "description": "Build the tutorial-style examples site from generated example runs."},
         {"name": "list_backends", "description": "List registered backends."},
         {"name": "route_backends", "description": "Return candidate backends and routing rationale."},
     ]
@@ -82,6 +86,12 @@ def dispatch_tool_call(name: str, args: dict[str, Any]) -> dict[str, Any]:
             return _ok(run_case(**args))
         if name == "build_hosted_site":
             return _ok(build_hosted_site(**args))
+        if name == "list_examples":
+            return _ok(list_examples())
+        if name == "demo_examples":
+            return _ok(demo_examples(**args))
+        if name == "build_examples_site":
+            return _ok(build_examples_site(**args))
         if name == "list_backends":
             return _ok(list_backends(**args))
         if name == "route_backends":

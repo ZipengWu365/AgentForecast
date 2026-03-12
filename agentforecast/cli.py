@@ -28,6 +28,7 @@ from .resources import api_catalog, describe_package, package_overview
 from .tool_server import serve_json_tools
 from .mcp_server import serve_mcp
 from .benchmark_hub import list_external_benchmarks
+from .examples_hub import build_examples_site, demo_examples, list_examples
 from .hosted import build_hosted_site
 
 
@@ -93,6 +94,13 @@ def _conformal_spec_from_args(args: argparse.Namespace) -> ConformalSpec | None:
         calibration_window=args.calibration_window,
         warmup_min=args.warmup_min,
     )
+
+
+def _parse_csv_items(value: str | None) -> list[str] | None:
+    if value is None:
+        return None
+    items = [item.strip() for item in value.split(",") if item.strip()]
+    return items or None
 
 
 def _add_feature_args(parser: argparse.ArgumentParser) -> None:
@@ -266,6 +274,9 @@ def build_parser() -> argparse.ArgumentParser:
     p_case_show.add_argument("--language", default="en")
     p_case_show.add_argument("--output", choices=["json", "text"], default="json")
 
+    p_examples = sub.add_parser("list-examples", help="List curated runnable examples.")
+    p_examples.add_argument("--output", choices=["json", "text"], default="json")
+
     p_datasets = sub.add_parser("list-datasets", help="List bundled datasets.")
     p_datasets.add_argument("--language", default="en")
     p_datasets.add_argument("--output", choices=["json", "text"], default="json")
@@ -307,6 +318,17 @@ def build_parser() -> argparse.ArgumentParser:
     p_demo_gallery.add_argument("--outdir", default="public_gallery/demo_runs")
     p_demo_gallery.add_argument("--site-dir", default="public_gallery/site")
     p_demo_gallery.add_argument("--output", choices=["json", "text"], default="json")
+
+    p_examples_site = sub.add_parser("build-examples", help="Build a tutorial-style examples site from generated example runs.")
+    p_examples_site.add_argument("--runs-root", required=True)
+    p_examples_site.add_argument("--site-dir", required=True)
+    p_examples_site.add_argument("--output", choices=["json", "text"], default="json")
+
+    p_demo_examples = sub.add_parser("demo-examples", help="Generate curated example runs and build the tutorial-style examples site.")
+    p_demo_examples.add_argument("--outdir", default="examples/generated")
+    p_demo_examples.add_argument("--site-dir", default="examples/site")
+    p_demo_examples.add_argument("--examples", default=None, help="Comma-separated example ids to generate.")
+    p_demo_examples.add_argument("--output", choices=["json", "text"], default="json")
 
     p_tools = sub.add_parser("serve-tools", help="Run the lean JSON tool server.")
     p_tools.add_argument("--once", default=None, help="Run one request and exit. Pass a JSON object string.")
@@ -355,6 +377,8 @@ def main(argv: list[str] | None = None) -> int:
             _print(list_cases(args.language), args.output)
         elif args.command == "case":
             _print(get_case(args.case_id, args.language), args.output)
+        elif args.command == "list-examples":
+            _print(list_examples(), args.output)
         elif args.command == "list-datasets":
             _print(list_datasets(args.language), args.output)
         elif args.command == "dataset":
@@ -378,6 +402,12 @@ def main(argv: list[str] | None = None) -> int:
             _print(payload, args.output)
         elif args.command == "demo-gallery":
             payload = _demo_gallery(args.outdir, args.site_dir)
+            _print(payload, args.output)
+        elif args.command == "build-examples":
+            payload = build_examples_site(args.runs_root, args.site_dir)
+            _print(payload, args.output)
+        elif args.command == "demo-examples":
+            payload = demo_examples(args.outdir, args.site_dir, example_ids=_parse_csv_items(args.examples))
             _print(payload, args.output)
         elif args.command == "serve-tools":
             return serve_json_tools(once_payload=args.once)
