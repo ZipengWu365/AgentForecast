@@ -46,6 +46,14 @@ def _copy_artifact(src: Path, dst_root: Path, slug: str) -> str:
     return dst.relative_to(dst_root).as_posix()
 
 
+def _portable_path(path: Path) -> str:
+    resolved = path.resolve()
+    try:
+        return resolved.relative_to(Path.cwd().resolve()).as_posix()
+    except ValueError:
+        return resolved.as_posix()
+
+
 def collect_gallery_entries(runs_root: str | Path) -> list[GalleryEntry]:
     runs_root = Path(runs_root)
     entries: list[GalleryEntry] = []
@@ -54,7 +62,7 @@ def collect_gallery_entries(runs_root: str | Path) -> list[GalleryEntry]:
     for meta in sorted(runs_root.glob("*/meta/metadata.json")):
         payload = read_json(meta)
         root = meta.parent.parent
-        artifact_map = {item["kind"]: (root / item["path"]).as_posix() for item in payload.get("artifacts", [])}
+        artifact_map = {item["kind"]: _portable_path(root / item["path"]) for item in payload.get("artifacts", [])}
         entries.append(
             GalleryEntry(
                 slug=root.name,
@@ -979,7 +987,7 @@ def build_hosted_site(runs_root: str | Path, site_dir: str | Path, *, gallery_ti
         + "<aside class='hero-panel panel'>"
         + "<div><strong>Product promise</strong><p class='muted'>One command routes a series, scores visible backends, and exports cards, charts, markdown, CSV, and JSON.</p></div>"
         + _summary_cards(public_entries, len(benchmark_items))
-        + "<div class='code-block'>python -m agentforecast.cli shoot sales --outdir demo\npython -m agentforecast.cli demo-gallery --outdir public_gallery/demo_runs --site-dir public_gallery/site</div>"
+        + "<div class='code-block'>python -m agentforecast.cli forecast-url https://raw.githubusercontent.com/jbrownlee/Datasets/master/monthly-car-sales.csv --horizon 12 --outdir demo\npython -m agentforecast.cli demo-gallery --outdir public_gallery/demo_runs --site-dir public_gallery/site</div>"
         + "</aside></section>"
     )
 
