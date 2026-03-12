@@ -55,6 +55,64 @@ _CAPABILITY_COPY = (
     ("Publishable artifacts", "Export plots, cards, CSV, markdown, and JSON for both human readers and agents."),
 )
 
+_API_SURFACE_COPY = (
+    {
+        "badge": "forecast",
+        "name": "forecast_dataframe",
+        "headline": "The main Python entry point for a single DataFrame-backed series.",
+        "details": (
+            ("Call", "forecast_dataframe(df, name='series', horizon=12, backend='auto')"),
+            ("Use when", "You already have a pandas DataFrame and want one publishable forecast pack."),
+            ("Returns", "RunResult with artifacts, diagnostics, summary, and selected backend."),
+        ),
+        "tags": ("python", "dataframe", "artifacts"),
+    },
+    {
+        "badge": "compare",
+        "name": "compare_backends_frame",
+        "headline": "Run a visible backend arena instead of silently picking a winner.",
+        "details": (
+            ("Call", "compare_backends_frame(df, name='series', backends=['naive', 'stats_ets', 'ml_ridge'])"),
+            ("Use when", "You want a leaderboard, transparent metrics, and a chosen winner from a fixed model set."),
+            ("Returns", "CompareResult with leaderboard rows, diagnostics, and the winning pack."),
+        ),
+        "tags": ("python", "benchmark", "leaderboard"),
+    },
+    {
+        "badge": "stream",
+        "name": "forecast_stream_dataframe",
+        "headline": "Online forecasting plus rolling drift diagnostics for streaming-style updates.",
+        "details": (
+            ("Call", "forecast_stream_dataframe(df, name='series', backend='river_snarimax', horizon=7)"),
+            ("Use when", "You want River or streaming backends with drift watch artifacts."),
+            ("Returns", "RunResult plus streaming diagnostics and a drift alert card."),
+        ),
+        "tags": ("python", "streaming", "drift"),
+    },
+    {
+        "badge": "data",
+        "name": "forecast_url / forecast_dataset",
+        "headline": "Low-friction ways to start from a public CSV URL or a packaged demo dataset.",
+        "details": (
+            ("Call", "forecast_url(url, name='series') or forecast_dataset('monthly-car-sales')"),
+            ("Use when", "You are learning the package, reproducing a public case, or bootstrapping a tutorial."),
+            ("Returns", "The same pack contract as DataFrame runs, without custom loading code."),
+        ),
+        "tags": ("python", "tutorial", "quickstart"),
+    },
+    {
+        "badge": "publish",
+        "name": "build_hosted_site",
+        "headline": "Turn many run folders into a static gallery suitable for GitHub Pages.",
+        "details": (
+            ("Call", "build_hosted_site(runs_root='public_gallery/demo_runs', site_dir='public_gallery/site')"),
+            ("Use when", "You want a human-facing public front door instead of raw output folders."),
+            ("Returns", "A static site with cards, case pages, asset copies, and feed.json."),
+        ),
+        "tags": ("python", "static-site", "pages"),
+    },
+)
+
 
 @dataclass
 class GalleryEntry:
@@ -1035,6 +1093,28 @@ def _backend_surface_cards() -> str:
     return "<div class='surface-grid'>" + "".join(cards) + "</div>"
 
 
+def _api_surface_cards() -> str:
+    cards = []
+    for item in _API_SURFACE_COPY:
+        cards.append(
+            "<article class='surface-card'>"
+            f"<div class='mini-row'><span class='badge'>{_escape(item['badge'])}</span><span class='muted'>Python API</span></div>"
+            f"<h3><code>{_escape(item['name'])}</code></h3>"
+            f"<p class='muted'>{_escape(item['headline'])}</p>"
+            "<ul class='surface-list'>"
+            + "".join(
+                f"<li><strong>{_escape(label)}:</strong> <code>{_escape(copy)}</code></li>" if label == "Call" else f"<li><strong>{_escape(label)}:</strong> {_escape(copy)}</li>"
+                for label, copy in item["details"]
+            )
+            + "</ul>"
+            + "<div class='surface-pill-row'>"
+            + "".join(f"<span class='pill pill-blue'>{_escape(tag)}</span>" for tag in item["tags"])
+            + "</div>"
+            + "</article>"
+        )
+    return "<div class='surface-grid'>" + "".join(cards) + "</div>"
+
+
 def _artifact_cards(public_artifacts: dict[str, str]) -> str:
     cards = []
     for kind, path in public_artifacts.items():
@@ -1167,10 +1247,12 @@ def build_hosted_site(runs_root: str | Path, site_dir: str | Path, *, gallery_ti
     benchmark_section = (
         "<section class='section' id='benchmarks'>"
         "<div class='section-head'><div><div class='eyebrow'>Model surface</div><h2>What is inside this package</h2></div>"
-        "<p>Before anyone looks at external benchmarks, they should be able to scan the backend families, concrete model ids, install extras, and core capabilities that agentforecast exposes.</p></div>"
+        "<p>Before anyone looks at external benchmarks, they should be able to scan the backend families, concrete model ids, Python entry points, install extras, and core capabilities that agentforecast exposes.</p></div>"
         + "<div class='surface-stack'>"
         + "<div class='section-subhead'><h3>Backend families and model ids</h3><p class='muted'>This is the forecasting surface behind the gallery, grouped the way a human evaluator would usually reason about model choice.</p></div>"
         + _backend_surface_cards()
+        + "<div class='section-subhead'><h3>Python API surface</h3><p class='muted'>These are the importable functions a human reader can actually call, without having to start from a CLI command.</p></div>"
+        + _api_surface_cards()
         + "<div class='section-subhead'><h3>Package capabilities</h3><p class='muted'>These are the workflow-level features that matter in practice beyond the estimator list itself.</p></div>"
         + _capability_grid()
         + "<div class='section-subhead' id='external-benchmarks'><h3>External benchmark hubs</h3><p class='muted'>Internal demo evidence stays visible, but broader public benchmark hubs are still the right place to compare against the field.</p></div>"

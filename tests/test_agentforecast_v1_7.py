@@ -86,6 +86,8 @@ class AgentForecastV17Tests(unittest.TestCase):
             self.assertEqual(len(feed['items']), 1)
             index_text = (site / 'index.html').read_text(encoding='utf-8')
             self.assertIn('Backend families and model ids', index_text)
+            self.assertIn('Python API surface', index_text)
+            self.assertIn('forecast_dataframe', index_text)
             self.assertIn('Package capabilities', index_text)
 
     def test_summary_markdown_is_generated_without_tabulate_dependency(self) -> None:
