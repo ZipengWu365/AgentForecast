@@ -7,8 +7,9 @@ import html
 import json
 import shutil
 
-from .backends import list_backends
+from .backends import list_backend_capabilities, list_backends
 from .benchmark_hub import list_external_benchmarks
+from .doctor import diagnose_environment
 from .utils import ensure_dir, read_json
 
 AUTHOR_NAME = "Zipeng Wu"
@@ -55,6 +56,20 @@ _CAPABILITY_COPY = (
     ("Publishable artifacts", "Export plots, cards, CSV, markdown, and JSON for both human readers and agents."),
 )
 
+_SURFACE_COPY = (
+    ("Pack Surface", "One-shot forecast packs, backend comparison, charts, cards, markdown, and JSON artifacts.", "forecast_dataframe, compare_backends_frame, forecast_csv"),
+    ("Research Surface", "Explicit benchmark-first APIs with fit / predict / update, strict_mode, multi-horizon output, and auditable defaults.", "OnlineForecaster, forecast_benchmark_dataframe"),
+    ("Operations Surface", "Streaming watch flows, drift diagnostics, and low-latency rolling forecast outputs.", "forecast_stream_dataframe, stream_ewm, river_*"),
+    ("Agent Surface", "Tool server, MCP, structured JSON contracts, and environment diagnostics for automation.", "doctor, tool_server, mcp_server"),
+)
+
+_INSTALL_MATRIX = (
+    ("beginner / pack user", "pip install agentforecast", "one-shot forecast packs and backend auto-routing"),
+    ("research / benchmark", 'pip install "agentforecast[stats,ml]"', "strict benchmark runs, comparison work, OnlineForecaster"),
+    ("streaming / operations", 'pip install "agentforecast[stream]"', "River backends and streaming watch flows"),
+    ("full optional stack", 'pip install "agentforecast[all]"', "widest adapter coverage"),
+)
+
 _MODEL_SELECTION_COPY = (
     (
         "Baseline and seasonal references",
@@ -80,57 +95,57 @@ _MODEL_SELECTION_COPY = (
 
 _API_SURFACE_COPY = (
     {
-        "badge": "forecast",
-        "name": "forecast_dataframe",
-        "headline": "The main Python entry point for a single DataFrame-backed series.",
+        "badge": "research",
+        "name": "OnlineForecaster",
+        "headline": "The stable low-level forecasting contract for fit / predict / update benchmark workflows.",
         "details": (
-            ("Call", "forecast_dataframe(df, name='series', horizon=12, backend='auto')"),
-            ("Use when", "You already have a pandas DataFrame and want one publishable forecast pack."),
-            ("Returns", "RunResult with artifacts, diagnostics, summary, and selected backend."),
+            ("Call", "OnlineForecaster(backend='river_linear', horizons=[1,3,6], strict_mode=True)"),
+            ("Use when", "You need a serious forecasting core instead of a one-shot pack helper."),
+            ("Returns", "A stateful object with fit(), predict(), update(), and auditable state()."),
         ),
-        "tags": ("python", "dataframe", "artifacts"),
+        "tags": ("python", "research", "stateful"),
     },
     {
-        "badge": "compare",
-        "name": "compare_backends_frame",
-        "headline": "Run a visible backend arena instead of silently picking a winner.",
+        "badge": "benchmark",
+        "name": "forecast_benchmark_dataframe",
+        "headline": "One-shot low-level benchmark forecasting with horizons=[...] and recursive or direct mode.",
         "details": (
-            ("Call", "compare_backends_frame(df, name='series', backends=['naive', 'stats_ets', 'ml_ridge'])"),
-            ("Use when", "You want a leaderboard, transparent metrics, and a chosen winner from a fixed model set."),
-            ("Returns", "CompareResult with leaderboard rows, diagnostics, and the winning pack."),
+            ("Call", "forecast_benchmark_dataframe(df, backend='ml_ridge', horizons=[1,3,6], mode='direct')"),
+            ("Use when", "You want benchmark-safe forecasting without pack/report generation."),
+            ("Returns", "Forecast rows, prediction dict, feature spec, cleanup, and diagnostics."),
         ),
-        "tags": ("python", "benchmark", "leaderboard"),
+        "tags": ("python", "benchmark", "multi-horizon"),
     },
     {
-        "badge": "stream",
-        "name": "forecast_stream_dataframe",
-        "headline": "Online forecasting plus rolling drift diagnostics for streaming-style updates.",
+        "badge": "doctor",
+        "name": "diagnose_environment",
+        "headline": "Report which backends are importable, which extras are missing, and which workflows the environment supports.",
         "details": (
-            ("Call", "forecast_stream_dataframe(df, name='series', backend='river_snarimax', horizon=7)"),
-            ("Use when", "You want River or streaming backends with drift watch artifacts."),
-            ("Returns", "RunResult plus streaming diagnostics and a drift alert card."),
+            ("Call", "diagnose_environment()"),
+            ("Use when", "You want a calm answer to what is installed and what command to run next."),
+            ("Returns", "Profiles, install hints, available backends, and capability metadata."),
         ),
-        "tags": ("python", "streaming", "drift"),
+        "tags": ("python", "doctor", "environment"),
     },
     {
         "badge": "data",
-        "name": "forecast_url / forecast_dataset",
-        "headline": "Low-friction ways to start from a public CSV URL or a packaged demo dataset.",
+        "name": "validate_series_frame / clean_series_frame",
+        "headline": "Separate strict validation from forgiving cleanup instead of hiding data mutation behind one helper.",
         "details": (
-            ("Call", "forecast_url(url, name='series') or forecast_dataset('monthly-car-sales')"),
-            ("Use when", "You are learning the package, reproducing a public case, or bootstrapping a tutorial."),
-            ("Returns", "The same pack contract as DataFrame runs, without custom loading code."),
+            ("Call", "validate_series_frame(df, strict_mode=True) or clean_series_frame(df)"),
+            ("Use when", "You need to inspect timestamps, duplicates, cadence, and cleanup behavior explicitly."),
+            ("Returns", "Validation report or cleaned PreparedSeries."),
         ),
-        "tags": ("python", "tutorial", "quickstart"),
+        "tags": ("python", "validation", "cleanup"),
     },
     {
-        "badge": "publish",
-        "name": "build_hosted_site",
-        "headline": "Turn many run folders into a static gallery suitable for GitHub Pages.",
+        "badge": "pack",
+        "name": "forecast_dataframe / build_hosted_site",
+        "headline": "The pack-oriented path for public forecast artifacts and static gallery publishing.",
         "details": (
-            ("Call", "build_hosted_site(runs_root='public_gallery/demo_runs', site_dir='public_gallery/site')"),
-            ("Use when", "You want a human-facing public front door instead of raw output folders."),
-            ("Returns", "A static site with cards, case pages, asset copies, and feed.json."),
+            ("Call", "forecast_dataframe(df, name='series', horizon=12, backend='auto')"),
+            ("Use when", "You want publishable charts, cards, markdown, JSON, and a browsable gallery."),
+            ("Returns", "RunResult artifacts or a generated static site."),
         ),
         "tags": ("python", "static-site", "pages"),
     },
@@ -1005,6 +1020,54 @@ def _workflow_grid() -> str:
     )
 
 
+def _surface_grid() -> str:
+    return (
+        "<div class='feature-grid'>"
+        + "".join(
+            "<article class='feature-card'>"
+            f"<h3>{_escape(title)}</h3>"
+            f"<p class='muted'>{_escape(copy)}</p>"
+            f"<div class='code-block'>{_escape(symbols)}</div>"
+            "</article>"
+            for title, copy, symbols in _SURFACE_COPY
+        )
+        + "</div>"
+    )
+
+
+def _install_matrix() -> str:
+    doctor = diagnose_environment()
+    rows = "".join(
+        "<tr>"
+        f"<td>{_escape(persona)}</td>"
+        f"<td><code>{_escape(command)}</code></td>"
+        f"<td>{_escape(best_for)}</td>"
+        "</tr>"
+        for persona, command, best_for in _INSTALL_MATRIX
+    )
+    unavailable = doctor.get("unavailable_backends", [])
+    missing = ", ".join(item["backend_id"] for item in unavailable[:6]) if unavailable else "none"
+    return (
+        "<div class='surface-stack'>"
+        + "<div class='table-wrap'><table class='table'>"
+        + "<thead><tr><th>Persona</th><th>Install command</th><th>Best for</th></tr></thead>"
+        + f"<tbody>{rows}</tbody></table></div>"
+        + "<div class='feature-grid'>"
+        + "<article class='feature-card'>"
+        + "<h3>Doctor first</h3>"
+        + "<p class='muted'>Run environment diagnostics before guessing which backend or extra to trust.</p>"
+        + "<div class='code-block'>python -m agentforecast.cli doctor</div>"
+        + "</article>"
+        + "<article class='feature-card'>"
+        + "<h3>Current environment snapshot</h3>"
+        + f"<p class='muted'>Available workflows: pack={doctor['profiles']['pack']}, research={doctor['profiles']['research']}, streaming={doctor['profiles']['streaming']}.</p>"
+        + f"<div class='code-block'>missing extras now: {_escape(missing)}</div>"
+        + "</article>"
+        + "</div>"
+        + "</div>"
+    )
+
+
 def _author_strip() -> str:
     return (
         "<div class='author-strip'>"
@@ -1067,6 +1130,27 @@ def _capability_grid() -> str:
             for title, copy in _CAPABILITY_COPY
         )
         + "</div>"
+    )
+
+
+def _backend_capability_table() -> str:
+    rows = "".join(
+        "<tr>"
+        f"<td><code>{_escape(row['backend_id'])}</code></td>"
+        f"<td>{_escape(row['extra'])}</td>"
+        f"<td>{_escape(row['stability_tier'])}</td>"
+        f"<td>{'yes' if row['supports_streaming'] else 'no'}</td>"
+        f"<td>{'yes' if row['supports_exogenous'] else 'no'}</td>"
+        f"<td>{'yes' if row['supports_conformal'] else 'no'}</td>"
+        f"<td>{'yes' if row['supports_direct'] else 'no'}</td>"
+        f"<td>{'yes' if row['supports_recursive'] else 'no'}</td>"
+        "</tr>"
+        for row in list_backend_capabilities()
+    )
+    return (
+        "<div class='table-wrap'><table class='table'>"
+        "<thead><tr><th>Backend</th><th>Extra</th><th>Tier</th><th>Streaming</th><th>Exogenous</th><th>Conformal</th><th>Direct</th><th>Recursive</th></tr></thead>"
+        f"<tbody>{rows}</tbody></table></div>"
     )
 
 
@@ -1213,29 +1297,45 @@ def build_hosted_site(runs_root: str | Path, site_dir: str | Path, *, gallery_ti
         public_entries.append({**entry.to_dict(), "public_artifacts": copied})
 
     benchmark_items = list_external_benchmarks()
-    topbar = _topbar([("Models", "#models"), ("Workflow", "#workflow"), ("Packs", "#packs"), ("Benchmarks", "#benchmarks"), ("Feed", "feed.json")])
+    topbar = _topbar([("Surfaces", "#surfaces"), ("Install", "#install"), ("Models", "#models"), ("Workflow", "#workflow"), ("Packs", "#packs"), ("Benchmarks", "#benchmarks"), ("Feed", "feed.json")])
     hero = (
         "<section class='hero'>"
         + "<div class='hero-copy'>"
-        + "<div class='eyebrow'>Unified forecasting layer</div>"
+        + "<div class='eyebrow'>Stable forecasting core</div>"
         + f"<h1>{_escape(gallery_title)}</h1>"
-        + "<p>A bright, productized surface for scientific forecasting. Compare backends, publish clean artifacts, and expose stable JSON and gallery outputs for humans and agents.</p>"
+        + "<p>AgentForecast is a lightweight forecast-to-publish layer built on top of a stable forecasting core, with optional research and agent/tooling surfaces.</p>"
         + _author_strip()
         + "<div class='hero-actions'>"
         + "<a class='button button-primary' href='#packs'>Explore public packs</a>"
-        + "<a class='button button-secondary' href='feed.json'>Open JSON feed</a>"
+        + "<a class='button button-secondary' href='#install'>Open install + doctor guide</a>"
         + "</div>"
         + "<div class='hero-meta'>"
         + "<span class='pill pill-accent'>white-background-first</span>"
-        + "<span class='pill'>scientific clarity</span>"
+        + "<span class='pill'>research + pack surfaces</span>"
         + "<span class='pill pill-blue'>agent-friendly outputs</span>"
         + "</div>"
         + "</div>"
         + "<aside class='hero-panel panel'>"
-        + "<div><strong>Product promise</strong><p class='muted'>One Python call or one command routes a series, scores visible backends, and exports cards, charts, markdown, CSV, and JSON.</p></div>"
+        + "<div><strong>Product promise</strong><p class='muted'>Use the pack surface for charts, cards, markdown, CSV, and JSON. Use the research surface for OnlineForecaster, strict_mode, doctor, and benchmark-safe low-level forecasting.</p></div>"
         + _summary_cards(public_entries, len(benchmark_items))
-        + "<div class='code-block'>import pandas as pd\nfrom agentforecast import forecast_dataframe\n\ndf = pd.read_csv(\"https://raw.githubusercontent.com/jbrownlee/Datasets/master/monthly-car-sales.csv\")\nresult = forecast_dataframe(df, name=\"monthly_car_sales\", horizon=12, strategy=\"fast\", outdir=\"demo\")</div>"
+        + "<div class='code-block'>from agentforecast import OnlineForecaster\n\nforecaster = OnlineForecaster(backend=\"river_linear\", horizons=[1, 3, 6], strict_mode=True)\nforecaster.fit(history)\nyhat = forecaster.predict()</div>"
         + "</aside></section>"
+    )
+
+    surfaces_section = (
+        "<section class='section' id='surfaces'>"
+        "<div class='section-head'><div><div class='eyebrow'>Product surfaces</div><h2>One package, four explicit surfaces</h2></div>"
+        "<p>The goal is not to blur packs, research, operations, and agent tooling into one contract. The homepage should make those boundaries obvious.</p></div>"
+        + _surface_grid()
+        + "</section>"
+    )
+
+    install_section = (
+        "<section class='section' id='install'>"
+        "<div class='section-head'><div><div class='eyebrow'>Install and doctor</div><h2>Choose a calm first path</h2></div>"
+        "<p>README and the public homepage should agree on install modes, backend expectations, and the first diagnostic command to run.</p></div>"
+        + _install_matrix()
+        + "</section>"
     )
 
     selection_section = (
@@ -1267,11 +1367,13 @@ def build_hosted_site(runs_root: str | Path, site_dir: str | Path, *, gallery_ti
     benchmark_section = (
         "<section class='section' id='benchmarks'>"
         "<div class='section-head'><div><div class='eyebrow'>Model surface</div><h2>What is inside this package</h2></div>"
-        "<p>Before anyone looks at external benchmarks, they should be able to scan the backend families, concrete model ids, Python entry points, install extras, and core capabilities that agentforecast exposes.</p></div>"
+        "<p>Before anyone looks at external benchmarks, they should be able to scan the backend families, concrete model ids, install tiers, serious Python entry points, and capability matrix that agentforecast exposes.</p></div>"
         + "<div class='surface-stack'>"
         + "<div class='section-subhead'><h3>Backend families and model ids</h3><p class='muted'>This is the forecasting surface behind the gallery, grouped the way a human evaluator would usually reason about model choice.</p></div>"
         + _backend_surface_cards()
-        + "<div class='section-subhead'><h3>Python API surface</h3><p class='muted'>These are the importable functions a human reader can actually call, without having to start from a CLI command.</p></div>"
+        + "<div class='section-subhead'><h3>Backend capability matrix</h3><p class='muted'>Trust tiers and capability flags should be visible instead of hidden behind README prose or runtime surprises.</p></div>"
+        + _backend_capability_table()
+        + "<div class='section-subhead'><h3>Python API surface</h3><p class='muted'>These are the serious importable functions and objects a human reader can actually call, without having to start from a CLI command.</p></div>"
         + _api_surface_cards()
         + "<div class='section-subhead'><h3>Package capabilities</h3><p class='muted'>These are the workflow-level features that matter in practice beyond the estimator list itself.</p></div>"
         + _capability_grid()
@@ -1294,6 +1396,8 @@ def build_hosted_site(runs_root: str | Path, site_dir: str | Path, *, gallery_ti
         topbar
         + "<main class='page'><div class='shell'>"
         + hero
+        + surfaces_section
+        + install_section
         + selection_section
         + workflow_section
         + packs_section

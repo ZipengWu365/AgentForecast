@@ -121,9 +121,13 @@ class AgentForecastV17Tests(unittest.TestCase):
             self.assertIn('Real forecasting models, not toy demos', index_text)
             self.assertIn('What the package actually includes', index_text)
             self.assertIn('stats_ets, stats_arima, statsforecast_autoets, statsforecast_autoarima', index_text)
+            self.assertIn('One package, four explicit surfaces', index_text)
+            self.assertIn('Choose a calm first path', index_text)
+            self.assertIn('Backend capability matrix', index_text)
             self.assertIn('Backend families and model ids', index_text)
             self.assertIn('Python API surface', index_text)
-            self.assertIn('forecast_dataframe', index_text)
+            self.assertIn('OnlineForecaster', index_text)
+            self.assertIn('diagnose_environment', index_text)
             self.assertIn('Package capabilities', index_text)
 
     def test_summary_markdown_is_generated_without_tabulate_dependency(self) -> None:
