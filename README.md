@@ -4,7 +4,7 @@
 
 <h1 align="center">agentforecast</h1>
 
-<p align="center"><strong>Forecast any time series with classical, tabular, streaming, and optional adapter backends, then publish charts, CSV, cards, markdown, and JSON from a small Python API or one command.</strong></p>
+<p align="center"><strong>AgentForecast is a lightweight forecast-to-publish layer built on top of a stable forecasting core, with optional research and agent/tooling surfaces.</strong></p>
 
 <p align="center">
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-1f2937?style=flat-square"></a>
@@ -276,6 +276,34 @@ pip install "agentforecast[automl]"
 pip install "agentforecast[tabpfn]"
 pip install "agentforecast[stats,ml,stream,features]"
 ```
+
+Recommended install matrix:
+
+| Persona | Command | Best for |
+| --- | --- | --- |
+| beginner / pack user | `pip install agentforecast` | one-shot forecast packs and backend auto-routing |
+| research / benchmark | `pip install "agentforecast[stats,ml]"` | strict benchmark runs, comparison work, `OnlineForecaster` |
+| streaming / operations | `pip install "agentforecast[stream]"` | River backends and streaming watch flows |
+| full optional stack | `pip install "agentforecast[all]"` | widest adapter coverage |
+
+Environment check:
+
+```bash
+python -m agentforecast.cli doctor
+```
+
+## Backend Capability Matrix
+
+| Backend | Extra | Tier | Streaming | Exogenous | Conformal | Direct | Recursive | Long-horizon note |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `naive` | base | stable | no | no | no | no | yes | safe but simplistic |
+| `stats_ets` | stats | stable | no | no | no | no | yes | strong default for smoother long horizons |
+| `ml_ridge` | ml | stable | no | yes | no | yes | yes | good benchmark fallback |
+| `stream_ewm` | base | stable | yes | no | no | no | yes | lightweight streaming baseline |
+| `river_linear` | stream | beta | yes | yes | yes | yes | yes | benchmark-friendly when River is installed |
+| `river_snarimax` | stream | beta | yes | yes | yes | no | yes | stronger seasonality model, adapter path |
+| `stream_sgd` | ml | experimental | yes | yes | no | no | yes | guarded now, but no longer a default recommended route |
+| `tabpfn_regression` | tabpfn | experimental | no | yes | no | yes | yes | optional experimental adapter |
 
 ## Time Series To Regression
 

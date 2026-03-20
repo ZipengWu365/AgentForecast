@@ -246,6 +246,86 @@ def infer_series_kind(values: pd.Series) -> str:
     return "price"
 
 
+def validate_series_frame(
+    frame: pd.DataFrame,
+    *,
+    date_col: str = "ds",
+    value_col: str = "y",
+    strict_mode: bool = False,
+) -> dict[str, Any]:
+    issues: list[str] = []
+    if date_col not in frame.columns:
+        issues.append("missing_date_column")
+    if value_col not in frame.columns:
+        issues.append("missing_value_column")
+    if issues:
+        return {
+            "ok": False,
+            "strict_ready": False,
+            "cleaning_recommended": False,
+            "issues": issues,
+        }
+
+    work = frame.copy()
+    work[date_col] = pd.to_datetime(work[date_col], errors="coerce")
+    work[value_col] = pd.to_numeric(work[value_col], errors="coerce")
+    history = work[work[value_col].notna()].copy()
+    invalid_timestamps = int(work[date_col].isna().sum())
+    invalid_values = int(history[value_col].isna().sum())
+    duplicate_timestamps = int(history.duplicated(subset=[date_col]).sum()) if not history.empty else 0
+    monotonic = bool(history[date_col].is_monotonic_increasing) if not history.empty else False
+    inferred_frequency = infer_frequency_alias(history[date_col]) if len(history) >= 2 else None
+    irregular_timestamps = 0
+    if len(history) >= 3:
+        if inferred_frequency:
+            expected_index = pd.date_range(start=pd.Timestamp(history[date_col].iloc[0]), periods=len(history), freq=inferred_frequency)
+            irregular_timestamps = int((pd.DatetimeIndex(history[date_col]) != expected_index).sum())
+        else:
+            step = _infer_step(history[date_col])
+            irregular_timestamps = int((history[date_col].diff().dropna() != step).sum())
+
+    strict_ready = (
+        invalid_timestamps == 0
+        and invalid_values == 0
+        and duplicate_timestamps == 0
+        and monotonic
+        and irregular_timestamps == 0
+        and len(history) >= 10
+    )
+    return {
+        "ok": len(issues) == 0,
+        "strict_mode": strict_mode,
+        "strict_ready": strict_ready,
+        "cleaning_recommended": bool(invalid_timestamps or duplicate_timestamps or irregular_timestamps),
+        "issues": issues,
+        "history_length": int(len(history)),
+        "invalid_timestamps": invalid_timestamps,
+        "invalid_values": invalid_values,
+        "duplicate_timestamps": duplicate_timestamps,
+        "is_monotonic": monotonic,
+        "irregular_timestamps": irregular_timestamps,
+        "inferred_frequency": inferred_frequency,
+    }
+
+
+def clean_series_frame(
+    frame: pd.DataFrame,
+    *,
+    date_col: str = "ds",
+    value_col: str = "y",
+    series_kind: str = "auto",
+    max_history: int | None = None,
+) -> PreparedSeries:
+    return prepare_series_frame(
+        frame,
+        date_col=date_col,
+        value_col=value_col,
+        series_kind=series_kind,
+        strict_mode=False,
+        max_history=max_history,
+    )
+
+
 def prepare_series_frame(
     frame: pd.DataFrame,
     *,

@@ -12,10 +12,11 @@ import numpy as np
 import agentforecast
 from agentforecast import ConformalSpec, FeatureSpec, forecast_dataset, forecast_stream_dataframe, shoot
 from agentforecast.backends import is_backend_available, list_backends, route_backends
+from agentforecast.doctor import diagnose_environment
 from agentforecast.datasets import dataset_path, get_dataset_spec
 from agentforecast.examples_hub import build_examples_site, demo_examples, list_examples
 from agentforecast.local import compare_backends_csv
-from agentforecast.features import build_feature_spec, prepare_series_frame
+from agentforecast.features import build_feature_spec, clean_series_frame, prepare_series_frame, validate_series_frame
 from agentforecast.errors import AgentForecastError
 from agentforecast.hosted import build_hosted_site
 from agentforecast.local import compare_backends_dataset, forecast_csv, forecast_stream_csv
@@ -263,6 +264,42 @@ class AgentForecastV17Tests(unittest.TestCase):
         self.assertTrue(prepared.cleanup["cleanup_applied"])
         self.assertGreater(prepared.cleanup["history_truncated"], 0)
         self.assertEqual(prepared.cleanup["history_rows_retained"], 24)
+
+    def test_validate_and_clean_series_frame_are_split(self) -> None:
+        frame = pd.DataFrame(
+            {
+                "ds": [
+                    pd.Timestamp("2024-01-01"),
+                    pd.Timestamp("2024-01-02"),
+                    pd.Timestamp("2024-01-04"),
+                    pd.Timestamp("2024-01-04"),
+                    pd.Timestamp("2024-01-05"),
+                    pd.Timestamp("2024-01-06"),
+                    pd.Timestamp("2024-01-07"),
+                    pd.Timestamp("2024-01-08"),
+                    pd.Timestamp("2024-01-09"),
+                    pd.Timestamp("2024-01-10"),
+                ],
+                "y": list(range(10)),
+            }
+        )
+        report = validate_series_frame(frame, strict_mode=True)
+        self.assertTrue(report["ok"])
+        self.assertFalse(report["strict_ready"])
+        self.assertTrue(report["cleaning_recommended"])
+        self.assertGreater(report["duplicate_timestamps"], 0)
+        self.assertGreater(report["irregular_timestamps"], 0)
+        prepared = clean_series_frame(frame)
+        self.assertTrue(prepared.cleanup["cleanup_applied"])
+        self.assertGreaterEqual(prepared.cleanup["duplicate_timestamps_merged"], 1)
+
+    def test_diagnose_environment_reports_profiles_and_capabilities(self) -> None:
+        payload = diagnose_environment()
+        self.assertIn("profiles", payload)
+        self.assertIn("backend_capabilities", payload)
+        self.assertIn("recommended_commands", payload)
+        self.assertTrue(any(row["backend_id"] == "ml_ridge" for row in payload["backend_capabilities"]))
+        self.assertIn("pack", payload["profiles"])
 
     def test_build_feature_spec_supports_feature_preset_and_lookback(self) -> None:
         frame = pd.read_csv(dataset_path("gold-exogenous"))

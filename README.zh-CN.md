@@ -1,6 +1,6 @@
 # agentforecast
 
-**用 one command 调度 classical、tabular、streaming 和 optional adapters，把任意 time series 变成可发布的 forecast pack。**
+**AgentForecast 是一个建立在稳定 forecasting core 之上的轻量 forecast-to-publish layer，并额外提供 research 与 agent/tooling surface。**
 
 `agentforecast` 是一个 **多后端、agent-friendly、output-first** 的 forecast-to-publish layer。
 
@@ -14,6 +14,7 @@
 
 ```bash
 python -m pip install agentforecast-1.7.0-py3-none-any.whl
+python -m agentforecast.cli doctor
 python -m agentforecast.cli shoot sales --outdir demo
 ```
 
@@ -30,6 +31,26 @@ python -m agentforecast.cli demo-gallery --outdir demo_gallery_runs --site-dir p
 - tabular：`ml_ridge / ml_histgb / ml_xgboost / MLForecast adapters`
 - streaming：`stream_sgd / stream_ewm / River adapters`
 - optional high-end：`NHITS / AutoGluon / TabPFN`
+
+## 安装矩阵
+
+| 角色 | 命令 | 适合场景 |
+| --- | --- | --- |
+| 入门 / pack 用户 | `pip install agentforecast` | 一次性 forecast pack 与自动路由 |
+| research / benchmark | `pip install "agentforecast[stats,ml]"` | 严格 benchmark、对比实验、`OnlineForecaster` |
+| streaming / operations | `pip install "agentforecast[stream]"` | River 流式 backend 与监控场景 |
+| 全量可选栈 | `pip install "agentforecast[all]"` | 最广的 adapter 覆盖 |
+
+## backend 能力矩阵
+
+| Backend | Extra | Tier | Streaming | Exogenous | Conformal | Direct | Recursive |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `naive` | base | stable | 否 | 否 | 否 | 否 | 是 |
+| `stats_ets` | stats | stable | 否 | 否 | 否 | 否 | 是 |
+| `ml_ridge` | ml | stable | 否 | 是 | 否 | 是 | 是 |
+| `stream_ewm` | base | stable | 是 | 否 | 否 | 否 | 是 |
+| `river_linear` | stream | beta | 是 | 是 | 是 | 是 | 是 |
+| `stream_sgd` | ml | experimental | 是 | 是 | 否 | 否 | 是 |
 
 ## benchmark 首选 API
 

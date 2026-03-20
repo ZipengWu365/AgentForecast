@@ -5,9 +5,10 @@ import sys
 from typing import Any
 
 from .benchmark_hub import list_external_benchmarks
+from .doctor import diagnose_environment
 from .datasets import list_datasets
 from .live import list_cases
-from .backends import list_backends, list_backend_families
+from .backends import list_backend_capabilities, list_backends, list_backend_families
 from .resources import package_overview
 from .tool_server import dispatch_tool_call
 from .version import __version__
@@ -20,7 +21,9 @@ _RESOURCES = {
         "symbols": ["OnlineForecaster", "forecast_benchmark_dataframe", "list_feature_presets"],
         "notes": "Use strict_mode=True, horizons=[...], lookback/max_history, and mode=recursive|direct for reproducible low-level benchmarking.",
     },
+    "package://agentforecast/doctor": lambda: diagnose_environment(),
     "package://agentforecast/backends": lambda: list_backends(),
+    "package://agentforecast/backend_capabilities": lambda: list_backend_capabilities(),
     "package://agentforecast/backend_families": lambda: list_backend_families(),
     "package://agentforecast/datasets": lambda: list_datasets("en"),
     "package://agentforecast/cases": lambda: list_cases("en"),
@@ -32,6 +35,7 @@ def _tools_list() -> dict[str, Any]:
     return {
         "tools": [
             {"name": "describe_package", "description": "Describe the package and safest quickstart.", "inputSchema": {"type": "object", "properties": {"language": {"type": "string"}}}},
+            {"name": "doctor", "description": "Diagnose backend availability and environment readiness.", "inputSchema": {"type": "object", "properties": {}}},
             {
                 "name": "forecast_benchmark_dataframe",
                 "description": "Run the benchmark-first low-level dataframe forecast API.",
@@ -54,6 +58,7 @@ def _tools_list() -> dict[str, Any]:
                 }
             },
             {"name": "list_feature_presets", "description": "List benchmark feature presets.", "inputSchema": {"type": "object", "properties": {}}},
+            {"name": "list_backend_capabilities", "description": "List backend capability and trust metadata.", "inputSchema": {"type": "object", "properties": {}}},
             {"name": "shoot", "description": "Camera mode for datasets, cases, CSV files, directories, or CSV URLs.", "inputSchema": {"type": "object", "properties": {"target": {"type": "string"}, "backend": {"type": "string"}, "strategy": {"type": "string"}, "horizon": {"type": "integer"}, "outdir": {"type": "string"}}, "required": ["target"]}},
             {"name": "forecast_dataset", "description": "Forecast a bundled dataset.", "inputSchema": {"type": "object", "properties": {"dataset_id": {"type": "string"}, "horizon": {"type": "integer"}, "backend": {"type": "string"}, "strategy": {"type": "string"}, "outdir": {"type": "string"}}, "required": ["dataset_id"]}},
             {"name": "forecast_csv", "description": "Forecast a local CSV path.", "inputSchema": {"type": "object", "properties": {"path": {"type": "string"}, "date_col": {"type": "string"}, "value_col": {"type": "string"}, "horizon": {"type": "integer"}, "backend": {"type": "string"}, "strategy": {"type": "string"}, "outdir": {"type": "string"}}, "required": ["path"]}},

@@ -10,6 +10,7 @@ import pandas as pd
 
 from .benchmark import forecast_benchmark_dataframe
 from .conformal import ConformalSpec
+from .doctor import diagnose_environment, doctor_report_text
 from .features import FeatureSpec, list_feature_presets
 from .version import __version__
 from .errors import AgentForecastError
@@ -26,7 +27,7 @@ from .local import (
 )
 from .live import get_case, list_cases, run_case
 from .datasets import get_dataset_spec, list_datasets
-from .backends import is_backend_available, list_backends, list_backend_families, route_backends
+from .backends import is_backend_available, list_backend_capabilities, list_backends, list_backend_families, route_backends
 from .resources import api_catalog, describe_package, package_overview
 from .tool_server import serve_json_tools
 from .mcp_server import serve_mcp
@@ -189,6 +190,9 @@ def build_parser() -> argparse.ArgumentParser:
     p_desc.add_argument("--language", default="en")
     p_desc.add_argument("--output", choices=["json", "text"], default="json")
 
+    p_doctor = sub.add_parser("doctor", help="Diagnose backend availability and environment readiness.")
+    p_doctor.add_argument("--output", choices=["json", "text"], default="json")
+
     for alias in ["shoot", "snap", "vibe"]:
         p = sub.add_parser(alias, help="Camera mode: auto-detect dataset id, case id, CSV, directory, or URL.")
         p.add_argument("target")
@@ -334,6 +338,9 @@ def build_parser() -> argparse.ArgumentParser:
     p_backends = sub.add_parser("list-backends", help="List registered backends.")
     p_backends.add_argument("--output", choices=["json", "text"], default="json")
 
+    p_backend_caps = sub.add_parser("list-backend-capabilities", help="List backend capability and trust metadata.")
+    p_backend_caps.add_argument("--output", choices=["json", "text"], default="json")
+
     p_backend_families = sub.add_parser("backend-families", help="List backend families.")
     p_backend_families.add_argument("--output", choices=["json", "text"], default="json")
 
@@ -387,6 +394,9 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "describe-package":
             payload = describe_package(args.language)
             _print(payload if args.output == "json" else payload["headline"] + "\n" + "\n".join(payload["quickstart"]), args.output)
+        elif args.command == "doctor":
+            payload = diagnose_environment()
+            _print(payload if args.output == "json" else doctor_report_text(payload), args.output)
         elif args.command in {"shoot", "snap", "vibe"}:
             result = shoot(args.target, backend=args.backend, strategy=args.strategy, horizon=args.horizon, outdir=args.outdir, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args), **_runtime_kwargs_from_args(args))
             _print(result.to_dict() if args.output == "json" else result.summary["headline"], args.output)
@@ -446,6 +456,8 @@ def main(argv: list[str] | None = None) -> int:
             print(path.as_posix())
         elif args.command == "list-backends":
             _print(list_backends(), args.output)
+        elif args.command == "list-backend-capabilities":
+            _print(list_backend_capabilities(), args.output)
         elif args.command == "backend-families":
             _print(list_backend_families(), args.output)
         elif args.command == "route-backends":

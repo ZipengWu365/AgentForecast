@@ -14,6 +14,13 @@
       }
     },
     {
+      "name": "doctor",
+      "input_schema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
       "name": "forecast_benchmark_dataframe",
       "input_schema": {
         "type": "object",
@@ -65,6 +72,13 @@
     },
     {
       "name": "list_feature_presets",
+      "input_schema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "list_backend_capabilities",
       "input_schema": {
         "type": "object",
         "properties": {}

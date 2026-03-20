@@ -7,6 +7,7 @@ from typing import Any
 import pandas as pd
 
 from .benchmark import forecast_benchmark_dataframe
+from .doctor import diagnose_environment
 from .errors import AgentForecastError
 from .examples_hub import build_examples_site, demo_examples, list_examples
 from .hosted import build_hosted_site
@@ -21,7 +22,7 @@ from .local import (
 )
 from .live import run_case, list_cases
 from .datasets import list_datasets
-from .backends import list_backends, list_backend_families, route_backends
+from .backends import list_backend_capabilities, list_backends, list_backend_families, route_backends
 from .features import list_feature_presets
 from .resources import package_overview
 from .version import __version__
@@ -36,6 +37,7 @@ _ERROR_SCHEMA_VERSION = "1.1.0"
 def _tool_catalog() -> list[dict[str, Any]]:
     return [
         {"name": "describe_package", "description": "Describe the package and safest quickstart."},
+        {"name": "doctor", "description": "Diagnose backend availability and recommended install/workflow profiles."},
         {"name": "forecast_benchmark_dataframe", "description": "Run the benchmark-first low-level dataframe forecast API."},
         {"name": "list_feature_presets", "description": "List benchmark feature presets."},
         {"name": "shoot", "description": "Camera mode for datasets, cases, local CSV, directories, or CSV URLs."},
@@ -51,6 +53,7 @@ def _tool_catalog() -> list[dict[str, Any]]:
         {"name": "demo_examples", "description": "Generate curated example runs and build the examples site."},
         {"name": "build_examples_site", "description": "Build the tutorial-style examples site from generated example runs."},
         {"name": "list_backends", "description": "List registered backends."},
+        {"name": "list_backend_capabilities", "description": "List backend capability and trust metadata."},
         {"name": "route_backends", "description": "Return candidate backends and routing rationale."},
     ]
 
@@ -74,6 +77,8 @@ def dispatch_tool_call(name: str, args: dict[str, Any]) -> dict[str, Any]:
     try:
         if name == "describe_package":
             return _ok(package_overview(args.get("language", "en")))
+        if name == "doctor":
+            return _ok(diagnose_environment())
         if name == "forecast_benchmark_dataframe":
             payload = dict(args)
             payload["frame"] = pd.DataFrame(payload.get("frame", []))
@@ -106,6 +111,8 @@ def dispatch_tool_call(name: str, args: dict[str, Any]) -> dict[str, Any]:
             return _ok(build_examples_site(**args))
         if name == "list_backends":
             return _ok(list_backends(**args))
+        if name == "list_backend_capabilities":
+            return _ok(list_backend_capabilities(**args))
         if name == "route_backends":
             return _ok(route_backends(**args))
         if name == "list_cases":

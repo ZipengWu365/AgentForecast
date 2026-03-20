@@ -1,7 +1,7 @@
 """agentforecast: publishable forecast packs plus benchmark-friendly forecasting APIs."""
 
 from .conformal import ConformalSpec
-from .features import FeatureSpec, list_feature_presets
+from .features import FeatureSpec, clean_series_frame, list_feature_presets, validate_series_frame
 from .version import __version__
 from .local import (
     shoot,
@@ -19,9 +19,10 @@ from .local import (
     forecast_stream_csv,
 )
 from .benchmark import BenchmarkForecastResult, OnlineForecaster, forecast_benchmark_dataframe
+from .doctor import diagnose_environment
 from .live import run_case, list_cases, get_case
 from .datasets import list_datasets, get_dataset_spec, write_dataset
-from .backends import list_backends, list_backend_families, route_backends, supports_direct_forecast
+from .backends import backend_availability_report, list_backend_capabilities, list_backends, list_backend_families, route_backends, supports_direct_forecast
 from .resources import describe_package
 from .examples_hub import build_examples_site, demo_examples, list_examples
 from .hosted import build_hosted_site
@@ -36,8 +37,11 @@ __all__ = [
     "__version__",
     "ConformalSpec",
     "FeatureSpec",
+    "clean_series_frame",
+    "validate_series_frame",
     "BenchmarkForecastResult",
     "OnlineForecaster",
+    "diagnose_environment",
     "shoot",
     "snap",
     "vibe",
@@ -59,6 +63,8 @@ __all__ = [
     "list_datasets",
     "get_dataset_spec",
     "write_dataset",
+    "backend_availability_report",
+    "list_backend_capabilities",
     "list_backends",
     "list_backend_families",
     "list_feature_presets",

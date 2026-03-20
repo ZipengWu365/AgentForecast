@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from .backends import list_backends, list_backend_families
+from .backends import list_backend_capabilities, list_backends, list_backend_families
 from .benchmark_hub import list_external_benchmarks
+from .doctor import diagnose_environment
 from .features import list_feature_presets
 from .cases import _CASES
 from .datasets import list_datasets
@@ -16,6 +17,7 @@ def describe_package(language: str = "en") -> dict[str, Any]:
         headline = "一个包同时覆盖可发布 forecast pack 和 benchmark 友好的在线预测接口。"
         quickstart = [
             "python -m pip install agentforecast-1.7.0-py3-none-any.whl",
+            "python -m agentforecast.cli doctor",
             "python -m agentforecast.cli shoot sales --outdir demo",
             "python -m agentforecast.cli benchmark-forecast data.csv --backend river_linear --horizons 12,36,72 --strict-mode",
             "python -m agentforecast.cli demo-gallery --outdir demo_gallery_runs --site-dir public_gallery/site",
@@ -25,6 +27,7 @@ def describe_package(language: str = "en") -> dict[str, Any]:
         headline = "Publishable forecast packs plus benchmark-friendly online forecasting in one package."
         quickstart = [
             "python -m pip install agentforecast-1.7.0-py3-none-any.whl",
+            "python -m agentforecast.cli doctor",
             "python -m agentforecast.cli shoot sales --outdir demo",
             "python -m agentforecast.cli benchmark-forecast data.csv --backend river_linear --horizons 12,36,72 --strict-mode",
             "python -m agentforecast.cli demo-gallery --outdir demo_gallery_runs --site-dir public_gallery/site",
@@ -59,6 +62,9 @@ def api_catalog() -> list[dict[str, Any]]:
     return [
         {"name": "OnlineForecaster", "purpose": "Benchmark-first low-level API with fit/predict/update, strict_mode, lookback, and multi-horizon forecasting."},
         {"name": "forecast_benchmark_dataframe", "purpose": "One-shot benchmark forecast over a dataframe with horizons=[...] and recursive/direct mode."},
+        {"name": "diagnose_environment", "purpose": "Report which backends are importable, why others are unavailable, and which workflows the environment supports."},
+        {"name": "validate_series_frame", "purpose": "Inspect timestamps, duplicates, cadence, and strict-mode readiness without mutating the input."},
+        {"name": "clean_series_frame", "purpose": "Opt in to the forgiving cleanup path that sorts, merges, fills, and normalizes a series frame."},
         {"name": "list_feature_presets", "purpose": "List benchmark-oriented feature presets such as traffic_5min, eeg, daily_climate, and flu."},
         {"name": "shoot", "purpose": "Camera mode. Auto-detect dataset id, case id, csv path, directory, or URL."},
         {"name": "forecast_csv", "purpose": "Forecast a local CSV with backend='auto' or a specific backend."},
@@ -88,7 +94,9 @@ def package_overview(language: str = "en") -> dict[str, Any]:
         **describe_package(language),
         "api_catalog": api_catalog(),
         "backends": list_backends(),
+        "backend_capability_matrix": list_backend_capabilities(),
         "backend_families": list_backend_families(),
+        "doctor": diagnose_environment(),
         "datasets": list_dataset_catalog(language),
         "cases": list_case_catalog(language),
         "external_benchmark_hub": list_external_benchmarks(),

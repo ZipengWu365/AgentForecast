@@ -52,6 +52,28 @@ def _has(module: str) -> bool:
         return False
 
 
+_DEPENDENCY_HINTS: dict[str, tuple[str, str]] = {
+    "stats_arima": ("statsmodels", 'pip install "agentforecast[stats]"'),
+    "stats_ets": ("statsmodels", 'pip install "agentforecast[stats]"'),
+    "statsforecast_autoarima": ("statsforecast", 'pip install "agentforecast[stats]"'),
+    "statsforecast_autoets": ("statsforecast", 'pip install "agentforecast[stats]"'),
+    "ml_ridge": ("scikit-learn", 'pip install "agentforecast[ml]"'),
+    "ml_histgb": ("scikit-learn", 'pip install "agentforecast[ml]"'),
+    "stream_sgd": ("scikit-learn", 'pip install "agentforecast[ml]"'),
+    "ml_xgboost": ("xgboost", 'pip install "agentforecast[ml]"'),
+    "ml_lightgbm": ("lightgbm", 'pip install "agentforecast[ml]"'),
+    "ml_catboost": ("catboost", 'pip install "agentforecast[ml]"'),
+    "mlforecast_linear": ("mlforecast + scikit-learn", 'pip install "agentforecast[ml]"'),
+    "mlforecast_xgboost": ("mlforecast + xgboost", 'pip install "agentforecast[ml]"'),
+    "river_linear": ("river", 'pip install "agentforecast[stream]"'),
+    "river_snarimax": ("river", 'pip install "agentforecast[stream]"'),
+    "river_holtwinters": ("river", 'pip install "agentforecast[stream]"'),
+    "neural_nhits": ("neuralforecast", 'pip install "agentforecast[deep]"'),
+    "automl_autogluon": ("autogluon.timeseries", 'pip install "agentforecast[automl]"'),
+    "tabpfn_regression": ("tabpfn", 'pip install "agentforecast[tabpfn]"'),
+}
+
+
 _REGISTRY: dict[str, BackendSpec] = {
     # lean base path
     "naive": BackendSpec("naive", "baseline", "agentforecast", "Repeat the last observed value.", "base", ["fast", "low_data"]),
@@ -91,6 +113,61 @@ def list_backends(*, family: str | None = None, include_unavailable: bool = True
     if not include_unavailable:
         specs = [spec for spec in specs if spec.available]
     return [spec.to_dict() for spec in specs]
+
+
+def _stability_tier(backend_id: str) -> str:
+    if backend_id in {"naive", "seasonal_naive", "moving_average", "drift", "stats_arima", "stats_ets", "ml_ridge", "stream_ewm"}:
+        return "stable"
+    if backend_id in {"ml_histgb", "ml_xgboost", "ml_lightgbm", "ml_catboost", "mlforecast_linear", "mlforecast_xgboost", "river_linear", "river_snarimax", "river_holtwinters"}:
+        return "beta"
+    return "experimental"
+
+
+def _supports_exogenous(spec: BackendSpec) -> bool:
+    if "exogenous" in spec.tags:
+        return True
+    return spec.backend_id.startswith(("ml_", "mlforecast_", "river_")) or spec.backend_id == "tabpfn_regression"
+
+
+def _supports_conformal(spec: BackendSpec) -> bool:
+    return any(tag.startswith("supports_conformal") for tag in spec.tags)
+
+
+def backend_availability_report(backend_id: str) -> dict[str, Any]:
+    spec = get_backend_spec(backend_id)
+    available = is_backend_available(backend_id)
+    dependency, install = _DEPENDENCY_HINTS.get(backend_id, ("built-in dependency set", "pip install agentforecast"))
+    reason = "available" if available else f"missing optional dependency: {dependency}"
+    return {
+        "backend_id": backend_id,
+        "available": available,
+        "reason": reason,
+        "install_hint": install if not available else None,
+        "extra": spec.extra,
+    }
+
+
+def list_backend_capabilities(*, include_unavailable: bool = True) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for spec in _REGISTRY.values():
+        row = spec.to_dict()
+        row.update(
+            {
+                "stability_tier": _stability_tier(spec.backend_id),
+                "supports_one_shot": True,
+                "supports_streaming": spec.family == "streaming",
+                "supports_exogenous": _supports_exogenous(spec),
+                "supports_conformal": _supports_conformal(spec),
+                "supports_direct": supports_direct_forecast(spec.backend_id),
+                "supports_recursive": True,
+                "long_horizon_safe": ("long_horizon" in spec.tags) or spec.backend_id in {"naive", "moving_average", "drift"},
+                "availability": backend_availability_report(spec.backend_id),
+            }
+        )
+        rows.append(row)
+    if not include_unavailable:
+        rows = [row for row in rows if row["available"]]
+    return rows
 
 
 def list_backend_families() -> list[dict[str, Any]]:
