@@ -4,6 +4,9 @@ import json
 import sys
 from typing import Any
 
+import pandas as pd
+
+from .benchmark import forecast_benchmark_dataframe
 from .errors import AgentForecastError
 from .examples_hub import build_examples_site, demo_examples, list_examples
 from .hosted import build_hosted_site
@@ -19,6 +22,7 @@ from .local import (
 from .live import run_case, list_cases
 from .datasets import list_datasets
 from .backends import list_backends, list_backend_families, route_backends
+from .features import list_feature_presets
 from .resources import package_overview
 from .version import __version__
 
@@ -32,6 +36,8 @@ _ERROR_SCHEMA_VERSION = "1.1.0"
 def _tool_catalog() -> list[dict[str, Any]]:
     return [
         {"name": "describe_package", "description": "Describe the package and safest quickstart."},
+        {"name": "forecast_benchmark_dataframe", "description": "Run the benchmark-first low-level dataframe forecast API."},
+        {"name": "list_feature_presets", "description": "List benchmark feature presets."},
         {"name": "shoot", "description": "Camera mode for datasets, cases, local CSV, directories, or CSV URLs."},
         {"name": "forecast_dataset", "description": "Forecast a bundled dataset."},
         {"name": "forecast_csv", "description": "Forecast a local CSV."},
@@ -68,6 +74,12 @@ def dispatch_tool_call(name: str, args: dict[str, Any]) -> dict[str, Any]:
     try:
         if name == "describe_package":
             return _ok(package_overview(args.get("language", "en")))
+        if name == "forecast_benchmark_dataframe":
+            payload = dict(args)
+            payload["frame"] = pd.DataFrame(payload.get("frame", []))
+            return _ok(forecast_benchmark_dataframe(**payload))
+        if name == "list_feature_presets":
+            return _ok(list_feature_presets())
         if name == "shoot":
             return _ok(shoot(**args))
         if name == "forecast_dataset":

@@ -4,6 +4,7 @@ from typing import Any
 
 from .backends import list_backends, list_backend_families
 from .benchmark_hub import list_external_benchmarks
+from .features import list_feature_presets
 from .cases import _CASES
 from .datasets import list_datasets
 from .version import __version__
@@ -12,18 +13,20 @@ from .version import __version__
 def describe_package(language: str = "en") -> dict[str, Any]:
     zh = language.lower().startswith("zh")
     if zh:
-        headline = "用 one command 把任意 time series 变成可发布的 forecast pack。"
+        headline = "一个包同时覆盖可发布 forecast pack 和 benchmark 友好的在线预测接口。"
         quickstart = [
             "python -m pip install agentforecast-1.7.0-py3-none-any.whl",
             "python -m agentforecast.cli shoot sales --outdir demo",
+            "python -m agentforecast.cli benchmark-forecast data.csv --backend river_linear --horizons 12,36,72 --strict-mode",
             "python -m agentforecast.cli demo-gallery --outdir demo_gallery_runs --site-dir public_gallery/site",
             "python -m agentforecast.cli demo-examples --outdir examples/generated --site-dir examples/site",
         ]
     else:
-        headline = "Turn any time series into a publishable forecast pack in one command."
+        headline = "Publishable forecast packs plus benchmark-friendly online forecasting in one package."
         quickstart = [
             "python -m pip install agentforecast-1.7.0-py3-none-any.whl",
             "python -m agentforecast.cli shoot sales --outdir demo",
+            "python -m agentforecast.cli benchmark-forecast data.csv --backend river_linear --horizons 12,36,72 --strict-mode",
             "python -m agentforecast.cli demo-gallery --outdir demo_gallery_runs --site-dir public_gallery/site",
             "python -m agentforecast.cli demo-examples --outdir examples/generated --site-dir examples/site",
         ]
@@ -31,10 +34,13 @@ def describe_package(language: str = "en") -> dict[str, Any]:
         "name": "agentforecast",
         "version": __version__,
         "headline": headline,
-        "value": "One command routes a time series through baseline, classical, tabular, streaming, or optional adapter backends and exports CSV, chart, card, markdown, and JSON artifacts.",
-        "why_now": "Use it when you want a smaller product surface than a full forecasting framework, but a richer output contract than a bare model API.",
+        "value": "Use the pack surface for CSV/chart/report artifacts, or the benchmark surface for fit/predict/update online experiments with strict data handling and multi-horizon output.",
+        "why_now": "Use it when you want one lightweight package that can serve both demo-pack workflows and reproducible benchmark adapters without reaching into private internals.",
         "quickstart": quickstart,
         "small_surface": [
+            "OnlineForecaster",
+            "forecast_benchmark_dataframe",
+            "list_feature_presets",
             "shoot",
             "forecast_csv",
             "forecast_url",
@@ -51,6 +57,9 @@ def describe_package(language: str = "en") -> dict[str, Any]:
 
 def api_catalog() -> list[dict[str, Any]]:
     return [
+        {"name": "OnlineForecaster", "purpose": "Benchmark-first low-level API with fit/predict/update, strict_mode, lookback, and multi-horizon forecasting."},
+        {"name": "forecast_benchmark_dataframe", "purpose": "One-shot benchmark forecast over a dataframe with horizons=[...] and recursive/direct mode."},
+        {"name": "list_feature_presets", "purpose": "List benchmark-oriented feature presets such as traffic_5min, eeg, daily_climate, and flu."},
         {"name": "shoot", "purpose": "Camera mode. Auto-detect dataset id, case id, csv path, directory, or URL."},
         {"name": "forecast_csv", "purpose": "Forecast a local CSV with backend='auto' or a specific backend."},
         {"name": "forecast_url", "purpose": "Forecast a remote CSV URL."},
@@ -83,6 +92,7 @@ def package_overview(language: str = "en") -> dict[str, Any]:
         "datasets": list_dataset_catalog(language),
         "cases": list_case_catalog(language),
         "external_benchmark_hub": list_external_benchmarks(),
+        "feature_presets": list_feature_presets(),
         "hosted_gallery": {
             "description": "Static gallery builder for GitHub Pages or other simple hosting.",
             "commands": [

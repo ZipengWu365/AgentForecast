@@ -193,9 +193,26 @@ def compare_backends_frame(
     used_live_data: bool = False,
     conformal: ConformalSpec | None = None,
     feature_spec: FeatureSpec | dict[str, Any] | None = None,
+    strict_mode: bool = False,
+    lookback: int | None = None,
+    max_history: int | None = None,
+    feature_preset: str | None = None,
 ) -> CompareResult:
-    prepared = prepare_series_frame(frame, date_col=date_col, value_col=value_col, series_kind=series_kind)
-    built_feature_spec = build_feature_spec(prepared.history, feature_spec=feature_spec)
+    prepared = prepare_series_frame(
+        frame,
+        date_col=date_col,
+        value_col=value_col,
+        series_kind=series_kind,
+        strict_mode=strict_mode,
+        max_history=max_history,
+    )
+    built_feature_spec = build_feature_spec(
+        prepared.history,
+        feature_spec=feature_spec,
+        feature_preset=feature_preset,
+        lookback=lookback,
+    )
+    built_feature_spec["carry_forward_exog"] = not strict_mode
     route = route_backends(history_len=len(prepared.history), horizon=horizon, strategy=strategy, exogenous_cols=prepared.exogenous_cols)
     candidate = backends or route['candidate_backends'] or candidate_backends(strategy)
     if backends is not None:
@@ -246,6 +263,10 @@ def compare_backends_frame(
             "date_col": date_col,
             "value_col": value_col,
             "series_kind": prepared.series_kind,
+            "strict_mode": strict_mode,
+            "lookback": lookback,
+            "max_history": max_history,
+            "feature_preset": feature_preset,
             "candidate_backends": candidate,
             **({"conformal": conformal.to_dict()} if conformal is not None else {}),
         },
@@ -274,6 +295,10 @@ def forecast_dataframe(
     source: str | None = None,
     conformal: ConformalSpec | None = None,
     feature_spec: FeatureSpec | dict[str, Any] | None = None,
+    strict_mode: bool = False,
+    lookback: int | None = None,
+    max_history: int | None = None,
+    feature_preset: str | None = None,
 ) -> RunResult:
     if backend == "auto":
         compare = compare_backends_frame(
@@ -288,13 +313,30 @@ def forecast_dataframe(
             source=source,
             conformal=conformal,
             feature_spec=feature_spec,
+            strict_mode=strict_mode,
+            lookback=lookback,
+            max_history=max_history,
+            feature_preset=feature_preset,
         )
         run = _to_run_result(compare)
         write_json(Path(outdir) / slugify(name) / "meta" / "metadata.json", run.to_dict())
         return run
 
-    prepared = prepare_series_frame(frame, date_col=date_col, value_col=value_col, series_kind=series_kind)
-    built_feature_spec = build_feature_spec(prepared.history, feature_spec=feature_spec)
+    prepared = prepare_series_frame(
+        frame,
+        date_col=date_col,
+        value_col=value_col,
+        series_kind=series_kind,
+        strict_mode=strict_mode,
+        max_history=max_history,
+    )
+    built_feature_spec = build_feature_spec(
+        prepared.history,
+        feature_spec=feature_spec,
+        feature_preset=feature_preset,
+        lookback=lookback,
+    )
+    built_feature_spec["carry_forward_exog"] = not strict_mode
     scored = score_backend(
         prepared.history,
         prepared.future_features,
@@ -325,6 +367,10 @@ def forecast_dataframe(
             "date_col": date_col,
             "value_col": value_col,
             "series_kind": prepared.series_kind,
+            "strict_mode": strict_mode,
+            "lookback": lookback,
+            "max_history": max_history,
+            "feature_preset": feature_preset,
             "candidate_backends": [backend],
             **({"conformal": conformal.to_dict()} if conformal is not None else {}),
         },
@@ -360,6 +406,10 @@ def forecast_csv(
     series_kind: str = "auto",
     conformal: ConformalSpec | None = None,
     feature_spec: FeatureSpec | dict[str, Any] | None = None,
+    strict_mode: bool = False,
+    lookback: int | None = None,
+    max_history: int | None = None,
+    feature_preset: str | None = None,
 ) -> RunResult:
     csv_path = Path(path)
     ensure(csv_path.exists(), "CSV_NOT_FOUND", f"CSV file not found: {csv_path}")
@@ -377,6 +427,10 @@ def forecast_csv(
         source=posix_path(csv_path),
         conformal=conformal,
         feature_spec=feature_spec,
+        strict_mode=strict_mode,
+        lookback=lookback,
+        max_history=max_history,
+        feature_preset=feature_preset,
     )
     result.run_type = "forecast_csv"
     result.inputs["csv_path"] = posix_path(csv_path)
@@ -397,6 +451,10 @@ def forecast_url(
     name: str | None = None,
     conformal: ConformalSpec | None = None,
     feature_spec: FeatureSpec | dict[str, Any] | None = None,
+    strict_mode: bool = False,
+    lookback: int | None = None,
+    max_history: int | None = None,
+    feature_preset: str | None = None,
 ) -> RunResult:
     frame = load_csv_from_url(url)
     safe_name = name or slugify(Path(url.rstrip("/").split("/")[-1]).stem or "remote_series")
@@ -413,6 +471,10 @@ def forecast_url(
         source=url,
         conformal=conformal,
         feature_spec=feature_spec,
+        strict_mode=strict_mode,
+        lookback=lookback,
+        max_history=max_history,
+        feature_preset=feature_preset,
     )
     result.run_type = "forecast_url"
     result.inputs["source_url"] = url
@@ -429,6 +491,10 @@ def forecast_dataset(
     outdir: str | Path = "outputs",
     conformal: ConformalSpec | None = None,
     feature_spec: FeatureSpec | dict[str, Any] | None = None,
+    strict_mode: bool = False,
+    lookback: int | None = None,
+    max_history: int | None = None,
+    feature_preset: str | None = None,
 ) -> RunResult:
     spec = get_dataset_spec(dataset_id)
     result = forecast_csv(
@@ -442,6 +508,10 @@ def forecast_dataset(
         series_kind=spec.series_kind,
         conformal=conformal,
         feature_spec=feature_spec,
+        strict_mode=strict_mode,
+        lookback=lookback,
+        max_history=max_history,
+        feature_preset=feature_preset,
     )
     result.run_type = "forecast_dataset"
     result.inputs["dataset_id"] = dataset_id
@@ -461,6 +531,10 @@ def compare_backends_csv(
     series_kind: str = "auto",
     conformal: ConformalSpec | None = None,
     feature_spec: FeatureSpec | dict[str, Any] | None = None,
+    strict_mode: bool = False,
+    lookback: int | None = None,
+    max_history: int | None = None,
+    feature_preset: str | None = None,
 ) -> CompareResult:
     csv_path = Path(path)
     frame = load_csv(csv_path)
@@ -476,6 +550,10 @@ def compare_backends_csv(
         source=posix_path(csv_path),
         conformal=conformal,
         feature_spec=feature_spec,
+        strict_mode=strict_mode,
+        lookback=lookback,
+        max_history=max_history,
+        feature_preset=feature_preset,
     )
     return result
 
@@ -488,6 +566,10 @@ def compare_backends_dataset(
     outdir: str | Path = "outputs",
     conformal: ConformalSpec | None = None,
     feature_spec: FeatureSpec | dict[str, Any] | None = None,
+    strict_mode: bool = False,
+    lookback: int | None = None,
+    max_history: int | None = None,
+    feature_preset: str | None = None,
 ) -> CompareResult:
     spec = get_dataset_spec(dataset_id)
     frame = load_csv(dataset_path(dataset_id))
@@ -503,6 +585,10 @@ def compare_backends_dataset(
         source=f"package_data/datasets/{spec.file_name}",
         conformal=conformal,
         feature_spec=feature_spec,
+        strict_mode=strict_mode,
+        lookback=lookback,
+        max_history=max_history,
+        feature_preset=feature_preset,
     )
     return result
 
@@ -520,6 +606,10 @@ def forecast_dir(
     series_kind: str = "auto",
     conformal: ConformalSpec | None = None,
     feature_spec: FeatureSpec | dict[str, Any] | None = None,
+    strict_mode: bool = False,
+    lookback: int | None = None,
+    max_history: int | None = None,
+    feature_preset: str | None = None,
 ) -> DirectoryRunResult:
     directory = Path(directory)
     ensure(directory.exists(), "DIRECTORY_NOT_FOUND", f"Directory not found: {directory}")
@@ -541,6 +631,10 @@ def forecast_dir(
                     series_kind=series_kind,
                     conformal=conformal,
                     feature_spec=feature_spec,
+                    strict_mode=strict_mode,
+                    lookback=lookback,
+                    max_history=max_history,
+                    feature_preset=feature_preset,
                 )
             )
         except AgentForecastError as exc:
@@ -554,6 +648,10 @@ def forecast_dir(
             "strategy": strategy,
             "date_col": date_col,
             "value_col": value_col,
+            "strict_mode": strict_mode,
+            "lookback": lookback,
+            "max_history": max_history,
+            "feature_preset": feature_preset,
             **({"conformal": conformal.to_dict()} if conformal is not None else {}),
         },
         runs=runs,
@@ -642,6 +740,10 @@ def forecast_stream_dataframe(
     source: str | None = None,
     conformal: ConformalSpec | None = None,
     feature_spec: FeatureSpec | dict[str, Any] | None = None,
+    strict_mode: bool = False,
+    lookback: int | None = None,
+    max_history: int | None = None,
+    feature_preset: str | None = None,
 ) -> RunResult:
     ensure(backend.startswith(('river_', 'stream_')), 'STREAM_BACKEND_REQUIRED', 'forecast_stream_dataframe currently requires a streaming backend.')
     result = forecast_dataframe(
@@ -657,8 +759,19 @@ def forecast_stream_dataframe(
         source=source,
         conformal=conformal,
         feature_spec=feature_spec,
+        strict_mode=strict_mode,
+        lookback=lookback,
+        max_history=max_history,
+        feature_preset=feature_preset,
     )
-    prepared = prepare_series_frame(frame, date_col=date_col, value_col=value_col, series_kind=series_kind)
+    prepared = prepare_series_frame(
+        frame,
+        date_col=date_col,
+        value_col=value_col,
+        series_kind=series_kind,
+        strict_mode=strict_mode,
+        max_history=max_history,
+    )
     diagnostics = _streaming_diagnostics(
         prepared,
         backend=backend,
@@ -680,6 +793,10 @@ def forecast_stream_csv(
     series_kind: str = "auto",
     conformal: ConformalSpec | None = None,
     feature_spec: FeatureSpec | dict[str, Any] | None = None,
+    strict_mode: bool = False,
+    lookback: int | None = None,
+    max_history: int | None = None,
+    feature_preset: str | None = None,
 ) -> RunResult:
     csv_path = Path(path)
     ensure(backend.startswith(('river_', 'stream_')), 'STREAM_BACKEND_REQUIRED', 'forecast_stream_csv currently requires a streaming backend.')
@@ -696,6 +813,10 @@ def forecast_stream_csv(
         source=posix_path(csv_path),
         conformal=conformal,
         feature_spec=feature_spec,
+        strict_mode=strict_mode,
+        lookback=lookback,
+        max_history=max_history,
+        feature_preset=feature_preset,
     )
     result.run_type = "forecast_stream_csv"
     result.inputs["csv_path"] = posix_path(csv_path)
@@ -712,21 +833,73 @@ def shoot(
     outdir: str | Path = "outputs",
     conformal: ConformalSpec | None = None,
     feature_spec: FeatureSpec | dict[str, Any] | None = None,
+    strict_mode: bool = False,
+    lookback: int | None = None,
+    max_history: int | None = None,
+    feature_preset: str | None = None,
 ) -> RunResult | DirectoryRunResult:
     from .live import list_cases
 
     if target in {item["dataset_id"] for item in _list_datasets()}:
-        return forecast_dataset(target, horizon=horizon, backend=backend, strategy=strategy, outdir=outdir, conformal=conformal, feature_spec=feature_spec)
+        return forecast_dataset(
+            target,
+            horizon=horizon,
+            backend=backend,
+            strategy=strategy,
+            outdir=outdir,
+            conformal=conformal,
+            feature_spec=feature_spec,
+            strict_mode=strict_mode,
+            lookback=lookback,
+            max_history=max_history,
+            feature_preset=feature_preset,
+        )
     if target in {item["case_id"] for item in list_cases()}:
         from .live import run_case
         return run_case(target, outdir=outdir, backend=backend if backend != "auto" else None, strategy=strategy, feature_spec=feature_spec)
     path = Path(target)
     if path.exists() and path.is_dir():
-        return forecast_dir(path, horizon=horizon or 14, backend=backend, strategy=strategy, outdir=outdir, conformal=conformal, feature_spec=feature_spec)
+        return forecast_dir(
+            path,
+            horizon=horizon or 14,
+            backend=backend,
+            strategy=strategy,
+            outdir=outdir,
+            conformal=conformal,
+            feature_spec=feature_spec,
+            strict_mode=strict_mode,
+            lookback=lookback,
+            max_history=max_history,
+            feature_preset=feature_preset,
+        )
     if path.exists() and path.suffix.lower() == ".csv":
-        return forecast_csv(path, horizon=horizon or 14, backend=backend, strategy=strategy, outdir=outdir, conformal=conformal, feature_spec=feature_spec)
+        return forecast_csv(
+            path,
+            horizon=horizon or 14,
+            backend=backend,
+            strategy=strategy,
+            outdir=outdir,
+            conformal=conformal,
+            feature_spec=feature_spec,
+            strict_mode=strict_mode,
+            lookback=lookback,
+            max_history=max_history,
+            feature_preset=feature_preset,
+        )
     if target.startswith(("http://", "https://", "file://")):
-        return forecast_url(target, horizon=horizon or 14, backend=backend, strategy=strategy, outdir=outdir, conformal=conformal, feature_spec=feature_spec)
+        return forecast_url(
+            target,
+            horizon=horizon or 14,
+            backend=backend,
+            strategy=strategy,
+            outdir=outdir,
+            conformal=conformal,
+            feature_spec=feature_spec,
+            strict_mode=strict_mode,
+            lookback=lookback,
+            max_history=max_history,
+            feature_preset=feature_preset,
+        )
     raise AgentForecastError(
         code="SHOOT_TARGET_NOT_UNDERSTOOD",
         message=f"Could not route target '{target}'.",
@@ -753,13 +926,42 @@ def compare_backends(
     series_kind: str = "auto",
     conformal: ConformalSpec | None = None,
     feature_spec: FeatureSpec | dict[str, Any] | None = None,
+    strict_mode: bool = False,
+    lookback: int | None = None,
+    max_history: int | None = None,
+    feature_preset: str | None = None,
 ) -> CompareResult:
     dataset_ids = {item["dataset_id"] for item in _list_datasets()}
     if target in dataset_ids:
-        return compare_backends_dataset(target, backends=backends, horizon=horizon, outdir=outdir, conformal=conformal, feature_spec=feature_spec)
+        return compare_backends_dataset(
+            target,
+            backends=backends,
+            horizon=horizon,
+            outdir=outdir,
+            conformal=conformal,
+            feature_spec=feature_spec,
+            strict_mode=strict_mode,
+            lookback=lookback,
+            max_history=max_history,
+            feature_preset=feature_preset,
+        )
     path = Path(target)
     if path.exists() and path.suffix.lower() == ".csv":
-        return compare_backends_csv(path, backends=backends, date_col=date_col, value_col=value_col, horizon=horizon or 30, outdir=outdir, series_kind=series_kind, conformal=conformal, feature_spec=feature_spec)
+        return compare_backends_csv(
+            path,
+            backends=backends,
+            date_col=date_col,
+            value_col=value_col,
+            horizon=horizon or 30,
+            outdir=outdir,
+            series_kind=series_kind,
+            conformal=conformal,
+            feature_spec=feature_spec,
+            strict_mode=strict_mode,
+            lookback=lookback,
+            max_history=max_history,
+            feature_preset=feature_preset,
+        )
     raise AgentForecastError(
         code="COMPARE_TARGET_NOT_UNDERSTOOD",
         message=f"Could not compare target '{target}'.",

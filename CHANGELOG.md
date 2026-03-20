@@ -2,6 +2,7 @@
 
 ## 1.7.0
 
+- documented the benchmark-oriented low-level `OnlineForecaster` surface with explicit `fit / predict / update`, `horizons`, `lookback / max_history`, `strict_mode`, and direct versus recursive modes
 - removed the hidden runtime dependency on `tabulate` by generating markdown tables in-package
 - added a fresh-wheel smoke test script and updated validation to match the real install path
 - added OSS trust files: LICENSE, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, CITATION

@@ -15,6 +15,11 @@ from .version import __version__
 
 _RESOURCES = {
     "package://agentforecast/overview": lambda: package_overview("en"),
+    "package://agentforecast/benchmark_api": lambda: {
+        "headline": "Benchmark-first API",
+        "symbols": ["OnlineForecaster", "forecast_benchmark_dataframe", "list_feature_presets"],
+        "notes": "Use strict_mode=True, horizons=[...], lookback/max_history, and mode=recursive|direct for reproducible low-level benchmarking.",
+    },
     "package://agentforecast/backends": lambda: list_backends(),
     "package://agentforecast/backend_families": lambda: list_backend_families(),
     "package://agentforecast/datasets": lambda: list_datasets("en"),
@@ -27,6 +32,28 @@ def _tools_list() -> dict[str, Any]:
     return {
         "tools": [
             {"name": "describe_package", "description": "Describe the package and safest quickstart.", "inputSchema": {"type": "object", "properties": {"language": {"type": "string"}}}},
+            {
+                "name": "forecast_benchmark_dataframe",
+                "description": "Run the benchmark-first low-level dataframe forecast API.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "frame": {"type": "array", "items": {"type": "object"}},
+                        "backend": {"type": "string"},
+                        "horizon": {"type": "integer"},
+                        "horizons": {"type": "array", "items": {"type": "integer"}},
+                        "mode": {"type": "string", "enum": ["recursive", "direct"]},
+                        "date_col": {"type": "string"},
+                        "value_col": {"type": "string"},
+                        "lookback": {"type": "integer"},
+                        "max_history": {"type": "integer"},
+                        "strict_mode": {"type": "boolean"},
+                        "feature_preset": {"type": "string"}
+                    },
+                    "required": ["frame"]
+                }
+            },
+            {"name": "list_feature_presets", "description": "List benchmark feature presets.", "inputSchema": {"type": "object", "properties": {}}},
             {"name": "shoot", "description": "Camera mode for datasets, cases, CSV files, directories, or CSV URLs.", "inputSchema": {"type": "object", "properties": {"target": {"type": "string"}, "backend": {"type": "string"}, "strategy": {"type": "string"}, "horizon": {"type": "integer"}, "outdir": {"type": "string"}}, "required": ["target"]}},
             {"name": "forecast_dataset", "description": "Forecast a bundled dataset.", "inputSchema": {"type": "object", "properties": {"dataset_id": {"type": "string"}, "horizon": {"type": "integer"}, "backend": {"type": "string"}, "strategy": {"type": "string"}, "outdir": {"type": "string"}}, "required": ["dataset_id"]}},
             {"name": "forecast_csv", "description": "Forecast a local CSV path.", "inputSchema": {"type": "object", "properties": {"path": {"type": "string"}, "date_col": {"type": "string"}, "value_col": {"type": "string"}, "horizon": {"type": "integer"}, "backend": {"type": "string"}, "strategy": {"type": "string"}, "outdir": {"type": "string"}}, "required": ["path"]}},

@@ -31,11 +31,42 @@ python -m agentforecast.cli demo-gallery --outdir demo_gallery_runs --site-dir p
 - streaming：`stream_sgd / stream_ewm / River adapters`
 - optional high-end：`NHITS / AutoGluon / TabPFN`
 
+## benchmark 首选 API
+
+如果你把 `agentforecast` 当成论文里的正式 baseline，优先用低层 `OnlineForecaster`，不要只靠 pack 型 helper。
+
+```python
+from agentforecast import OnlineForecaster
+
+forecaster = OnlineForecaster(
+    backend="river_linear",
+    lookback=336,
+    horizons=[1, 3, 6, 12],
+    strict_mode=True,
+    feature_preset="benchmark_auto",
+    mode="recursive",
+)
+forecaster.fit(initial_history)
+yhat = forecaster.predict()
+forecaster.update(y_new)
+```
+
+这套 benchmark API 的关键约定是：
+
+- `fit / predict / update` 是公开 contract
+- `horizons=[...]` 一次表达一组评测 horizon
+- `lookback` 或 `max_history` 显式限制可见历史
+- `strict_mode=True` 关闭插值、重复时间戳合并、隐式补齐等修复
+- `mode="recursive"` 表示逐步 rollout，`mode="direct"` 表示按 horizon 直接输出
+- `benchmark_auto / traffic_5min / eeg / daily_climate / flu` 这类 preset 比通用 demo 默认值更适合做实验
+
 ## 它的核心价值
 
 不是做最大的 forecasting framework，
 而是把异构 forecasting 生态压成一个统一的 **agent-friendly forecast OS layer**，
 并且把结果统一输出成可发布的 artifact pack。
+
+如果你的目标是严格 benchmark，记得把 pack 型 demo surface 和低层 benchmark surface 分开看。
 
 ## 重点文档
 

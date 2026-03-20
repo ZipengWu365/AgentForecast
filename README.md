@@ -109,6 +109,37 @@ Streaming path:
 python -m agentforecast.cli forecast-stream agentforecast/package_data/datasets/icu_bed_stress.csv --backend stream_ewm --outdir stream_demo
 ```
 
+## Benchmark-first API
+
+If you are using `agentforecast` as a paper baseline or a leak-free online benchmark backend, prefer the low-level `OnlineForecaster` surface instead of the pack-oriented helpers.
+
+```python
+from agentforecast import OnlineForecaster
+
+forecaster = OnlineForecaster(
+    backend="river_linear",
+    lookback=336,
+    horizons=[1, 3, 6, 12],
+    strict_mode=True,
+    feature_preset="benchmark_auto",
+    mode="recursive",
+)
+forecaster.fit(initial_history)
+yhat = forecaster.predict()
+forecaster.update(y_new)
+```
+
+The benchmark API is built around four rules:
+
+1. `fit / predict / update` is the public contract
+1. `horizons=[...]` is first-class, so you can evaluate a horizon set in one run
+1. `lookback` or `max_history` limits the visible history explicitly
+1. `strict_mode=True` disables implicit repair such as interpolation, duplicate merging, or silent frequency filling
+
+For multi-horizon evaluation, `mode="recursive"` rolls predictions forward step by step, while `mode="direct"` fits horizon-specific outputs when the backend supports them.
+
+Feature defaults are no longer treated as one-size-fits-all. Use benchmark presets such as `benchmark_auto`, `traffic_5min`, `eeg`, `daily_climate`, or `flu` when you need a dataset-appropriate lag/window policy instead of the demo defaults.
+
 
 ## Why this version is safer
 
@@ -249,6 +280,8 @@ pip install "agentforecast[stats,ml,stream,features]"
 ## Time Series To Regression
 
 `agentforecast` can now expose the regression framing directly instead of hiding it behind fixed defaults.
+
+That framing is useful for standard `forecast_dataframe` demos, but benchmark work should still prefer `OnlineForecaster` because it keeps the protocol explicit.
 
 You can choose specific lag points from Python:
 

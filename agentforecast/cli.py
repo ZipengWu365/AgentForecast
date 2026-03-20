@@ -6,8 +6,11 @@ from pathlib import Path
 import shutil
 import sys
 
+import pandas as pd
+
+from .benchmark import forecast_benchmark_dataframe
 from .conformal import ConformalSpec
-from .features import FeatureSpec
+from .features import FeatureSpec, list_feature_presets
 from .version import __version__
 from .errors import AgentForecastError
 from .local import (
@@ -119,6 +122,10 @@ def _add_feature_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--lag-step", type=int, default=None, help="Lag spacing for generated delay features.")
     parser.add_argument("--lag-count", type=int, default=None, help="How many spaced delay lags to generate.")
     parser.add_argument("--rolling-windows", default=None, help="Comma-separated rolling windows such as 3,7,14.")
+    parser.add_argument("--feature-preset", default=None, help="Benchmark feature preset such as benchmark_auto, traffic_5min, eeg, daily_climate, or flu.")
+    parser.add_argument("--lookback", type=int, default=None, help="Maximum lag depth exposed to feature construction.")
+    parser.add_argument("--max-history", type=int, default=None, help="Retain only the latest N observations before fitting.")
+    parser.add_argument("--strict-mode", action="store_true", help="Disallow implicit sorting, duplicate merging, gap filling, interpolation, and hidden cleanup.")
     parser.add_argument("--disable-calendar", action="store_true", help="Disable calendar-derived regression features.")
     parser.add_argument("--tsfresh", action="store_true", help="Add a compact optional tsfresh descriptor set.")
     parser.add_argument("--tsfresh-window", type=int, default=30)
@@ -160,6 +167,14 @@ def _feature_spec_from_args(args: argparse.Namespace) -> FeatureSpec | None:
         tsfresh_window=args.tsfresh_window,
         tsfresh_features=tsfresh_features or FeatureSpec().tsfresh_features,
     )
+
+
+def _runtime_kwargs_from_args(args: argparse.Namespace) -> dict[str, object]:
+    payload: dict[str, object] = {}
+    for name in ("strict_mode", "lookback", "max_history", "feature_preset"):
+        if hasattr(args, name):
+            payload[name] = getattr(args, name)
+    return payload
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -268,6 +283,21 @@ def build_parser() -> argparse.ArgumentParser:
     _add_conformal_args(p_stream)
     _add_feature_args(p_stream)
 
+    p_bench_forecast = sub.add_parser("benchmark-forecast", help="Run the benchmark-first low-level forecast API on a local CSV.")
+    p_bench_forecast.add_argument("path")
+    p_bench_forecast.add_argument("--date-col", default="ds")
+    p_bench_forecast.add_argument("--value-col", default="y")
+    p_bench_forecast.add_argument("--backend", default="river_linear")
+    p_bench_forecast.add_argument("--horizon", type=int, default=None)
+    p_bench_forecast.add_argument("--horizons", default="1,3,6")
+    p_bench_forecast.add_argument("--mode", default="recursive", choices=["recursive", "direct"])
+    p_bench_forecast.add_argument("--series-kind", default="auto", choices=["auto", "price", "cumulative"])
+    p_bench_forecast.add_argument("--output", choices=["json", "text"], default="json")
+    _add_feature_args(p_bench_forecast)
+
+    p_feature_presets = sub.add_parser("list-feature-presets", help="List benchmark feature presets.")
+    p_feature_presets.add_argument("--output", choices=["json", "text"], default="json")
+
     p_case = sub.add_parser("run-case", help="Run a built-in case.")
     p_case.add_argument("case_id")
     p_case.add_argument("--outdir", default="outputs")
@@ -358,29 +388,46 @@ def main(argv: list[str] | None = None) -> int:
             payload = describe_package(args.language)
             _print(payload if args.output == "json" else payload["headline"] + "\n" + "\n".join(payload["quickstart"]), args.output)
         elif args.command in {"shoot", "snap", "vibe"}:
-            result = shoot(args.target, backend=args.backend, strategy=args.strategy, horizon=args.horizon, outdir=args.outdir, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args))
+            result = shoot(args.target, backend=args.backend, strategy=args.strategy, horizon=args.horizon, outdir=args.outdir, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args), **_runtime_kwargs_from_args(args))
             _print(result.to_dict() if args.output == "json" else result.summary["headline"], args.output)
         elif args.command == "forecast-csv":
-            result = forecast_csv(args.path, date_col=args.date_col, value_col=args.value_col, horizon=args.horizon, backend=args.backend, strategy=args.strategy, outdir=args.outdir, series_kind=args.series_kind, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args))
+            result = forecast_csv(args.path, date_col=args.date_col, value_col=args.value_col, horizon=args.horizon, backend=args.backend, strategy=args.strategy, outdir=args.outdir, series_kind=args.series_kind, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args), **_runtime_kwargs_from_args(args))
             _print(result.to_dict() if args.output == "json" else result.summary["headline"], args.output)
         elif args.command == "forecast-url":
-            result = forecast_url(args.url, date_col=args.date_col, value_col=args.value_col, horizon=args.horizon, backend=args.backend, strategy=args.strategy, outdir=args.outdir, series_kind=args.series_kind, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args))
+            result = forecast_url(args.url, date_col=args.date_col, value_col=args.value_col, horizon=args.horizon, backend=args.backend, strategy=args.strategy, outdir=args.outdir, series_kind=args.series_kind, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args), **_runtime_kwargs_from_args(args))
             _print(result.to_dict() if args.output == "json" else result.summary["headline"], args.output)
         elif args.command == "forecast-dataset":
-            result = forecast_dataset(args.dataset_id, horizon=args.horizon, backend=args.backend, strategy=args.strategy, outdir=args.outdir, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args))
+            result = forecast_dataset(args.dataset_id, horizon=args.horizon, backend=args.backend, strategy=args.strategy, outdir=args.outdir, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args), **_runtime_kwargs_from_args(args))
             _print(result.to_dict() if args.output == "json" else result.summary["headline"], args.output)
         elif args.command == "forecast-dir":
-            result = forecast_dir(args.directory, pattern=args.pattern, date_col=args.date_col, value_col=args.value_col, horizon=args.horizon, backend=args.backend, strategy=args.strategy, outdir=args.outdir, series_kind=args.series_kind, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args))
+            result = forecast_dir(args.directory, pattern=args.pattern, date_col=args.date_col, value_col=args.value_col, horizon=args.horizon, backend=args.backend, strategy=args.strategy, outdir=args.outdir, series_kind=args.series_kind, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args), **_runtime_kwargs_from_args(args))
             _print(result.to_dict() if args.output == "json" else f"forecasted {len(result.runs)} file(s)", args.output)
         elif args.command == "compare-csv":
-            result = compare_backends_csv(args.path, backends=[item.strip() for item in args.backends.split(",") if item.strip()], date_col=args.date_col, value_col=args.value_col, horizon=args.horizon, outdir=args.outdir, series_kind=args.series_kind, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args))
+            result = compare_backends_csv(args.path, backends=[item.strip() for item in args.backends.split(",") if item.strip()], date_col=args.date_col, value_col=args.value_col, horizon=args.horizon, outdir=args.outdir, series_kind=args.series_kind, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args), **_runtime_kwargs_from_args(args))
             _print(result.to_dict() if args.output == "json" else result.summary["headline"], args.output)
         elif args.command == "compare-dataset":
-            result = compare_backends_dataset(args.dataset_id, backends=[item.strip() for item in args.backends.split(",") if item.strip()], horizon=args.horizon, outdir=args.outdir, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args))
+            result = compare_backends_dataset(args.dataset_id, backends=[item.strip() for item in args.backends.split(",") if item.strip()], horizon=args.horizon, outdir=args.outdir, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args), **_runtime_kwargs_from_args(args))
             _print(result.to_dict() if args.output == "json" else result.summary["headline"], args.output)
         elif args.command == "forecast-stream":
-            result = forecast_stream_csv(args.path, backend=args.backend, date_col=args.date_col, value_col=args.value_col, horizon=args.horizon, outdir=args.outdir, series_kind=args.series_kind, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args))
+            result = forecast_stream_csv(args.path, backend=args.backend, date_col=args.date_col, value_col=args.value_col, horizon=args.horizon, outdir=args.outdir, series_kind=args.series_kind, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args), **_runtime_kwargs_from_args(args))
             _print(result.to_dict() if args.output == "json" else result.summary["headline"], args.output)
+        elif args.command == "benchmark-forecast":
+            frame = pd.read_csv(args.path)
+            horizons = [int(item.strip()) for item in args.horizons.split(",") if item.strip()]
+            result = forecast_benchmark_dataframe(
+                frame,
+                backend=args.backend,
+                horizon=args.horizon,
+                horizons=horizons,
+                mode=args.mode,
+                date_col=args.date_col,
+                value_col=args.value_col,
+                series_kind=args.series_kind,
+                feature_spec=_feature_spec_from_args(args),
+                **_runtime_kwargs_from_args(args),
+            )
+            payload = result.to_dict()
+            _print(payload if args.output == "json" else json.dumps(payload["predictions"], ensure_ascii=False), args.output)
         elif args.command == "run-case":
             result = run_case(args.case_id, outdir=args.outdir, backend=args.backend, strategy=args.strategy, feature_spec=_feature_spec_from_args(args))
             _print(result.to_dict() if args.output == "json" else result.summary["headline"], args.output)
@@ -406,6 +453,8 @@ def main(argv: list[str] | None = None) -> int:
             _print(payload, args.output)
         elif args.command == "benchmark-hub":
             _print(list_external_benchmarks(), args.output)
+        elif args.command == "list-feature-presets":
+            _print(list_feature_presets(), args.output)
         elif args.command == "api-tour":
             _print(api_catalog(), args.output)
         elif args.command == "build-gallery":

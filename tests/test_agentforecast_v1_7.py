@@ -7,13 +7,16 @@ import unittest
 from pathlib import Path
 
 import pandas as pd
+import numpy as np
 
+import agentforecast
 from agentforecast import ConformalSpec, FeatureSpec, forecast_dataset, forecast_stream_dataframe, shoot
 from agentforecast.backends import is_backend_available, list_backends, route_backends
 from agentforecast.datasets import dataset_path, get_dataset_spec
 from agentforecast.examples_hub import build_examples_site, demo_examples, list_examples
 from agentforecast.local import compare_backends_csv
 from agentforecast.features import build_feature_spec, prepare_series_frame
+from agentforecast.errors import AgentForecastError
 from agentforecast.hosted import build_hosted_site
 from agentforecast.local import compare_backends_dataset, forecast_csv, forecast_stream_csv
 from agentforecast.mcp_server import dispatch_jsonrpc
@@ -21,9 +24,38 @@ from agentforecast.public_examples import public_example_path
 from agentforecast.tool_server import dispatch_tool_call
 
 TSFRESH_AVAILABLE = importlib.util.find_spec("tsfresh") is not None
+SKLEARN_AVAILABLE = importlib.util.find_spec("sklearn") is not None
+ONLINE_FORECASTER_AVAILABLE = hasattr(agentforecast, "OnlineForecaster")
 
 
 class AgentForecastV17Tests(unittest.TestCase):
+    def _monthly_history(self, n: int = 72) -> pd.DataFrame:
+        return pd.read_csv(public_example_path("monthly-car-sales")).tail(n).reset_index(drop=True)
+
+    def _assert_requested_horizons(self, forecast: object, expected: set[int] | None = None) -> None:
+        expected = expected or {1, 3, 6}
+        if isinstance(forecast, dict):
+            self.assertEqual({int(key) for key in forecast.keys()}, expected)
+            return
+        if isinstance(forecast, pd.DataFrame):
+            columns = {str(col) for col in forecast.columns}
+            if "horizon" in columns:
+                self.assertEqual({int(value) for value in forecast["horizon"].tolist()}, expected)
+                return
+            direct_cols = {int(col[1:]) for col in columns if col.startswith("h") and col[1:].isdigit()}
+            if direct_cols:
+                self.assertEqual(direct_cols, expected)
+                return
+            if {str(value) for value in expected}.issubset(columns):
+                return
+        if isinstance(forecast, np.ndarray):
+            self.assertGreaterEqual(forecast.size, len(expected))
+            if forecast.ndim > 0 and forecast.shape[-1] == len(expected):
+                return
+        if isinstance(forecast, (list, tuple)) and len(forecast) == len(expected):
+            return
+        self.fail(f"Unexpected multi-horizon forecast payload: {type(forecast)!r}")
+
     def test_forecast_dataset(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             result = forecast_dataset('sales', outdir=tmp)
@@ -143,6 +175,109 @@ class AgentForecastV17Tests(unittest.TestCase):
         self.assertEqual(spec['include_tsfresh'], TSFRESH_AVAILABLE)
         if TSFRESH_AVAILABLE:
             self.assertIn('sample_entropy', spec['tsfresh_features'])
+
+    def test_online_forecaster_is_public_and_supports_recursive_multi_horizon(self) -> None:
+        self.assertTrue(ONLINE_FORECASTER_AVAILABLE, "agentforecast.OnlineForecaster is not exported.")
+        self.assertIn("OnlineForecaster", getattr(agentforecast, "__all__", []))
+        history = self._monthly_history(60)
+        forecaster_cls = agentforecast.OnlineForecaster
+        forecaster = forecaster_cls(
+            backend="river_linear",
+            lookback=24,
+            horizons=[1, 3, 6],
+            strict_mode=True,
+        )
+        self.assertTrue(hasattr(forecaster, "fit"))
+        self.assertTrue(hasattr(forecaster, "predict"))
+        self.assertTrue(hasattr(forecaster, "update"))
+        forecaster.fit(history.iloc[:48])
+        forecast = forecaster.predict()
+        self._assert_requested_horizons(forecast)
+        forecaster.update(float(history.iloc[48]["y"]))
+        forecast_after_update = forecaster.predict()
+        self._assert_requested_horizons(forecast_after_update)
+
+    @unittest.skipUnless(SKLEARN_AVAILABLE, "scikit-learn is not installed")
+    def test_online_forecaster_direct_mode_supports_supervised_backend(self) -> None:
+        self.assertTrue(ONLINE_FORECASTER_AVAILABLE, "agentforecast.OnlineForecaster is not exported.")
+        history = self._monthly_history(72)
+        forecaster_cls = agentforecast.OnlineForecaster
+        init_kwargs = {
+            "backend": "ml_ridge",
+            "lookback": 24,
+            "horizons": [1, 3, 6],
+            "strict_mode": True,
+        }
+        forecaster = None
+        for direct_key in ("mode", "forecast_mode", "prediction_mode"):
+            try:
+                forecaster = forecaster_cls(**init_kwargs, **{direct_key: "direct"})
+                break
+            except TypeError:
+                continue
+        if forecaster is None:
+            self.fail("OnlineForecaster does not accept a direct-mode keyword such as mode=direct.")
+        forecaster.fit(history.iloc[:54])
+        forecast = forecaster.predict()
+        self._assert_requested_horizons(forecast)
+        forecaster.update(float(history.iloc[54]["y"]))
+        forecast_after_update = forecaster.predict()
+        self._assert_requested_horizons(forecast_after_update)
+
+    def test_strict_mode_rejects_duplicate_timestamps_and_implicit_gap_repair(self) -> None:
+        duplicate_frame = pd.DataFrame(
+            {
+                "ds": pd.date_range("2024-01-01", periods=10, freq="D").tolist()[:5]
+                + [pd.Timestamp("2024-01-05")]
+                + pd.date_range("2024-01-06", periods=4, freq="D").tolist(),
+                "y": list(range(10)),
+            }
+        )
+        gap_frame = pd.DataFrame(
+            {
+                "ds": [
+                    pd.Timestamp("2024-02-01"),
+                    pd.Timestamp("2024-02-02"),
+                    pd.Timestamp("2024-02-03"),
+                    pd.Timestamp("2024-02-04"),
+                    pd.Timestamp("2024-02-06"),
+                    pd.Timestamp("2024-02-07"),
+                    pd.Timestamp("2024-02-08"),
+                    pd.Timestamp("2024-02-09"),
+                    pd.Timestamp("2024-02-10"),
+                    pd.Timestamp("2024-02-11"),
+                ],
+                "y": list(range(10)),
+            }
+        )
+        with self.assertRaises(AgentForecastError):
+            prepare_series_frame(duplicate_frame, strict_mode=True)
+        with self.assertRaises(AgentForecastError):
+            prepare_series_frame(gap_frame, strict_mode=True)
+
+    def test_prepare_series_frame_respects_max_history_and_reports_cleanup(self) -> None:
+        frame = pd.read_csv(public_example_path("airline-passengers"))
+        prepared = prepare_series_frame(frame, max_history=24)
+        self.assertEqual(len(prepared.history), 24)
+        self.assertFalse(prepared.strict_mode)
+        self.assertTrue(prepared.cleanup["cleanup_applied"])
+        self.assertGreater(prepared.cleanup["history_truncated"], 0)
+        self.assertEqual(prepared.cleanup["history_rows_retained"], 24)
+
+    def test_build_feature_spec_supports_feature_preset_and_lookback(self) -> None:
+        frame = pd.read_csv(dataset_path("gold-exogenous"))
+        prepared = prepare_series_frame(frame, max_history=120)
+        spec = build_feature_spec(
+            prepared.history,
+            feature_spec={},
+            benchmark_mode=True,
+            lookback=32,
+        )
+        self.assertEqual(spec["feature_preset"], "benchmark_auto")
+        self.assertEqual(spec["lookback"], 32)
+        self.assertFalse(spec["include_calendar"])
+        self.assertTrue(all(lag <= 32 for lag in spec["lags"]))
+        self.assertTrue(all(window <= 32 for window in spec["rolling_windows"]))
 
     def test_forecast_dataset_accepts_custom_feature_spec(self) -> None:
         custom = FeatureSpec(

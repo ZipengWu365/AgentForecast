@@ -14,6 +14,63 @@
       }
     },
     {
+      "name": "forecast_benchmark_dataframe",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "frame": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "backend": {
+            "type": "string"
+          },
+          "horizon": {
+            "type": "integer"
+          },
+          "horizons": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "mode": {
+            "type": "string"
+          },
+          "date_col": {
+            "type": "string"
+          },
+          "value_col": {
+            "type": "string"
+          },
+          "lookback": {
+            "type": "integer"
+          },
+          "max_history": {
+            "type": "integer"
+          },
+          "strict_mode": {
+            "type": "boolean"
+          },
+          "feature_preset": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "frame"
+        ]
+      }
+    },
+    {
+      "name": "list_feature_presets",
+      "input_schema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
       "name": "shoot",
       "input_schema": {
         "type": "object",

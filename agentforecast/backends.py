@@ -12,6 +12,9 @@ from .conformal import ConformalSpec, attach_conformal_intervals, build_river_ja
 from .errors import AgentForecastError, ensure
 from .features import build_future_index, build_supervised_matrix, future_exog_map, infer_frequency_alias, infer_season_length, make_feature_row
 
+DEFAULT_FEATURE_CLIP = 1_000_000.0
+DEFAULT_PREDICTION_CLIP_MULTIPLIER = 20.0
+
 
 @dataclass
 class BackendSpec:
@@ -141,8 +144,8 @@ def is_backend_available(backend_id: str) -> bool:
 def candidate_backends(strategy: str = "fast") -> list[str]:
     strategy_map = {
         "fast": ["naive", "seasonal_naive", "moving_average", "stream_ewm", "ml_ridge", "stats_ets"],
-        "accurate": ["naive", "seasonal_naive", "stats_arima", "stats_ets", "ml_ridge", "ml_xgboost", "stream_sgd", "river_snarimax", "statsforecast_autoarima", "mlforecast_linear"],
-        "streaming": ["stream_ewm", "stream_sgd", "river_linear", "river_snarimax", "river_holtwinters"],
+        "accurate": ["naive", "seasonal_naive", "stats_arima", "stats_ets", "ml_ridge", "ml_xgboost", "river_snarimax", "statsforecast_autoarima", "mlforecast_linear"],
+        "streaming": ["stream_ewm", "river_linear", "river_snarimax", "river_holtwinters"],
         "long_horizon": ["seasonal_naive", "stats_ets", "ml_ridge", "stream_ewm", "river_holtwinters", "neural_nhits"],
         "low_data": ["naive", "drift", "stats_arima", "stats_ets", "ml_ridge", "stream_ewm"],
     }
@@ -170,9 +173,9 @@ def route_backends(
         reason_bits.append("streaming_profile_requested")
     preferred = []
     if strategy == "streaming":
-        preferred.extend(["stream_ewm", "stream_sgd", "river_snarimax", "river_linear"])
+        preferred.extend(["stream_ewm", "river_snarimax", "river_linear"])
     elif strategy == "accurate":
-        preferred.extend(["stats_arima", "stats_ets", "ml_ridge", "ml_xgboost", "stream_sgd", "statsforecast_autoarima"])
+        preferred.extend(["stats_arima", "stats_ets", "ml_ridge", "ml_xgboost", "statsforecast_autoarima"])
     elif strategy == "long_horizon":
         preferred.extend(["seasonal_naive", "stats_ets", "stream_ewm", "ml_ridge", "neural_nhits"])
     elif strategy == "low_data":
@@ -212,6 +215,83 @@ def _future_index(history: pd.DataFrame, horizon: int) -> tuple[pd.DatetimeIndex
         step = diffs.mode().iloc[0] if not diffs.empty else pd.Timedelta(days=1)
     future_ds = build_future_index(ds, horizon, step=step)
     return future_ds, step
+
+
+def _normalize_horizons(horizons: list[int] | tuple[int, ...] | None = None, *, horizon: int | None = None) -> list[int]:
+    raw = list(horizons or ([] if horizon is None else [horizon]))
+    ensure(len(raw) > 0, "INVALID_HORIZONS", "Provide a positive horizon or a non-empty horizons list.")
+    resolved = sorted({int(item) for item in raw})
+    ensure(all(item > 0 for item in resolved), "INVALID_HORIZONS", "All horizons must be positive integers.")
+    return resolved
+
+
+def _runtime_option(feature_spec: dict[str, Any], key: str, default: Any) -> Any:
+    return feature_spec.get(key, default)
+
+
+def _sanitize_feature_frame(frame: pd.DataFrame, *, feature_spec: dict[str, Any]) -> pd.DataFrame:
+    clip_value = _runtime_option(feature_spec, "feature_clip", DEFAULT_FEATURE_CLIP)
+    clip_value = DEFAULT_FEATURE_CLIP if clip_value is None else float(clip_value)
+    array = frame.to_numpy(dtype=float, copy=True)
+    array = np.nan_to_num(array, nan=0.0, posinf=clip_value, neginf=-clip_value)
+    array = np.clip(array, -clip_value, clip_value)
+    return pd.DataFrame(array, columns=frame.columns)
+
+
+def _sanitize_feature_dict(values: dict[str, float], *, feature_spec: dict[str, Any]) -> dict[str, float]:
+    clip_value = _runtime_option(feature_spec, "feature_clip", DEFAULT_FEATURE_CLIP)
+    clip_value = DEFAULT_FEATURE_CLIP if clip_value is None else float(clip_value)
+    sanitized: dict[str, float] = {}
+    for key, value in values.items():
+        numeric = float(value)
+        if not np.isfinite(numeric):
+            numeric = 0.0
+        sanitized[key] = float(np.clip(numeric, -clip_value, clip_value))
+    return sanitized
+
+
+def _prediction_clip_bounds(y_history: list[float], prediction_clip: Any) -> tuple[float, float]:
+    if prediction_clip is None:
+        scale = max(float(np.nanmax(np.abs(np.asarray(y_history, dtype=float)))), 1.0) if y_history else 1.0
+        bound = max(scale * DEFAULT_PREDICTION_CLIP_MULTIPLIER, 1.0)
+        return -bound, bound
+    if isinstance(prediction_clip, (list, tuple)) and len(prediction_clip) == 2:
+        return float(prediction_clip[0]), float(prediction_clip[1])
+    bound = abs(float(prediction_clip))
+    return -bound, bound
+
+
+def _fallback_prediction(y_history: list[float]) -> float:
+    if not y_history:
+        return 0.0
+    for value in reversed(y_history):
+        numeric = float(value)
+        if np.isfinite(numeric):
+            return numeric
+    return 0.0
+
+
+def _sanitize_prediction(value: float, y_history: list[float], *, feature_spec: dict[str, Any]) -> float:
+    numeric = float(value)
+    if not np.isfinite(numeric):
+        numeric = _fallback_prediction(y_history)
+    lower, upper = _prediction_clip_bounds(y_history, _runtime_option(feature_spec, "prediction_clip", None))
+    numeric = float(np.clip(numeric, lower, upper))
+    if not np.isfinite(numeric):
+        numeric = _fallback_prediction(y_history)
+    return numeric
+
+
+def supports_direct_forecast(backend_id: str) -> bool:
+    return backend_id in {
+        "ml_ridge",
+        "ml_histgb",
+        "ml_xgboost",
+        "ml_lightgbm",
+        "ml_catboost",
+        "river_linear",
+        "tabpfn_regression",
+    }
 
 
 def _freq_alias(history: pd.DataFrame) -> str:
@@ -352,17 +432,25 @@ def _forecast_tabular(
     feature_spec: dict[str, Any],
 ) -> pd.DataFrame:
     X, y = build_supervised_matrix(history, feature_spec=feature_spec)
+    X = _sanitize_feature_frame(X, feature_spec=feature_spec)
     model = _fit_sklearn_regression(backend_id)
     model.fit(X, y)
     future_ds, step = _future_index(history, horizon)
     y_history = history["y"].astype(float).tolist()
     exog_cols = feature_spec.get("exogenous_cols", [])
-    exog_future = future_exog_map(history, future_features_df, horizon=horizon, step=step, exogenous_cols=exog_cols)
+    exog_future = future_exog_map(
+        history,
+        future_features_df,
+        horizon=horizon,
+        step=step,
+        exogenous_cols=exog_cols,
+        carry_forward=bool(feature_spec.get("carry_forward_exog", True)),
+    )
     preds: list[float] = []
     for ds, exog in zip(future_ds, exog_future):
-        feats = make_feature_row(pd.Timestamp(ds), y_history, feature_spec=feature_spec, exog_values=exog)
-        x = pd.DataFrame([feats]).fillna(0.0)
-        yhat = float(model.predict(x)[0])
+        feats = _sanitize_feature_dict(make_feature_row(pd.Timestamp(ds), y_history, feature_spec=feature_spec, exog_values=exog), feature_spec=feature_spec)
+        x = _sanitize_feature_frame(pd.DataFrame([feats]).fillna(0.0), feature_spec=feature_spec)
+        yhat = _sanitize_prediction(float(model.predict(x)[0]), y_history, feature_spec=feature_spec)
         preds.append(yhat)
         y_history.append(yhat)
     return pd.DataFrame({"ds": future_ds, "yhat": np.asarray(preds, dtype=float)})
@@ -388,7 +476,14 @@ def _forecast_mlforecast(
     exog_cols = feature_spec.get("exogenous_cols", [])
     if exog_cols:
         future_ds, step = _future_index(history, horizon)
-        exog_rows = future_exog_map(history, future_features_df, horizon=horizon, step=step, exogenous_cols=exog_cols)
+        exog_rows = future_exog_map(
+            history,
+            future_features_df,
+            horizon=horizon,
+            step=step,
+            exogenous_cols=exog_cols,
+            carry_forward=bool(feature_spec.get("carry_forward_exog", True)),
+        )
         X_df = pd.DataFrame({"unique_id": "series", "ds": future_ds})
         for col in exog_cols:
             X_df[col] = [row.get(col, float(history[col].iloc[-1])) for row in exog_rows]
@@ -409,7 +504,14 @@ def _forecast_stream_builtin(
     future_ds, step = _future_index(history, horizon)
     y = history["y"].astype(float).tolist()
     exog_cols = feature_spec.get("exogenous_cols", [])
-    exog_future = future_exog_map(history, future_features_df, horizon=horizon, step=step, exogenous_cols=exog_cols)
+    exog_future = future_exog_map(
+        history,
+        future_features_df,
+        horizon=horizon,
+        step=step,
+        exogenous_cols=exog_cols,
+        carry_forward=bool(feature_spec.get("carry_forward_exog", True)),
+    )
 
     if backend_id == "stream_ewm":
         alpha = 0.35
@@ -422,7 +524,7 @@ def _forecast_stream_builtin(
         preds = []
         local_level, local_trend = level, trend
         for step_idx in range(1, horizon + 1):
-            yhat = local_level + step_idx * local_trend
+            yhat = _sanitize_prediction(local_level + step_idx * local_trend, y, feature_spec=feature_spec)
             preds.append(float(yhat))
         return pd.DataFrame({"ds": future_ds, "yhat": np.asarray(preds, dtype=float)})
 
@@ -438,8 +540,8 @@ def _forecast_stream_builtin(
             y_i = float(row["y"])
             if len(y_history) >= max_lag:
                 exog = {col: float(row[col]) for col in exog_cols}
-                feats = make_feature_row(pd.Timestamp(ds_i), y_history, feature_spec=feature_spec, exog_values=exog)
-                x = np.asarray([list(pd.DataFrame([feats]).fillna(0.0).iloc[0])], dtype=float)
+                feats = _sanitize_feature_dict(make_feature_row(pd.Timestamp(ds_i), y_history, feature_spec=feature_spec, exog_values=exog), feature_spec=feature_spec)
+                x = _sanitize_feature_frame(pd.DataFrame([feats]).fillna(0.0), feature_spec=feature_spec)
                 if not is_fit:
                     model.partial_fit(x, np.asarray([y_i], dtype=float))
                     is_fit = True
@@ -451,9 +553,9 @@ def _forecast_stream_builtin(
         preds: list[float] = []
         full_history = y.copy()
         for ds_i, exog in zip(future_ds, exog_future):
-            feats = make_feature_row(pd.Timestamp(ds_i), full_history, feature_spec=feature_spec, exog_values=exog)
-            x = pd.DataFrame([feats]).fillna(0.0)
-            yhat = float(model.predict(x)[0])
+            feats = _sanitize_feature_dict(make_feature_row(pd.Timestamp(ds_i), full_history, feature_spec=feature_spec, exog_values=exog), feature_spec=feature_spec)
+            x = _sanitize_feature_frame(pd.DataFrame([feats]).fillna(0.0), feature_spec=feature_spec)
+            yhat = _sanitize_prediction(float(model.predict(x)[0]), full_history, feature_spec=feature_spec)
             preds.append(yhat)
             full_history.append(yhat)
         return pd.DataFrame({"ds": future_ds, "yhat": np.asarray(preds, dtype=float)})
@@ -480,6 +582,9 @@ def _forecast_river(
     feature_spec: dict[str, Any],
     conformal: ConformalSpec | None = None,
 ) -> pd.DataFrame:
+    if backend_id == "river_linear" and not _has("river"):
+        return _forecast_tabular(history, future_features_df, horizon, "ml_ridge", feature_spec)
+
     from river import linear_model, preprocessing, optim, time_series
 
     ds = pd.to_datetime(history["ds"])
@@ -487,7 +592,14 @@ def _forecast_river(
     future_ds, step = _future_index(history, horizon)
     season_length = _seasonal_length(history) or 1
     exog_cols = feature_spec.get("exogenous_cols", [])
-    exog_future = future_exog_map(history, future_features_df, horizon=horizon, step=step, exogenous_cols=exog_cols)
+    exog_future = future_exog_map(
+        history,
+        future_features_df,
+        horizon=horizon,
+        step=step,
+        exogenous_cols=exog_cols,
+        carry_forward=bool(feature_spec.get("carry_forward_exog", True)),
+    )
 
     if backend_id == "river_linear":
         effective_spec = resolve_conformal_spec(conformal, preserve_legacy_levels=conformal is None)
@@ -511,7 +623,7 @@ def _forecast_river(
         for ds_i, y_i, row in zip(ds, y, history.to_dict("records")):
             if len(y_history) >= max(feature_spec.get("lags", [1])):
                 exog = {col: float(row[col]) for col in exog_cols}
-                feats = make_feature_row(pd.Timestamp(ds_i), y_history, feature_spec=feature_spec, exog_values=exog)
+                feats = _sanitize_feature_dict(make_feature_row(pd.Timestamp(ds_i), y_history, feature_spec=feature_spec, exog_values=exog), feature_spec=feature_spec)
                 model.learn_one(feats, y_i)
                 for wrapped in jackknife_models.values():
                     wrapped.learn_one(feats, y_i)
@@ -523,14 +635,14 @@ def _forecast_river(
         }
         full_history = y.copy()
         for ds_i, exog in zip(future_ds, exog_future):
-            feats = make_feature_row(pd.Timestamp(ds_i), full_history, feature_spec=feature_spec, exog_values=exog)
-            yhat = float(model.predict_one(feats) or full_history[-1])
+            feats = _sanitize_feature_dict(make_feature_row(pd.Timestamp(ds_i), full_history, feature_spec=feature_spec, exog_values=exog), feature_spec=feature_spec)
+            yhat = _sanitize_prediction(float(model.predict_one(feats) or full_history[-1]), full_history, feature_spec=feature_spec)
             preds.append(yhat)
             if jackknife_models and trained_examples >= effective_spec.warmup_min:
                 for level, wrapped in jackknife_models.items():
                     interval = wrapped.predict_one(feats, with_interval=True)
-                    lower = float(interval.lower) if interval is not None else yhat
-                    upper = float(interval.upper) if interval is not None else yhat
+                    lower = _sanitize_prediction(float(interval.lower) if interval is not None else yhat, full_history, feature_spec=feature_spec)
+                    upper = _sanitize_prediction(float(interval.upper) if interval is not None else yhat, full_history, feature_spec=feature_spec)
                     interval_bounds[level][0].append(lower)
                     interval_bounds[level][1].append(upper)
             full_history.append(yhat)
@@ -557,15 +669,16 @@ def _forecast_river(
             exog = _river_calendar_x(pd.Timestamp(ds_i))
             for col in exog_cols:
                 exog[f"exog_{col}"] = float(row[col])
-            model.learn_one(float(y_i), x=exog)
+            model.learn_one(float(y_i), x=_sanitize_feature_dict(exog, feature_spec=feature_spec))
         xs = []
         for ds_i, exog in zip(future_ds, exog_future):
             x = _river_calendar_x(pd.Timestamp(ds_i))
             for col, value in exog.items():
                 x[f"exog_{col}"] = value
-            xs.append(x)
+            xs.append(_sanitize_feature_dict(x, feature_spec=feature_spec))
         preds = model.forecast(horizon, xs=xs)
-        return pd.DataFrame({"ds": future_ds, "yhat": np.asarray(preds, dtype=float)})
+        sanitized = [_sanitize_prediction(float(pred), y, feature_spec=feature_spec) for pred in preds]
+        return pd.DataFrame({"ds": future_ds, "yhat": np.asarray(sanitized, dtype=float)})
 
     if backend_id == "river_holtwinters":
         gamma = 0.2 if season_length and season_length > 1 else None
@@ -573,7 +686,8 @@ def _forecast_river(
         for y_i in y:
             model.learn_one(float(y_i))
         preds = model.forecast(horizon)
-        return pd.DataFrame({"ds": future_ds, "yhat": np.asarray(preds, dtype=float)})
+        sanitized = [_sanitize_prediction(float(pred), y, feature_spec=feature_spec) for pred in preds]
+        return pd.DataFrame({"ds": future_ds, "yhat": np.asarray(sanitized, dtype=float)})
 
     raise AgentForecastError(code="UNSUPPORTED_RIVER_BACKEND", message=f"River backend '{backend_id}' is not supported.")
 
@@ -587,20 +701,148 @@ def _forecast_tabpfn(
     from tabpfn import TabPFNRegressor
 
     X, y = build_supervised_matrix(history, feature_spec=feature_spec)
+    X = _sanitize_feature_frame(X, feature_spec=feature_spec)
     model = TabPFNRegressor()
     model.fit(X, y)
     future_ds, step = _future_index(history, horizon)
     y_history = history["y"].astype(float).tolist()
     exog_cols = feature_spec.get("exogenous_cols", [])
-    exog_future = future_exog_map(history, future_features_df, horizon=horizon, step=step, exogenous_cols=exog_cols)
+    exog_future = future_exog_map(
+        history,
+        future_features_df,
+        horizon=horizon,
+        step=step,
+        exogenous_cols=exog_cols,
+        carry_forward=bool(feature_spec.get("carry_forward_exog", True)),
+    )
     preds: list[float] = []
     for ds_i, exog in zip(future_ds, exog_future):
-        feats = make_feature_row(pd.Timestamp(ds_i), y_history, feature_spec=feature_spec, exog_values=exog)
-        x = pd.DataFrame([feats]).fillna(0.0)
-        yhat = float(model.predict(x)[0])
+        feats = _sanitize_feature_dict(make_feature_row(pd.Timestamp(ds_i), y_history, feature_spec=feature_spec, exog_values=exog), feature_spec=feature_spec)
+        x = _sanitize_feature_frame(pd.DataFrame([feats]).fillna(0.0), feature_spec=feature_spec)
+        yhat = _sanitize_prediction(float(model.predict(x)[0]), y_history, feature_spec=feature_spec)
         preds.append(yhat)
         y_history.append(yhat)
     return pd.DataFrame({"ds": future_ds, "yhat": np.asarray(preds, dtype=float)})
+
+
+def _forecast_direct_tabular(
+    history: pd.DataFrame,
+    future_features_df: pd.DataFrame,
+    horizons: list[int],
+    backend_id: str,
+    feature_spec: dict[str, Any],
+) -> pd.DataFrame:
+    future_ds, step = _future_index(history, max(horizons))
+    exog_cols = feature_spec.get("exogenous_cols", [])
+    exog_future = future_exog_map(
+        history,
+        future_features_df,
+        horizon=max(horizons),
+        step=step,
+        exogenous_cols=exog_cols,
+        carry_forward=bool(feature_spec.get("carry_forward_exog", True)),
+    )
+    y_history = history["y"].astype(float).tolist()
+    rows: list[dict[str, Any]] = []
+    for horizon in horizons:
+        X, y = build_supervised_matrix(history, feature_spec=feature_spec, target_horizon=horizon)
+        X = _sanitize_feature_frame(X, feature_spec=feature_spec)
+        model = _fit_sklearn_regression(backend_id)
+        model.fit(X, y)
+        feats = _sanitize_feature_dict(
+            make_feature_row(
+                pd.Timestamp(future_ds[horizon - 1]),
+                y_history,
+                feature_spec=feature_spec,
+                exog_values=exog_future[horizon - 1],
+            ),
+            feature_spec=feature_spec,
+        )
+        x = _sanitize_feature_frame(pd.DataFrame([feats]).fillna(0.0), feature_spec=feature_spec)
+        yhat = _sanitize_prediction(float(model.predict(x)[0]), y_history, feature_spec=feature_spec)
+        rows.append({"ds": future_ds[horizon - 1], "horizon": int(horizon), "yhat": yhat, "mode": "direct"})
+    return pd.DataFrame(rows)
+
+
+def _forecast_direct_river_linear(
+    history: pd.DataFrame,
+    future_features_df: pd.DataFrame,
+    horizons: list[int],
+    feature_spec: dict[str, Any],
+) -> pd.DataFrame:
+    from river import linear_model, optim, preprocessing
+
+    ds = pd.to_datetime(history["ds"]).tolist()
+    y = history["y"].astype(float).tolist()
+    future_ds, step = _future_index(history, max(horizons))
+    exog_cols = feature_spec.get("exogenous_cols", [])
+    exog_future = future_exog_map(
+        history,
+        future_features_df,
+        horizon=max(horizons),
+        step=step,
+        exogenous_cols=exog_cols,
+        carry_forward=bool(feature_spec.get("carry_forward_exog", True)),
+    )
+    history_records = history.to_dict("records")
+    rows: list[dict[str, Any]] = []
+    for horizon in horizons:
+        X, target = build_supervised_matrix(history, feature_spec=feature_spec, target_horizon=horizon)
+        model = preprocessing.StandardScaler() | linear_model.LinearRegression(optimizer=optim.Adam(0.001))
+        for feat_row, target_value in zip(X.to_dict(orient="records"), target.tolist()):
+            model.learn_one(_sanitize_feature_dict(feat_row, feature_spec=feature_spec), float(target_value))
+        feats = _sanitize_feature_dict(
+            make_feature_row(
+                pd.Timestamp(future_ds[horizon - 1]),
+                y,
+                feature_spec=feature_spec,
+                exog_values=exog_future[horizon - 1],
+            ),
+            feature_spec=feature_spec,
+        )
+        yhat = _sanitize_prediction(float(model.predict_one(feats) or _fallback_prediction(y)), y, feature_spec=feature_spec)
+        rows.append({"ds": future_ds[horizon - 1], "horizon": int(horizon), "yhat": yhat, "mode": "direct"})
+    return pd.DataFrame(rows)
+
+
+def _forecast_direct_tabpfn(
+    history: pd.DataFrame,
+    future_features_df: pd.DataFrame,
+    horizons: list[int],
+    feature_spec: dict[str, Any],
+) -> pd.DataFrame:
+    from tabpfn import TabPFNRegressor
+
+    future_ds, step = _future_index(history, max(horizons))
+    exog_cols = feature_spec.get("exogenous_cols", [])
+    exog_future = future_exog_map(
+        history,
+        future_features_df,
+        horizon=max(horizons),
+        step=step,
+        exogenous_cols=exog_cols,
+        carry_forward=bool(feature_spec.get("carry_forward_exog", True)),
+    )
+    y_history = history["y"].astype(float).tolist()
+    rows: list[dict[str, Any]] = []
+    for horizon in horizons:
+        X, target = build_supervised_matrix(history, feature_spec=feature_spec, target_horizon=horizon)
+        X = _sanitize_feature_frame(X, feature_spec=feature_spec)
+        model = TabPFNRegressor()
+        model.fit(X, target)
+        feats = _sanitize_feature_dict(
+            make_feature_row(
+                pd.Timestamp(future_ds[horizon - 1]),
+                y_history,
+                feature_spec=feature_spec,
+                exog_values=exog_future[horizon - 1],
+            ),
+            feature_spec=feature_spec,
+        )
+        x = _sanitize_feature_frame(pd.DataFrame([feats]).fillna(0.0), feature_spec=feature_spec)
+        yhat = _sanitize_prediction(float(model.predict(x)[0]), y_history, feature_spec=feature_spec)
+        rows.append({"ds": future_ds[horizon - 1], "horizon": int(horizon), "yhat": yhat, "mode": "direct"})
+    return pd.DataFrame(rows)
 
 
 def forecast_with_backend(
@@ -612,7 +854,10 @@ def forecast_with_backend(
     feature_spec: dict[str, Any],
     series_kind: str,
     conformal: ConformalSpec | None = None,
+    carry_forward_exog: bool | None = None,
 ) -> pd.DataFrame:
+    if carry_forward_exog is not None:
+        feature_spec = {**feature_spec, "carry_forward_exog": bool(carry_forward_exog)}
     if not is_backend_available(backend_id):
         raise AgentForecastError(
             code="BACKEND_UNAVAILABLE",
@@ -644,6 +889,56 @@ def forecast_with_backend(
     if series_kind == "cumulative":
         for col in [item for item in forecast.columns if item.startswith(("yhat", "lower_", "upper_"))]:
             forecast[col] = np.maximum.accumulate(np.maximum(forecast[col].to_numpy(dtype=float), 0.0))
+    return forecast
+
+
+def forecast_horizons_with_backend(
+    history: pd.DataFrame,
+    future_features_df: pd.DataFrame,
+    *,
+    horizons: list[int] | tuple[int, ...],
+    backend_id: str,
+    feature_spec: dict[str, Any],
+    series_kind: str,
+    forecast_mode: str = "recursive",
+    conformal: ConformalSpec | None = None,
+    carry_forward_exog: bool | None = None,
+) -> pd.DataFrame:
+    resolved_horizons = _normalize_horizons(horizons)
+    if forecast_mode == "recursive":
+        forecast = forecast_with_backend(
+            history,
+            future_features_df,
+            horizon=max(resolved_horizons),
+            backend_id=backend_id,
+            feature_spec=feature_spec,
+            series_kind=series_kind,
+            conformal=conformal,
+            carry_forward_exog=carry_forward_exog,
+        ).reset_index(drop=True)
+        forecast = forecast.iloc[[horizon - 1 for horizon in resolved_horizons]].copy().reset_index(drop=True)
+        forecast["horizon"] = resolved_horizons
+        forecast["mode"] = "recursive"
+        return forecast[["ds", "horizon", "yhat"] + [col for col in forecast.columns if col not in {"ds", "horizon", "yhat"}]]
+
+    ensure(forecast_mode == "direct", "UNSUPPORTED_FORECAST_MODE", f"Unknown forecast mode '{forecast_mode}'.")
+    if carry_forward_exog is not None:
+        feature_spec = {**feature_spec, "carry_forward_exog": bool(carry_forward_exog)}
+    ensure(
+        supports_direct_forecast(backend_id),
+        "DIRECT_MODE_UNSUPPORTED",
+        f"Backend '{backend_id}' does not support direct multi-horizon forecasting.",
+    )
+    if backend_id.startswith("ml_"):
+        forecast = _forecast_direct_tabular(history, future_features_df, resolved_horizons, backend_id, feature_spec)
+    elif backend_id == "river_linear":
+        forecast = _forecast_direct_river_linear(history, future_features_df, resolved_horizons, feature_spec)
+    elif backend_id == "tabpfn_regression":
+        forecast = _forecast_direct_tabpfn(history, future_features_df, resolved_horizons, feature_spec)
+    else:
+        raise AgentForecastError(code="DIRECT_MODE_UNSUPPORTED", message=f"Backend '{backend_id}' does not support direct multi-horizon forecasting.")
+    if series_kind == "cumulative":
+        forecast["yhat"] = np.maximum(forecast["yhat"].to_numpy(dtype=float), 0.0)
     return forecast
 
 
