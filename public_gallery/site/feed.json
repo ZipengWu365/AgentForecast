@@ -10,7 +10,7 @@
         "headline": "airline_passengers: stats_ets won the backend comparison and produced a publishable pack.",
         "latest_observed": 432.0,
         "projected_end": 471.0526239275274,
-        "artifact_count": 10,
+        "artifact_count": 11,
         "narrative": "Compared 6 backend(s) and routed the series to 'stats_ets'. Exported CSV, chart, card, markdown, and JSON artifacts.",
         "conformal_method": "residual_heuristic",
         "routing_reason": "explicit_backends_provided"
@@ -343,6 +343,33 @@
             ]
           }
         },
+        "resolution": {
+          "requested_backend": "arena",
+          "resolved_backend": "stats_ets",
+          "mode": "benchmark",
+          "strict_backend": true,
+          "allow_backend_substitution": false,
+          "support_tier": "reviewed",
+          "dependency_state": {
+            "naive": true,
+            "moving_average": true,
+            "stats_arima": true,
+            "stats_ets": true,
+            "ml_ridge": true,
+            "stream_ewm": true
+          },
+          "candidate_backends": [
+            "stats_ets",
+            "ml_ridge",
+            "moving_average",
+            "stats_arima",
+            "stream_ewm",
+            "naive"
+          ],
+          "routing_reason": "explicit_backends_provided",
+          "fallback_reason": null,
+          "warnings": []
+        },
         "cleanup": {
           "cleanup_applied": false,
           "missing_points_filled": 0,
@@ -393,6 +420,7 @@
         "leaderboard_card_png": "public_gallery/demo_runs/airline-passengers/plots/leaderboard_card.png",
         "delta_card_png": "public_gallery/demo_runs/airline-passengers/plots/winner_vs_runnerup_delta.png",
         "summary_markdown": "public_gallery/demo_runs/airline-passengers/reports/summary.md",
+        "artifact_manifest_json": "public_gallery/demo_runs/airline-passengers/meta/artifact_manifest.json",
         "metadata_json": "public_gallery/demo_runs/airline-passengers/meta/metadata.json"
       },
       "public_artifacts": {
@@ -405,6 +433,7 @@
         "leaderboard_card_png": "assets/airline-passengers/leaderboard_card.png",
         "delta_card_png": "assets/airline-passengers/winner_vs_runnerup_delta.png",
         "summary_markdown": "assets/airline-passengers/summary.md",
+        "artifact_manifest_json": "assets/airline-passengers/artifact_manifest.json",
         "metadata_json": "assets/airline-passengers/metadata.json"
       }
     },
@@ -417,7 +446,7 @@
         "headline": "daily_min_temperatures: river_snarimax won the backend comparison and produced a publishable pack.",
         "latest_observed": 13.0,
         "projected_end": 13.291423694885054,
-        "artifact_count": 10,
+        "artifact_count": 11,
         "narrative": "Compared 1 backend(s) and routed the series to 'river_snarimax'. Exported CSV, chart, card, markdown, and JSON artifacts.",
         "conformal_method": "residual_heuristic",
         "routing_reason": "explicit_backend_selected"
@@ -513,6 +542,23 @@
             ]
           }
         },
+        "resolution": {
+          "requested_backend": "river_snarimax",
+          "resolved_backend": "river_snarimax",
+          "mode": "streaming",
+          "strict_backend": false,
+          "allow_backend_substitution": false,
+          "support_tier": "experimental",
+          "dependency_state": {
+            "river": true
+          },
+          "candidate_backends": [
+            "river_snarimax"
+          ],
+          "routing_reason": "explicit_backend_selected",
+          "fallback_reason": null,
+          "warnings": []
+        },
         "cleanup": {
           "cleanup_applied": true,
           "missing_points_filled": 1,
@@ -565,6 +611,7 @@
         "leaderboard_card_png": "public_gallery/demo_runs/daily-min-temperatures/plots/leaderboard_card.png",
         "delta_card_png": "public_gallery/demo_runs/daily-min-temperatures/plots/winner_vs_runnerup_delta.png",
         "summary_markdown": "public_gallery/demo_runs/daily-min-temperatures/reports/summary.md",
+        "artifact_manifest_json": "public_gallery/demo_runs/daily-min-temperatures/meta/artifact_manifest.json",
         "metadata_json": "public_gallery/demo_runs/daily-min-temperatures/meta/metadata.json",
         "drift_alert_card_png": "public_gallery/demo_runs/daily-min-temperatures/plots/drift_alert_card.png"
       },
@@ -578,6 +625,7 @@
         "leaderboard_card_png": "assets/daily-min-temperatures/leaderboard_card.png",
         "delta_card_png": "assets/daily-min-temperatures/winner_vs_runnerup_delta.png",
         "summary_markdown": "assets/daily-min-temperatures/summary.md",
+        "artifact_manifest_json": "assets/daily-min-temperatures/artifact_manifest.json",
         "metadata_json": "assets/daily-min-temperatures/metadata.json",
         "drift_alert_card_png": "assets/daily-min-temperatures/drift_alert_card.png"
       }
@@ -591,7 +639,7 @@
         "headline": "monthly_car_sales: stats_ets won the backend comparison and produced a publishable pack.",
         "latest_observed": 14577.0,
         "projected_end": 17096.390628646346,
-        "artifact_count": 10,
+        "artifact_count": 11,
         "narrative": "Compared 6 backend(s) and routed the series to 'stats_ets'. Exported CSV, chart, card, markdown, and JSON artifacts.",
         "conformal_method": "residual_heuristic",
         "routing_reason": "default_fast_path"
@@ -924,6 +972,33 @@
             ]
           }
         },
+        "resolution": {
+          "requested_backend": "auto",
+          "resolved_backend": "stats_ets",
+          "mode": "convenience",
+          "strict_backend": false,
+          "allow_backend_substitution": false,
+          "support_tier": "reviewed",
+          "dependency_state": {
+            "naive": true,
+            "seasonal_naive": true,
+            "moving_average": true,
+            "stream_ewm": true,
+            "ml_ridge": true,
+            "stats_ets": true
+          },
+          "candidate_backends": [
+            "stats_ets",
+            "ml_ridge",
+            "seasonal_naive",
+            "moving_average",
+            "naive",
+            "stream_ewm"
+          ],
+          "routing_reason": "default_fast_path",
+          "fallback_reason": null,
+          "warnings": []
+        },
         "cleanup": {
           "cleanup_applied": false,
           "missing_points_filled": 0,
@@ -974,6 +1049,7 @@
         "leaderboard_card_png": "public_gallery/demo_runs/monthly-car-sales/plots/leaderboard_card.png",
         "delta_card_png": "public_gallery/demo_runs/monthly-car-sales/plots/winner_vs_runnerup_delta.png",
         "summary_markdown": "public_gallery/demo_runs/monthly-car-sales/reports/summary.md",
+        "artifact_manifest_json": "public_gallery/demo_runs/monthly-car-sales/meta/artifact_manifest.json",
         "metadata_json": "public_gallery/demo_runs/monthly-car-sales/meta/metadata.json"
       },
       "public_artifacts": {
@@ -986,6 +1062,7 @@
         "leaderboard_card_png": "assets/monthly-car-sales/leaderboard_card.png",
         "delta_card_png": "assets/monthly-car-sales/winner_vs_runnerup_delta.png",
         "summary_markdown": "assets/monthly-car-sales/summary.md",
+        "artifact_manifest_json": "assets/monthly-car-sales/artifact_manifest.json",
         "metadata_json": "assets/monthly-car-sales/metadata.json"
       }
     }

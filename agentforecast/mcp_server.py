@@ -7,7 +7,7 @@ from typing import Any
 from .benchmark_hub import list_external_benchmarks
 from .datasets import list_datasets
 from .live import list_cases
-from .backends import list_backends, list_backend_families
+from .backends import backend_capabilities, list_backends, list_backend_families, list_reviewed_backends
 from .resources import package_overview
 from .tool_server import dispatch_tool_call
 from .version import __version__
@@ -16,10 +16,12 @@ from .version import __version__
 _RESOURCES = {
     "package://agentforecast/overview": lambda: package_overview("en"),
     "package://agentforecast/backends": lambda: list_backends(),
+    "package://agentforecast/reviewed_backends": lambda: list_reviewed_backends(),
     "package://agentforecast/backend_families": lambda: list_backend_families(),
     "package://agentforecast/datasets": lambda: list_datasets("en"),
     "package://agentforecast/cases": lambda: list_cases("en"),
     "package://agentforecast/benchmark_hub": lambda: list_external_benchmarks(),
+    "package://agentforecast/backend_capabilities/naive": lambda: backend_capabilities("naive"),
 }
 
 
@@ -34,6 +36,8 @@ def _tools_list() -> dict[str, Any]:
             {"name": "forecast_stream_csv", "description": "Run a streaming backend and export drift diagnostics.", "inputSchema": {"type": "object", "properties": {"path": {"type": "string"}, "backend": {"type": "string"}, "horizon": {"type": "integer"}, "outdir": {"type": "string"}}, "required": ["path"]}},
             {"name": "run_case", "description": "Run a built-in case.", "inputSchema": {"type": "object", "properties": {"case_id": {"type": "string"}, "outdir": {"type": "string"}, "backend": {"type": "string"}, "strategy": {"type": "string"}}, "required": ["case_id"]}},
             {"name": "build_hosted_site", "description": "Build a static HTML gallery from run directories.", "inputSchema": {"type": "object", "properties": {"runs_root": {"type": "string"}, "site_dir": {"type": "string"}}, "required": ["runs_root", "site_dir"]}},
+            {"name": "list_reviewed_backends", "description": "List the reviewed backend surface for the paper release.", "inputSchema": {"type": "object", "properties": {}}},
+            {"name": "backend_capabilities", "description": "Describe support tier, dependencies, and capabilities for one backend.", "inputSchema": {"type": "object", "properties": {"backend_id": {"type": "string"}}, "required": ["backend_id"]}},
         ]
     }
 

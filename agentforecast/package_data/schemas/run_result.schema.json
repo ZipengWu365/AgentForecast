@@ -6,6 +6,7 @@
     "kind",
     "schema_version",
     "schema_ref",
+    "artifact_schema_version",
     "tool_version",
     "run_type",
     "backend_selected",
@@ -15,6 +16,7 @@
     "summary",
     "diagnostics",
     "metrics",
+    "resolution",
     "artifacts",
     "warnings",
     "used_live_data"
@@ -27,6 +29,9 @@
       "type": "string"
     },
     "schema_ref": {
+      "type": "string"
+    },
+    "artifact_schema_version": {
       "type": "string"
     },
     "tool_version": {
@@ -54,64 +59,71 @@
       "type": "object"
     },
     "diagnostics": {
-      "type": "object",
-      "properties": {
-        "conformal": {
-          "type": "object",
-          "properties": {
-            "enabled": {
-              "type": "boolean"
-            },
-            "requested_method": {
-              "type": "string"
-            },
-            "method": {
-              "type": "string"
-            },
-            "levels": {
-              "type": "array",
-              "items": {
-                "type": "integer"
-              }
-            },
-            "calibration_window": {
-              "type": "integer"
-            },
-            "warmup_min": {
-              "type": "integer"
-            },
-            "horizon_aware": {
-              "type": "boolean"
-            },
-            "effective_horizon_aware": {
-              "type": "boolean"
-            },
-            "coverage_backtest": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "number"
-              }
-            },
-            "mean_interval_width": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "number"
-              }
-            },
-            "width_normalized_coverage": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "number"
-              }
-            }
-          },
-          "additionalProperties": true
-        }
-      },
-      "additionalProperties": true
+      "type": "object"
     },
     "metrics": {
       "type": "object"
+    },
+    "resolution": {
+      "type": "object",
+      "required": [
+        "requested_backend",
+        "resolved_backend",
+        "mode",
+        "strict_backend",
+        "allow_backend_substitution",
+        "support_tier",
+        "dependency_state",
+        "candidate_backends",
+        "warnings"
+      ],
+      "properties": {
+        "requested_backend": {
+          "type": "string"
+        },
+        "resolved_backend": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string"
+        },
+        "strict_backend": {
+          "type": "boolean"
+        },
+        "allow_backend_substitution": {
+          "type": "boolean"
+        },
+        "support_tier": {
+          "type": "string"
+        },
+        "dependency_state": {
+          "type": "object"
+        },
+        "candidate_backends": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "routing_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fallback_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
     },
     "warnings": {
       "type": "array",

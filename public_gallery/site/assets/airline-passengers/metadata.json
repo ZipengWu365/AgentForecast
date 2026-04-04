@@ -50,6 +50,9 @@
     "name": "airline_passengers",
     "horizon": 12,
     "strategy": "fast",
+    "mode": "benchmark",
+    "strict_backend": true,
+    "allow_backend_substitution": false,
     "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/airline_passengers.csv",
     "date_col": "ds",
     "value_col": "y",
@@ -83,7 +86,7 @@
     "headline": "airline_passengers: stats_ets won the backend comparison and produced a publishable pack.",
     "latest_observed": 432.0,
     "projected_end": 471.0526239275274,
-    "artifact_count": 10,
+    "artifact_count": 11,
     "narrative": "Compared 6 backend(s) and routed the series to 'stats_ets'. Exported CSV, chart, card, markdown, and JSON artifacts.",
     "conformal_method": "residual_heuristic",
     "routing_reason": "explicit_backends_provided"
@@ -416,6 +419,33 @@
         ]
       }
     },
+    "resolution": {
+      "requested_backend": "arena",
+      "resolved_backend": "stats_ets",
+      "mode": "benchmark",
+      "strict_backend": true,
+      "allow_backend_substitution": false,
+      "support_tier": "reviewed",
+      "dependency_state": {
+        "naive": true,
+        "moving_average": true,
+        "stats_arima": true,
+        "stats_ets": true,
+        "ml_ridge": true,
+        "stream_ewm": true
+      },
+      "candidate_backends": [
+        "stats_ets",
+        "ml_ridge",
+        "moving_average",
+        "stats_arima",
+        "stream_ewm",
+        "naive"
+      ],
+      "routing_reason": "explicit_backends_provided",
+      "fallback_reason": null,
+      "warnings": []
+    },
     "cleanup": {
       "cleanup_applied": false,
       "missing_points_filled": 0,
@@ -542,6 +572,33 @@
       "backtest_horizon": 12
     }
   ],
+  "resolution": {
+    "requested_backend": "arena",
+    "resolved_backend": "stats_ets",
+    "mode": "benchmark",
+    "strict_backend": true,
+    "allow_backend_substitution": false,
+    "support_tier": "reviewed",
+    "dependency_state": {
+      "naive": true,
+      "moving_average": true,
+      "stats_arima": true,
+      "stats_ets": true,
+      "ml_ridge": true,
+      "stream_ewm": true
+    },
+    "candidate_backends": [
+      "stats_ets",
+      "ml_ridge",
+      "moving_average",
+      "stats_arima",
+      "stream_ewm",
+      "naive"
+    ],
+    "routing_reason": "explicit_backends_provided",
+    "fallback_reason": null,
+    "warnings": []
+  },
   "artifacts": [
     {
       "kind": "history_csv",
@@ -598,6 +655,12 @@
       "description": "Human-readable report"
     },
     {
+      "kind": "artifact_manifest_json",
+      "path": "meta/artifact_manifest.json",
+      "media_type": "application/json",
+      "description": "Artifact contract and provenance manifest"
+    },
+    {
       "kind": "metadata_json",
       "path": "meta/metadata.json",
       "media_type": "application/json",
@@ -607,7 +670,8 @@
   "warnings": [],
   "used_live_data": false,
   "kind": "agentforecast.compare_result",
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "schema_ref": "package://agentforecast/package_data/schemas/compare_result.schema.json",
-  "tool_version": "1.7.0"
+  "artifact_schema_version": "1.0.0",
+  "tool_version": "1.8.0"
 }

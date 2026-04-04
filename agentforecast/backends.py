@@ -11,6 +11,7 @@ import pandas as pd
 from .conformal import ConformalSpec, attach_conformal_intervals, build_river_jackknife_wrappers, resolve_conformal_spec
 from .errors import AgentForecastError, ensure
 from .features import build_future_index, build_supervised_matrix, future_exog_map, infer_frequency_alias, infer_season_length, make_feature_row
+from .types import ResolutionInfo
 
 
 @dataclass
@@ -21,6 +22,12 @@ class BackendSpec:
     description: str
     extra: str
     tags: list[str]
+    tier: str
+    tested: bool
+    strict_benchmark_eligible: bool
+    dependencies: list[str]
+    supports_exogenous: bool = False
+    supports_online_update: bool = False
     runtime: str = "built-in"
     notes: str | None = None
 
@@ -38,6 +45,13 @@ class BackendSpec:
             "available": self.available,
             "runtime": self.runtime,
             "tags": self.tags,
+            "tier": self.tier,
+            "tested": self.tested,
+            "strict_benchmark_eligible": self.strict_benchmark_eligible,
+            "dependencies": self.dependencies,
+            "dependency_state": dependency_state(self.backend_id),
+            "supports_exogenous": self.supports_exogenous,
+            "supports_online_update": self.supports_online_update,
             "notes": self.notes,
         }
 
@@ -51,43 +65,66 @@ def _has(module: str) -> bool:
 
 _REGISTRY: dict[str, BackendSpec] = {
     # lean base path
-    "naive": BackendSpec("naive", "baseline", "agentforecast", "Repeat the last observed value.", "base", ["fast", "low_data"]),
-    "seasonal_naive": BackendSpec("seasonal_naive", "baseline", "agentforecast", "Repeat the most recent seasonal cycle.", "base", ["fast", "long_horizon"]),
-    "moving_average": BackendSpec("moving_average", "baseline", "agentforecast", "Project the recent mean forward.", "base", ["fast"]),
-    "drift": BackendSpec("drift", "baseline", "agentforecast", "Project a straight-line drift from first to last value.", "base", ["fast", "low_data"]),
+    "naive": BackendSpec("naive", "baseline", "agentforecast", "Repeat the last observed value.", "base", ["fast", "low_data"], "reviewed", True, True, []),
+    "seasonal_naive": BackendSpec("seasonal_naive", "baseline", "agentforecast", "Repeat the most recent seasonal cycle.", "base", ["fast", "long_horizon"], "reviewed", True, True, []),
+    "moving_average": BackendSpec("moving_average", "baseline", "agentforecast", "Project the recent mean forward.", "base", ["fast"], "reviewed", True, True, []),
+    "drift": BackendSpec("drift", "baseline", "agentforecast", "Project a straight-line drift from first to last value.", "base", ["fast", "low_data"], "reviewed", True, True, []),
     # classical
-    "stats_arima": BackendSpec("stats_arima", "classical", "statsmodels", "ARIMA from statsmodels.", "stats", ["accurate", "low_data"]),
-    "stats_ets": BackendSpec("stats_ets", "classical", "statsmodels", "Exponential smoothing from statsmodels.", "stats", ["accurate", "long_horizon"]),
-    "statsforecast_autoarima": BackendSpec("statsforecast_autoarima", "classical", "StatsForecast", "AutoARIMA via StatsForecast.", "stats", ["accurate", "scalable"], runtime="adapter", notes="Optional adapter.") ,
-    "statsforecast_autoets": BackendSpec("statsforecast_autoets", "classical", "StatsForecast", "AutoETS via StatsForecast.", "stats", ["accurate", "scalable", "long_horizon"], runtime="adapter", notes="Optional adapter."),
+    "stats_arima": BackendSpec("stats_arima", "classical", "statsmodels", "ARIMA from statsmodels.", "stats", ["accurate", "low_data"], "reviewed", True, True, ["statsmodels"]),
+    "stats_ets": BackendSpec("stats_ets", "classical", "statsmodels", "Exponential smoothing from statsmodels.", "stats", ["accurate", "long_horizon"], "reviewed", True, True, ["statsmodels"]),
+    "statsforecast_autoarima": BackendSpec("statsforecast_autoarima", "classical", "StatsForecast", "AutoARIMA via StatsForecast.", "stats", ["accurate", "scalable"], "experimental", False, False, ["statsforecast"], runtime="adapter", notes="Optional adapter."),
+    "statsforecast_autoets": BackendSpec("statsforecast_autoets", "classical", "StatsForecast", "AutoETS via StatsForecast.", "stats", ["accurate", "scalable", "long_horizon"], "experimental", False, False, ["statsforecast"], runtime="adapter", notes="Optional adapter."),
     # tabular
-    "ml_ridge": BackendSpec("ml_ridge", "tabular", "scikit-learn", "Lag features with sklearn Ridge regression.", "ml", ["fast", "low_data", "tabular"]),
-    "ml_histgb": BackendSpec("ml_histgb", "tabular", "scikit-learn", "Lag features with HistGradientBoostingRegressor.", "ml", ["accurate", "tabular"]),
-    "ml_xgboost": BackendSpec("ml_xgboost", "tabular", "XGBoost", "Lag features with XGBoost.", "ml", ["accurate", "tabular"]),
-    "ml_lightgbm": BackendSpec("ml_lightgbm", "tabular", "LightGBM", "Lag features with LightGBM.", "ml", ["accurate", "tabular"]),
-    "ml_catboost": BackendSpec("ml_catboost", "tabular", "CatBoost", "Lag features with CatBoost.", "ml", ["accurate", "tabular"]),
-    "mlforecast_linear": BackendSpec("mlforecast_linear", "tabular", "MLForecast", "MLForecast with linear regression and lag/exogenous features.", "ml", ["accurate", "tabular", "exogenous"], runtime="adapter", notes="Optional adapter."),
-    "mlforecast_xgboost": BackendSpec("mlforecast_xgboost", "tabular", "MLForecast", "MLForecast with XGBoost and lag/exogenous features.", "ml", ["accurate", "tabular", "exogenous"], runtime="adapter", notes="Optional adapter."),
+    "ml_ridge": BackendSpec("ml_ridge", "tabular", "scikit-learn", "Lag features with sklearn Ridge regression.", "ml", ["fast", "low_data", "tabular"], "reviewed", True, True, ["sklearn"], supports_exogenous=True),
+    "ml_histgb": BackendSpec("ml_histgb", "tabular", "scikit-learn", "Lag features with HistGradientBoostingRegressor.", "ml", ["accurate", "tabular"], "experimental", False, False, ["sklearn"], supports_exogenous=True),
+    "ml_xgboost": BackendSpec("ml_xgboost", "tabular", "XGBoost", "Lag features with XGBoost.", "ml", ["accurate", "tabular"], "experimental", False, False, ["xgboost"], supports_exogenous=True),
+    "ml_lightgbm": BackendSpec("ml_lightgbm", "tabular", "LightGBM", "Lag features with LightGBM.", "ml", ["accurate", "tabular"], "experimental", False, False, ["lightgbm"], supports_exogenous=True),
+    "ml_catboost": BackendSpec("ml_catboost", "tabular", "CatBoost", "Lag features with CatBoost.", "ml", ["accurate", "tabular"], "experimental", False, False, ["catboost"], supports_exogenous=True),
+    "mlforecast_linear": BackendSpec("mlforecast_linear", "tabular", "MLForecast", "MLForecast with linear regression and lag/exogenous features.", "ml", ["accurate", "tabular", "exogenous"], "experimental", False, False, ["mlforecast", "sklearn"], supports_exogenous=True, runtime="adapter", notes="Optional adapter."),
+    "mlforecast_xgboost": BackendSpec("mlforecast_xgboost", "tabular", "MLForecast", "MLForecast with XGBoost and lag/exogenous features.", "ml", ["accurate", "tabular", "exogenous"], "experimental", False, False, ["mlforecast", "xgboost"], supports_exogenous=True, runtime="adapter", notes="Optional adapter."),
     # streaming / online learning
-    "stream_ewm": BackendSpec("stream_ewm", "streaming", "agentforecast", "Lightweight online exponential smoothing forecaster.", "base", ["streaming", "fast", "low_data"]),
-    "stream_sgd": BackendSpec("stream_sgd", "streaming", "scikit-learn", "Online SGD regression with lag features.", "ml", ["streaming", "accurate", "tabular"]),
-    "river_linear": BackendSpec("river_linear", "streaming", "River", "Online linear regression with lag features in River.", "stream", ["streaming", "fast", "supports_conformal_native"], runtime="adapter"),
-    "river_snarimax": BackendSpec("river_snarimax", "streaming", "River", "Online SNARIMAX forecaster in River.", "stream", ["streaming", "accurate", "supports_conformal_residual", "supports_conformal_horizon"], runtime="adapter"),
-    "river_holtwinters": BackendSpec("river_holtwinters", "streaming", "River", "Online Holt-Winters forecaster in River.", "stream", ["streaming", "long_horizon", "supports_conformal_residual", "supports_conformal_horizon"], runtime="adapter"),
+    "stream_ewm": BackendSpec("stream_ewm", "streaming", "agentforecast", "Lightweight online exponential smoothing forecaster.", "base", ["streaming", "fast", "low_data"], "reviewed", True, True, [], supports_online_update=True, runtime="built-in"),
+    "stream_sgd": BackendSpec("stream_sgd", "streaming", "scikit-learn", "Online SGD regression with lag features.", "ml", ["streaming", "accurate", "tabular"], "experimental", False, False, ["sklearn"], supports_exogenous=True, supports_online_update=True),
+    "river_linear": BackendSpec("river_linear", "streaming", "River", "Online linear regression with lag features in River.", "stream", ["streaming", "fast", "supports_conformal_native"], "experimental", False, False, ["river"], supports_exogenous=True, supports_online_update=True, runtime="adapter"),
+    "river_snarimax": BackendSpec("river_snarimax", "streaming", "River", "Online SNARIMAX forecaster in River.", "stream", ["streaming", "accurate", "supports_conformal_residual", "supports_conformal_horizon"], "experimental", False, False, ["river"], supports_exogenous=True, supports_online_update=True, runtime="adapter"),
+    "river_holtwinters": BackendSpec("river_holtwinters", "streaming", "River", "Online Holt-Winters forecaster in River.", "stream", ["streaming", "long_horizon", "supports_conformal_residual", "supports_conformal_horizon"], "experimental", False, False, ["river"], supports_online_update=True, runtime="adapter"),
     # high-end optional adapters
-    "neural_nhits": BackendSpec("neural_nhits", "deep", "NeuralForecast", "NHITS adapter for long-horizon deep forecasting.", "deep", ["deep", "long_horizon"], runtime="adapter", notes="Optional adapter."),
-    "automl_autogluon": BackendSpec("automl_autogluon", "automl", "AutoGluon", "AutoGluon TimeSeries adapter.", "automl", ["automl", "accurate"], runtime="adapter", notes="Optional adapter."),
-    "tabpfn_regression": BackendSpec("tabpfn_regression", "tabpfn", "TabPFN", "TabPFN regressor over lag features.", "tabpfn", ["tabular", "experimental"], runtime="adapter", notes="Optional adapter; check license before production use."),
+    "neural_nhits": BackendSpec("neural_nhits", "deep", "NeuralForecast", "NHITS adapter for long-horizon deep forecasting.", "deep", ["deep", "long_horizon"], "planned", False, False, ["neuralforecast"], runtime="adapter", notes="Planned adapter; not in the reviewed surface."),
+    "automl_autogluon": BackendSpec("automl_autogluon", "automl", "AutoGluon", "AutoGluon TimeSeries adapter.", "automl", ["automl", "accurate"], "planned", False, False, ["autogluon.timeseries"], runtime="adapter", notes="Planned adapter; not in the reviewed surface."),
+    "tabpfn_regression": BackendSpec("tabpfn_regression", "tabpfn", "TabPFN", "TabPFN regressor over lag features.", "tabpfn", ["tabular", "experimental"], "experimental", False, False, ["tabpfn"], supports_exogenous=True, runtime="adapter", notes="Optional adapter; check license before production use."),
 }
 
 
-def list_backends(*, family: str | None = None, include_unavailable: bool = True) -> list[dict[str, Any]]:
+def dependency_state(backend_id: str) -> dict[str, bool]:
+    spec = get_backend_spec(backend_id)
+    return {dependency: _has(dependency) for dependency in spec.dependencies}
+
+
+def list_backends(
+    *,
+    family: str | None = None,
+    include_unavailable: bool = True,
+    reviewed_only: bool = False,
+    tier: str | None = None,
+) -> list[dict[str, Any]]:
     specs = list(_REGISTRY.values())
     if family:
         specs = [spec for spec in specs if spec.family == family]
+    if reviewed_only:
+        specs = [spec for spec in specs if spec.tier == "reviewed"]
+    if tier:
+        specs = [spec for spec in specs if spec.tier == tier]
     if not include_unavailable:
         specs = [spec for spec in specs if spec.available]
     return [spec.to_dict() for spec in specs]
+
+
+def list_reviewed_backends() -> list[dict[str, Any]]:
+    return list_backends(reviewed_only=True, include_unavailable=True)
+
+
+def backend_capabilities(backend_id: str) -> dict[str, Any]:
+    return get_backend_spec(backend_id).to_dict()
 
 
 def list_backend_families() -> list[dict[str, Any]]:
@@ -106,6 +143,101 @@ def get_backend_spec(backend_id: str) -> BackendSpec:
             message=f"Unknown backend '{backend_id}'.",
             help_text="Use 'agentforecast list-backends' to inspect supported backends.",
         ) from exc
+
+
+def resolve_backend_request(
+    requested_backend: str,
+    *,
+    history_len: int,
+    horizon: int,
+    strategy: str = "fast",
+    exogenous_cols: list[str] | None = None,
+    mode: str = "research",
+    strict_backend: bool = True,
+    allow_backend_substitution: bool = False,
+) -> ResolutionInfo:
+    exogenous_cols = exogenous_cols or []
+    route = route_backends(
+        history_len=history_len,
+        horizon=horizon,
+        strategy=strategy,
+        exogenous_cols=exogenous_cols,
+        available_only=True,
+    )
+    if requested_backend == "auto":
+        ensure(
+            len(route["candidate_backends"]) > 0,
+            "NO_BACKENDS_AVAILABLE",
+            "No forecast backends are available for the requested profile.",
+        )
+        resolved = route["candidate_backends"][0]
+        spec = get_backend_spec(resolved)
+        return ResolutionInfo(
+            requested_backend="auto",
+            resolved_backend=resolved,
+            mode=mode,
+            strict_backend=strict_backend,
+            allow_backend_substitution=allow_backend_substitution,
+            support_tier=spec.tier,
+            dependency_state=dependency_state(resolved),
+            candidate_backends=route["candidate_backends"],
+            routing_reason=route["reason"],
+            warnings=[],
+        )
+
+    spec = get_backend_spec(requested_backend)
+    requested_state = dependency_state(requested_backend)
+    if spec.available:
+        return ResolutionInfo(
+            requested_backend=requested_backend,
+            resolved_backend=requested_backend,
+            mode=mode,
+            strict_backend=strict_backend,
+            allow_backend_substitution=allow_backend_substitution,
+            support_tier=spec.tier,
+            dependency_state=requested_state,
+            candidate_backends=[requested_backend],
+            routing_reason="explicit_backend_selected",
+            warnings=[],
+        )
+
+    if strict_backend or not allow_backend_substitution:
+        raise AgentForecastError(
+            code="BACKEND_UNAVAILABLE",
+            message=f"Backend '{requested_backend}' is not installed for strict {mode} mode.",
+            help_text=f"Install the '{spec.extra}' extra or choose another backend.",
+            details={
+                "requested_backend": requested_backend,
+                "dependency_state": requested_state,
+                "mode": mode,
+                "strict_backend": strict_backend,
+                "allow_backend_substitution": allow_backend_substitution,
+                "candidate_backends": route["candidate_backends"],
+            },
+        )
+
+    fallback_candidates = [backend_id for backend_id in route["candidate_backends"] if backend_id != requested_backend]
+    ensure(
+        len(fallback_candidates) > 0,
+        "NO_FALLBACK_BACKEND",
+        f"Backend '{requested_backend}' is unavailable and no fallback backend is installed.",
+        details={"requested_backend": requested_backend, "dependency_state": requested_state, "mode": mode},
+    )
+    resolved = fallback_candidates[0]
+    resolved_spec = get_backend_spec(resolved)
+    return ResolutionInfo(
+        requested_backend=requested_backend,
+        resolved_backend=resolved,
+        mode=mode,
+        strict_backend=strict_backend,
+        allow_backend_substitution=allow_backend_substitution,
+        support_tier=resolved_spec.tier,
+        dependency_state=dependency_state(resolved),
+        candidate_backends=fallback_candidates,
+        routing_reason=route["reason"],
+        fallback_reason="requested_backend_unavailable",
+        warnings=[f"Requested backend '{requested_backend}' was unavailable; fell back to '{resolved}'."],
+    )
 
 
 def is_backend_available(backend_id: str) -> bool:

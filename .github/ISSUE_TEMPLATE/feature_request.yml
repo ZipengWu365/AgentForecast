@@ -1,0 +1,32 @@
+name: Feature request
+description: Propose a change to the reviewed or experimental package surface
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case
+      description: Describe the workflow or problem this would improve
+    validations:
+      required: true
+  - type: input
+    id: surface
+    attributes:
+      label: Affected surface
+      description: Pack, research, artifacts, agent, docs, or CI
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Describe the desired behavior
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Describe current workarounds or other options

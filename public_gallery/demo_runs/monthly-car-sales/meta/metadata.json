@@ -50,6 +50,9 @@
     "name": "monthly_car_sales",
     "horizon": 12,
     "strategy": "fast",
+    "mode": "convenience",
+    "strict_backend": false,
+    "allow_backend_substitution": false,
     "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/monthly_car_sales.csv",
     "date_col": "ds",
     "value_col": "y",
@@ -84,7 +87,7 @@
     "headline": "monthly_car_sales: stats_ets won the backend comparison and produced a publishable pack.",
     "latest_observed": 14577.0,
     "projected_end": 17096.390628646346,
-    "artifact_count": 10,
+    "artifact_count": 11,
     "narrative": "Compared 6 backend(s) and routed the series to 'stats_ets'. Exported CSV, chart, card, markdown, and JSON artifacts.",
     "conformal_method": "residual_heuristic",
     "routing_reason": "default_fast_path"
@@ -417,6 +420,33 @@
         ]
       }
     },
+    "resolution": {
+      "requested_backend": "auto",
+      "resolved_backend": "stats_ets",
+      "mode": "convenience",
+      "strict_backend": false,
+      "allow_backend_substitution": false,
+      "support_tier": "reviewed",
+      "dependency_state": {
+        "naive": true,
+        "seasonal_naive": true,
+        "moving_average": true,
+        "stream_ewm": true,
+        "ml_ridge": true,
+        "stats_ets": true
+      },
+      "candidate_backends": [
+        "stats_ets",
+        "ml_ridge",
+        "seasonal_naive",
+        "moving_average",
+        "naive",
+        "stream_ewm"
+      ],
+      "routing_reason": "default_fast_path",
+      "fallback_reason": null,
+      "warnings": []
+    },
     "cleanup": {
       "cleanup_applied": false,
       "missing_points_filled": 0,
@@ -456,6 +486,33 @@
     "avg_width_90": 13168.999758,
     "wnc_90": 1.384172,
     "backtest_horizon": 12.0
+  },
+  "resolution": {
+    "requested_backend": "auto",
+    "resolved_backend": "stats_ets",
+    "mode": "convenience",
+    "strict_backend": false,
+    "allow_backend_substitution": false,
+    "support_tier": "reviewed",
+    "dependency_state": {
+      "naive": true,
+      "seasonal_naive": true,
+      "moving_average": true,
+      "stream_ewm": true,
+      "ml_ridge": true,
+      "stats_ets": true
+    },
+    "candidate_backends": [
+      "stats_ets",
+      "ml_ridge",
+      "seasonal_naive",
+      "moving_average",
+      "naive",
+      "stream_ewm"
+    ],
+    "routing_reason": "default_fast_path",
+    "fallback_reason": null,
+    "warnings": []
   },
   "artifacts": [
     {
@@ -513,6 +570,12 @@
       "description": "Human-readable report"
     },
     {
+      "kind": "artifact_manifest_json",
+      "path": "meta/artifact_manifest.json",
+      "media_type": "application/json",
+      "description": "Artifact contract and provenance manifest"
+    },
+    {
       "kind": "metadata_json",
       "path": "meta/metadata.json",
       "media_type": "application/json",
@@ -522,7 +585,8 @@
   "warnings": [],
   "used_live_data": false,
   "kind": "agentforecast.run_result",
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "schema_ref": "package://agentforecast/package_data/schemas/run_result.schema.json",
-  "tool_version": "1.7.0"
+  "artifact_schema_version": "1.0.0",
+  "tool_version": "1.8.0"
 }

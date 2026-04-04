@@ -45,6 +45,9 @@
     "name": "daily_min_temperatures",
     "horizon": 14,
     "strategy": "streaming",
+    "mode": "streaming",
+    "strict_backend": false,
+    "allow_backend_substitution": false,
     "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv",
     "date_col": "ds",
     "value_col": "y",
@@ -58,7 +61,7 @@
     "headline": "daily_min_temperatures: river_snarimax won the backend comparison and produced a publishable pack.",
     "latest_observed": 13.0,
     "projected_end": 13.291423694885054,
-    "artifact_count": 10,
+    "artifact_count": 11,
     "narrative": "Compared 1 backend(s) and routed the series to 'river_snarimax'. Exported CSV, chart, card, markdown, and JSON artifacts.",
     "conformal_method": "residual_heuristic",
     "routing_reason": "explicit_backend_selected"
@@ -154,6 +157,23 @@
         ]
       }
     },
+    "resolution": {
+      "requested_backend": "river_snarimax",
+      "resolved_backend": "river_snarimax",
+      "mode": "streaming",
+      "strict_backend": false,
+      "allow_backend_substitution": false,
+      "support_tier": "experimental",
+      "dependency_state": {
+        "river": true
+      },
+      "candidate_backends": [
+        "river_snarimax"
+      ],
+      "routing_reason": "explicit_backend_selected",
+      "fallback_reason": null,
+      "warnings": []
+    },
     "cleanup": {
       "cleanup_applied": true,
       "missing_points_filled": 1,
@@ -195,6 +215,23 @@
     "avg_width_90": 30.238816,
     "wnc_90": 0.460147,
     "backtest_horizon": 14.0
+  },
+  "resolution": {
+    "requested_backend": "river_snarimax",
+    "resolved_backend": "river_snarimax",
+    "mode": "streaming",
+    "strict_backend": false,
+    "allow_backend_substitution": false,
+    "support_tier": "experimental",
+    "dependency_state": {
+      "river": true
+    },
+    "candidate_backends": [
+      "river_snarimax"
+    ],
+    "routing_reason": "explicit_backend_selected",
+    "fallback_reason": null,
+    "warnings": []
   },
   "artifacts": [
     {
@@ -252,6 +289,12 @@
       "description": "Human-readable report"
     },
     {
+      "kind": "artifact_manifest_json",
+      "path": "meta/artifact_manifest.json",
+      "media_type": "application/json",
+      "description": "Artifact contract and provenance manifest"
+    },
+    {
       "kind": "metadata_json",
       "path": "meta/metadata.json",
       "media_type": "application/json",
@@ -267,7 +310,8 @@
   "warnings": [],
   "used_live_data": false,
   "kind": "agentforecast.run_result",
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "schema_ref": "package://agentforecast/package_data/schemas/run_result.schema.json",
-  "tool_version": "1.7.0"
+  "artifact_schema_version": "1.0.0",
+  "tool_version": "1.8.0"
 }

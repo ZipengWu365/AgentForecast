@@ -7,7 +7,7 @@ import tempfile
 import venv
 
 ROOT = Path(__file__).resolve().parents[1]
-DIST = next((ROOT / 'dist').glob('agentforecast-1.7.0-py3-none-any.whl'))
+DIST = next((ROOT / "dist").glob("agentforecast-*.whl"))
 
 
 def run(cmd: list[str], *, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:

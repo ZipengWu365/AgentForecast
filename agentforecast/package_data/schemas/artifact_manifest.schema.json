@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "agentforecast Artifact Manifest",
+  "type": "object",
+  "required": [
+    "kind",
+    "schema_version",
+    "schema_ref",
+    "tool_version",
+    "package_version",
+    "run_type",
+    "backend_selected",
+    "artifact_count",
+    "inputs",
+    "resolution",
+    "warnings",
+    "artifacts"
+  ],
+  "properties": {
+    "kind": {
+      "const": "agentforecast.artifact_manifest"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "schema_ref": {
+      "type": "string"
+    },
+    "tool_version": {
+      "type": "string"
+    },
+    "package_version": {
+      "type": "string"
+    },
+    "run_type": {
+      "type": "string"
+    },
+    "backend_selected": {
+      "type": "string"
+    },
+    "artifact_count": {
+      "type": "integer"
+    },
+    "inputs": {
+      "type": "object"
+    },
+    "resolution": {
+      "type": "object"
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "kind",
+          "path",
+          "media_type",
+          "description"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "media_type": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

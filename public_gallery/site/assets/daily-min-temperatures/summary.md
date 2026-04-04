@@ -2,7 +2,10 @@
 
 - backend_selected: `river_snarimax`
 - candidate_backends: `river_snarimax`
-- artifact_count: `10`
+- artifact_count: `11`
+- requested_backend: `river_snarimax`
+- resolved_backend: `river_snarimax`
+- support_tier: `experimental`
 - latest_observed: `13.0000`
 - projected_end: `13.2914`
 
@@ -30,4 +33,5 @@ Compared 1 backend(s) and routed the series to 'river_snarimax'. Exported CSV, c
 - `plots/leaderboard_card.png`
 - `plots/winner_vs_runnerup_delta.png`
 - `reports/summary.md`
+- `meta/artifact_manifest.json`
 - `meta/metadata.json`

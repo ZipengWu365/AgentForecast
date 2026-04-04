@@ -1,6 +1,7 @@
 """agentforecast: turn a time series into a publishable forecast pack."""
 
 from .conformal import ConformalSpec
+from .benchmark import OnlineForecaster
 from .features import FeatureSpec
 from .version import __version__
 from .local import (
@@ -20,7 +21,7 @@ from .local import (
 )
 from .live import run_case, list_cases, get_case
 from .datasets import list_datasets, get_dataset_spec, write_dataset
-from .backends import list_backends, list_backend_families, route_backends
+from .backends import backend_capabilities, list_backends, list_backend_families, list_reviewed_backends, resolve_backend_request, route_backends
 from .resources import describe_package
 from .examples_hub import build_examples_site, demo_examples, list_examples
 from .hosted import build_hosted_site
@@ -34,6 +35,7 @@ def vibe(*args, **kwargs):
 __all__ = [
     "__version__",
     "ConformalSpec",
+    "OnlineForecaster",
     "FeatureSpec",
     "shoot",
     "snap",
@@ -57,6 +59,9 @@ __all__ = [
     "write_dataset",
     "list_backends",
     "list_backend_families",
+    "list_reviewed_backends",
+    "backend_capabilities",
+    "resolve_backend_request",
     "route_backends",
     "describe_package",
     "list_examples",

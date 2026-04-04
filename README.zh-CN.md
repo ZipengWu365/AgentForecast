@@ -1,55 +1,104 @@
 # agentforecast
 
-**用 one command 调度 classical、tabular、streaming 和 optional adapters，把任意 time series 变成可发布的 forecast pack。**
+**面向异构 forecasting backend 的 reviewed forecast-to-publish layer。**
 
-`agentforecast` 是一个 **多后端、agent-friendly、output-first** 的 forecast-to-publish layer。
+公开入口：
 
-它同时做三件事：
+- [文档](https://zipengwu365.github.io/AgentForecast/)
+- [Gallery](https://zipengwu365.github.io/AgentForecast/gallery/)
+- [JMLR 审稿入口](https://zipengwu365.github.io/AgentForecast/papers/jmlr-mloss/)
+- [Issues](https://github.com/ZipengWu365/AgentForecast/issues)
 
-1. 用很小的调用面封装多种 forecasting backend
-2. 自动比较或选择 backend
-3. 导出 `CSV + chart + card + markdown + JSON`
+`agentforecast` 的定位不是“大而全的 forecasting framework”，而是把多种 backend 收缩成一个小而稳定的工作流层，并统一导出：
 
-## 最短上手
+- CSV
+- chart
+- card
+- markdown
+- JSON
+- artifact manifest
+
+它不替代 `sktime`、`StatsForecast`、`MLForecast`、`River` 这类 specialized framework；它负责统一路由、产物和 agent/tool 消费接口。
+
+## 快速开始
+
+源码安装：
 
 ```bash
-python -m pip install agentforecast-1.7.0-py3-none-any.whl
+python -m pip install .
 python -m agentforecast.cli shoot sales --outdir demo
 ```
 
-生成 hosted gallery：
+本地 wheel 安装：
 
 ```bash
-python -m agentforecast.cli demo-gallery --outdir demo_gallery_runs --site-dir public_gallery/site
+python -m pip wheel . -w dist --no-deps
+python -m pip install dist/agentforecast-1.8.0-py3-none-any.whl
+python -m agentforecast.cli shoot sales --outdir demo
 ```
 
-## 现在支持什么
+GitHub Release 资产安装：
 
-- lean base path：`naive / seasonal_naive / moving_average / drift / stream_ewm`
-- classical：`stats_arima / stats_ets / StatsForecast adapters`
-- tabular：`ml_ridge / ml_histgb / ml_xgboost / MLForecast adapters`
-- streaming：`stream_sgd / stream_ewm / River adapters`
-- optional high-end：`NHITS / AutoGluon / TabPFN`
+```bash
+python -m pip install <downloaded-release-wheel>.whl
+python -m agentforecast.cli shoot sales --outdir demo
+```
 
-## 它的核心价值
+## 四个 surface
 
-不是做最大的 forecasting framework，
-而是把异构 forecasting 生态压成一个统一的 **agent-friendly forecast OS layer**，
-并且把结果统一输出成可发布的 artifact pack。
+- `Pack`：`forecast_dataframe`、`forecast_csv`、`forecast_url`、`forecast_dataset`、`shoot`
+- `Research`：`OnlineForecaster`，默认严格 backend 解析，避免静默替换
+- `Artifacts`：`meta/metadata.json`、`meta/artifact_manifest.json`、图表、卡片、CSV、markdown
+- `Agent`：tool / MCP server 与稳定 JSON payload
 
-## 重点文档
+## 支持分层
 
+- `Reviewed`：纳入测试、文档和论文 claim
+- `Experimental`：公开暴露，但不纳入 reviewed release claim
+- `Planned`：路线图或占位，不算当前 reviewed surface
+
+当前 reviewed backends：
+
+- `naive`
+- `seasonal_naive`
+- `moving_average`
+- `drift`
+- `stats_arima`
+- `stats_ets`
+- `ml_ridge`
+- `stream_ewm`
+
+详见：
+
+- [SUPPORT_POLICY.md](SUPPORT_POLICY.md)
+- [REVIEWED_SURFACE.md](REVIEWED_SURFACE.md)
 - [BACKENDS.md](BACKENDS.md)
-- [BENCHMARK_HUB.md](BENCHMARK_HUB.md)
-- [CROSS_DISCIPLINARY_GUIDE.md](CROSS_DISCIPLINARY_GUIDE.md)
-- [HONEST_SWITCHING_GUIDE.md](HONEST_SWITCHING_GUIDE.md)
-- [HOSTED_GALLERY_GUIDE.md](HOSTED_GALLERY_GUIDE.md)
-- [ADAPTERS.md](ADAPTERS.md)
+- [BENCHMARK_SEMANTICS.md](BENCHMARK_SEMANTICS.md)
+- [ARTIFACT_SCHEMA.md](ARTIFACT_SCHEMA.md)
 
+## 可选 extras
 
-## 这一版修了什么
+```bash
+python -m pip install ".[stats]"
+python -m pip install ".[ml]"
+python -m pip install ".[stream]"
+python -m pip install ".[features]"
+python -m pip install ".[deep]"
+python -m pip install ".[automl]"
+python -m pip install ".[tabpfn]"
+```
 
-- base quickstart 不再隐式依赖 `tabulate`
-- 推荐继续使用 `python -m agentforecast.cli ...` 作为最稳妥的复制运行路径
-- 仓库根目录补齐了标准开源 trust files
-- internal benchmark 与 external benchmark hub 明确分开叙述
+Optional adapters 默认不属于 reviewed claim，除非它们进入测试和 support policy。
+
+## 社区与治理
+
+- Bug：GitHub Issues
+- Feature request：GitHub Issues
+- 使用讨论和 showcase：公共仓库启用后进入 GitHub Discussions
+
+补充文档：
+
+- [COMMUNITY.md](COMMUNITY.md)
+- [GOVERNANCE.md](GOVERNANCE.md)
+- [submission/JMLR_SCOPE.md](submission/JMLR_SCOPE.md)
+- [submission/REPRODUCTION.md](submission/REPRODUCTION.md)

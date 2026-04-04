@@ -1,0 +1,111 @@
+{
+  "kind": "agentforecast.artifact_manifest",
+  "schema_version": "1.0.0",
+  "schema_ref": "package://agentforecast/package_data/schemas/artifact_manifest.schema.json",
+  "tool_version": "1.8.0",
+  "package_version": "1.8.0",
+  "run_type": "forecast_dataframe",
+  "backend_selected": "river_snarimax",
+  "artifact_count": 11,
+  "inputs": {
+    "name": "daily_min_temperatures",
+    "horizon": 14,
+    "strategy": "streaming",
+    "mode": "streaming",
+    "strict_backend": false,
+    "allow_backend_substitution": false,
+    "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv",
+    "date_col": "ds",
+    "value_col": "y",
+    "series_kind": "price",
+    "candidate_backends": [
+      "river_snarimax"
+    ]
+  },
+  "resolution": {
+    "requested_backend": "river_snarimax",
+    "resolved_backend": "river_snarimax",
+    "mode": "streaming",
+    "strict_backend": false,
+    "allow_backend_substitution": false,
+    "support_tier": "experimental",
+    "dependency_state": {
+      "river": true
+    },
+    "candidate_backends": [
+      "river_snarimax"
+    ],
+    "routing_reason": "explicit_backend_selected",
+    "fallback_reason": null,
+    "warnings": []
+  },
+  "warnings": [],
+  "artifacts": [
+    {
+      "kind": "history_csv",
+      "path": "data/history.csv",
+      "media_type": "text/csv",
+      "description": "Normalized history"
+    },
+    {
+      "kind": "forecast_csv",
+      "path": "data/forecast.csv",
+      "media_type": "text/csv",
+      "description": "Winner backend forecast"
+    },
+    {
+      "kind": "leaderboard_csv",
+      "path": "data/leaderboard.csv",
+      "media_type": "text/csv",
+      "description": "Backend comparison leaderboard"
+    },
+    {
+      "kind": "forecast_png",
+      "path": "plots/forecast.png",
+      "media_type": "image/png",
+      "description": "Forecast chart"
+    },
+    {
+      "kind": "forecast_card_png",
+      "path": "plots/forecast_card.png",
+      "media_type": "image/png",
+      "description": "Shareable forecast card"
+    },
+    {
+      "kind": "comparison_png",
+      "path": "plots/backend_comparison.png",
+      "media_type": "image/png",
+      "description": "Backend comparison chart"
+    },
+    {
+      "kind": "leaderboard_card_png",
+      "path": "plots/leaderboard_card.png",
+      "media_type": "image/png",
+      "description": "Leaderboard card"
+    },
+    {
+      "kind": "delta_card_png",
+      "path": "plots/winner_vs_runnerup_delta.png",
+      "media_type": "image/png",
+      "description": "Winner vs runner-up delta card"
+    },
+    {
+      "kind": "summary_markdown",
+      "path": "reports/summary.md",
+      "media_type": "text/markdown",
+      "description": "Human-readable report"
+    },
+    {
+      "kind": "artifact_manifest_json",
+      "path": "meta/artifact_manifest.json",
+      "media_type": "application/json",
+      "description": "Artifact contract and provenance manifest"
+    },
+    {
+      "kind": "metadata_json",
+      "path": "meta/metadata.json",
+      "media_type": "application/json",
+      "description": "Structured compare result"
+    }
+  ]
+}

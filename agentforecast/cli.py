@@ -23,7 +23,7 @@ from .local import (
 )
 from .live import get_case, list_cases, run_case
 from .datasets import get_dataset_spec, list_datasets
-from .backends import is_backend_available, list_backends, list_backend_families, route_backends
+from .backends import backend_capabilities, is_backend_available, list_backends, list_backend_families, list_reviewed_backends, route_backends
 from .resources import api_catalog, describe_package, package_overview
 from .tool_server import serve_json_tools
 from .mcp_server import serve_mcp
@@ -125,6 +125,20 @@ def _add_feature_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--tsfresh-features", default=None, help="Comma-separated tsfresh feature ids to keep.")
 
 
+def _add_backend_resolution_args(parser: argparse.ArgumentParser, *, strict_default: bool = False) -> None:
+    parser.add_argument(
+        "--strict-backend",
+        action="store_true",
+        default=strict_default,
+        help="Require requested backends to be available instead of silently skipping or rerouting them.",
+    )
+    parser.add_argument(
+        "--allow-backend-substitution",
+        action="store_true",
+        help="Allow an explicit unavailable backend to fall back to an installed candidate when strict mode is off.",
+    )
+
+
 def _feature_spec_from_args(args: argparse.Namespace) -> FeatureSpec | None:
     if not hasattr(args, "lag_points"):
         return None
@@ -184,6 +198,7 @@ def build_parser() -> argparse.ArgumentParser:
         p.add_argument("--output", choices=["json", "text"], default="json")
         _add_conformal_args(p)
         _add_feature_args(p)
+        _add_backend_resolution_args(p)
 
     p_fcsv = sub.add_parser("forecast-csv", help="Forecast a local CSV.")
     p_fcsv.add_argument("path")
@@ -197,6 +212,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_fcsv.add_argument("--output", choices=["json", "text"], default="json")
     _add_conformal_args(p_fcsv)
     _add_feature_args(p_fcsv)
+    _add_backend_resolution_args(p_fcsv)
 
     p_furl = sub.add_parser("forecast-url", help="Forecast a CSV URL.")
     p_furl.add_argument("url")
@@ -210,6 +226,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_furl.add_argument("--output", choices=["json", "text"], default="json")
     _add_conformal_args(p_furl)
     _add_feature_args(p_furl)
+    _add_backend_resolution_args(p_furl)
 
     p_fdataset = sub.add_parser("forecast-dataset", help="Forecast a bundled dataset.")
     p_fdataset.add_argument("dataset_id")
@@ -220,6 +237,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_fdataset.add_argument("--output", choices=["json", "text"], default="json")
     _add_conformal_args(p_fdataset)
     _add_feature_args(p_fdataset)
+    _add_backend_resolution_args(p_fdataset)
 
     p_fdir = sub.add_parser("forecast-dir", help="Forecast every CSV in a directory.")
     p_fdir.add_argument("directory")
@@ -234,6 +252,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_fdir.add_argument("--output", choices=["json", "text"], default="json")
     _add_conformal_args(p_fdir)
     _add_feature_args(p_fdir)
+    _add_backend_resolution_args(p_fdir)
 
     p_compare_csv = sub.add_parser("compare-csv", help="Compare multiple backends on a local CSV.")
     p_compare_csv.add_argument("path")
@@ -246,6 +265,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_compare_csv.add_argument("--output", choices=["json", "text"], default="json")
     _add_conformal_args(p_compare_csv)
     _add_feature_args(p_compare_csv)
+    _add_backend_resolution_args(p_compare_csv, strict_default=True)
 
     p_compare_dataset = sub.add_parser("compare-dataset", help="Compare multiple backends on a bundled dataset.")
     p_compare_dataset.add_argument("dataset_id")
@@ -255,6 +275,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_compare_dataset.add_argument("--output", choices=["json", "text"], default="json")
     _add_conformal_args(p_compare_dataset)
     _add_feature_args(p_compare_dataset)
+    _add_backend_resolution_args(p_compare_dataset, strict_default=True)
 
     p_stream = sub.add_parser("forecast-stream", help="Run a streaming backend.")
     p_stream.add_argument("path")
@@ -267,6 +288,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_stream.add_argument("--output", choices=["json", "text"], default="json")
     _add_conformal_args(p_stream)
     _add_feature_args(p_stream)
+    _add_backend_resolution_args(p_stream)
 
     p_case = sub.add_parser("run-case", help="Run a built-in case.")
     p_case.add_argument("case_id")
@@ -303,6 +325,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_backends = sub.add_parser("list-backends", help="List registered backends.")
     p_backends.add_argument("--output", choices=["json", "text"], default="json")
+
+    p_reviewed = sub.add_parser("list-reviewed-backends", help="List the reviewed backend surface.")
+    p_reviewed.add_argument("--output", choices=["json", "text"], default="json")
+
+    p_backend_cap = sub.add_parser("backend-capabilities", help="Show support metadata for one backend.")
+    p_backend_cap.add_argument("backend_id")
+    p_backend_cap.add_argument("--output", choices=["json", "text"], default="json")
 
     p_backend_families = sub.add_parser("backend-families", help="List backend families.")
     p_backend_families.add_argument("--output", choices=["json", "text"], default="json")
@@ -358,28 +387,28 @@ def main(argv: list[str] | None = None) -> int:
             payload = describe_package(args.language)
             _print(payload if args.output == "json" else payload["headline"] + "\n" + "\n".join(payload["quickstart"]), args.output)
         elif args.command in {"shoot", "snap", "vibe"}:
-            result = shoot(args.target, backend=args.backend, strategy=args.strategy, horizon=args.horizon, outdir=args.outdir, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args))
+            result = shoot(args.target, backend=args.backend, strategy=args.strategy, horizon=args.horizon, outdir=args.outdir, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args), strict_backend=args.strict_backend, allow_backend_substitution=args.allow_backend_substitution)
             _print(result.to_dict() if args.output == "json" else result.summary["headline"], args.output)
         elif args.command == "forecast-csv":
-            result = forecast_csv(args.path, date_col=args.date_col, value_col=args.value_col, horizon=args.horizon, backend=args.backend, strategy=args.strategy, outdir=args.outdir, series_kind=args.series_kind, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args))
+            result = forecast_csv(args.path, date_col=args.date_col, value_col=args.value_col, horizon=args.horizon, backend=args.backend, strategy=args.strategy, outdir=args.outdir, series_kind=args.series_kind, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args), strict_backend=args.strict_backend, allow_backend_substitution=args.allow_backend_substitution)
             _print(result.to_dict() if args.output == "json" else result.summary["headline"], args.output)
         elif args.command == "forecast-url":
-            result = forecast_url(args.url, date_col=args.date_col, value_col=args.value_col, horizon=args.horizon, backend=args.backend, strategy=args.strategy, outdir=args.outdir, series_kind=args.series_kind, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args))
+            result = forecast_url(args.url, date_col=args.date_col, value_col=args.value_col, horizon=args.horizon, backend=args.backend, strategy=args.strategy, outdir=args.outdir, series_kind=args.series_kind, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args), strict_backend=args.strict_backend, allow_backend_substitution=args.allow_backend_substitution)
             _print(result.to_dict() if args.output == "json" else result.summary["headline"], args.output)
         elif args.command == "forecast-dataset":
-            result = forecast_dataset(args.dataset_id, horizon=args.horizon, backend=args.backend, strategy=args.strategy, outdir=args.outdir, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args))
+            result = forecast_dataset(args.dataset_id, horizon=args.horizon, backend=args.backend, strategy=args.strategy, outdir=args.outdir, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args), strict_backend=args.strict_backend, allow_backend_substitution=args.allow_backend_substitution)
             _print(result.to_dict() if args.output == "json" else result.summary["headline"], args.output)
         elif args.command == "forecast-dir":
-            result = forecast_dir(args.directory, pattern=args.pattern, date_col=args.date_col, value_col=args.value_col, horizon=args.horizon, backend=args.backend, strategy=args.strategy, outdir=args.outdir, series_kind=args.series_kind, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args))
+            result = forecast_dir(args.directory, pattern=args.pattern, date_col=args.date_col, value_col=args.value_col, horizon=args.horizon, backend=args.backend, strategy=args.strategy, outdir=args.outdir, series_kind=args.series_kind, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args), strict_backend=args.strict_backend, allow_backend_substitution=args.allow_backend_substitution)
             _print(result.to_dict() if args.output == "json" else f"forecasted {len(result.runs)} file(s)", args.output)
         elif args.command == "compare-csv":
-            result = compare_backends_csv(args.path, backends=[item.strip() for item in args.backends.split(",") if item.strip()], date_col=args.date_col, value_col=args.value_col, horizon=args.horizon, outdir=args.outdir, series_kind=args.series_kind, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args))
+            result = compare_backends_csv(args.path, backends=[item.strip() for item in args.backends.split(",") if item.strip()], date_col=args.date_col, value_col=args.value_col, horizon=args.horizon, outdir=args.outdir, series_kind=args.series_kind, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args), strict_backend=args.strict_backend, allow_backend_substitution=args.allow_backend_substitution)
             _print(result.to_dict() if args.output == "json" else result.summary["headline"], args.output)
         elif args.command == "compare-dataset":
-            result = compare_backends_dataset(args.dataset_id, backends=[item.strip() for item in args.backends.split(",") if item.strip()], horizon=args.horizon, outdir=args.outdir, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args))
+            result = compare_backends_dataset(args.dataset_id, backends=[item.strip() for item in args.backends.split(",") if item.strip()], horizon=args.horizon, outdir=args.outdir, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args), strict_backend=args.strict_backend, allow_backend_substitution=args.allow_backend_substitution)
             _print(result.to_dict() if args.output == "json" else result.summary["headline"], args.output)
         elif args.command == "forecast-stream":
-            result = forecast_stream_csv(args.path, backend=args.backend, date_col=args.date_col, value_col=args.value_col, horizon=args.horizon, outdir=args.outdir, series_kind=args.series_kind, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args))
+            result = forecast_stream_csv(args.path, backend=args.backend, date_col=args.date_col, value_col=args.value_col, horizon=args.horizon, outdir=args.outdir, series_kind=args.series_kind, conformal=_conformal_spec_from_args(args), feature_spec=_feature_spec_from_args(args), strict_backend=args.strict_backend, allow_backend_substitution=args.allow_backend_substitution)
             _print(result.to_dict() if args.output == "json" else result.summary["headline"], args.output)
         elif args.command == "run-case":
             result = run_case(args.case_id, outdir=args.outdir, backend=args.backend, strategy=args.strategy, feature_spec=_feature_spec_from_args(args))
@@ -399,6 +428,10 @@ def main(argv: list[str] | None = None) -> int:
             print(path.as_posix())
         elif args.command == "list-backends":
             _print(list_backends(), args.output)
+        elif args.command == "list-reviewed-backends":
+            _print(list_reviewed_backends(), args.output)
+        elif args.command == "backend-capabilities":
+            _print(backend_capabilities(args.backend_id), args.output)
         elif args.command == "backend-families":
             _print(list_backend_families(), args.output)
         elif args.command == "route-backends":

@@ -10,5 +10,34 @@
     "inputs",
     "runs",
     "warnings"
-  ]
+  ],
+  "properties": {
+    "kind": {
+      "const": "agentforecast.directory_run_result"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "schema_ref": {
+      "type": "string"
+    },
+    "tool_version": {
+      "type": "string"
+    },
+    "inputs": {
+      "type": "object"
+    },
+    "runs": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
 }

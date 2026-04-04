@@ -6,6 +6,7 @@
     "kind",
     "schema_version",
     "schema_ref",
+    "artifact_schema_version",
     "tool_version",
     "run_type",
     "backend_selected",
@@ -16,46 +17,97 @@
     "diagnostics",
     "metrics",
     "leaderboard",
+    "resolution",
     "artifacts",
     "warnings",
     "used_live_data"
   ],
   "properties": {
+    "kind": {
+      "const": "agentforecast.compare_result"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "schema_ref": {
+      "type": "string"
+    },
+    "artifact_schema_version": {
+      "type": "string"
+    },
+    "tool_version": {
+      "type": "string"
+    },
+    "run_type": {
+      "type": "string"
+    },
+    "backend_selected": {
+      "type": "string"
+    },
+    "candidate_backends": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "feature_spec": {
+      "type": "object"
+    },
+    "inputs": {
+      "type": "object"
+    },
+    "summary": {
+      "type": "object"
+    },
     "diagnostics": {
-      "type": "object",
-      "properties": {
-        "conformal": {
-          "type": "object",
-          "properties": {
-            "enabled": {
-              "type": "boolean"
-            },
-            "method": {
-              "type": "string"
-            },
-            "levels": {
-              "type": "array",
-              "items": {
-                "type": "integer"
-              }
-            },
-            "coverage_backtest": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "number"
-              }
-            },
-            "mean_interval_width": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "number"
-              }
-            }
+      "type": "object"
+    },
+    "metrics": {
+      "type": "object"
+    },
+    "leaderboard": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "resolution": {
+      "type": "object"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "kind",
+          "path",
+          "media_type",
+          "description"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
           },
-          "additionalProperties": true
+          "path": {
+            "type": "string"
+          },
+          "media_type": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
         }
-      },
-      "additionalProperties": true
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "used_live_data": {
+      "type": "boolean"
     }
   }
 }

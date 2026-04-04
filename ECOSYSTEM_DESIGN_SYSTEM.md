@@ -252,7 +252,7 @@ See `website/tailwind.theme.ts` for a developer-ready theme extension object.
 
 ## 7. Example implementation
 
-See `website/TSLabLanding.tsx` for a single-file React + Tailwind landing page implementation that follows this system.
+See `website/AgentForecastLanding.tsx` for a single-file React + Tailwind landing page implementation that follows this system.
 
 ## 8. README visual structure template
 

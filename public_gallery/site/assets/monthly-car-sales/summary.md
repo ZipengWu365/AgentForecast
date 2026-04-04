@@ -2,7 +2,10 @@
 
 - backend_selected: `stats_ets`
 - candidate_backends: `stats_ets, ml_ridge, seasonal_naive, moving_average, naive, stream_ewm`
-- artifact_count: `10`
+- artifact_count: `11`
+- requested_backend: `auto`
+- resolved_backend: `stats_ets`
+- support_tier: `reviewed`
 - latest_observed: `14577.0000`
 - projected_end: `17096.3906`
 
@@ -35,4 +38,5 @@ Compared 6 backend(s) and routed the series to 'stats_ets'. Exported CSV, chart,
 - `plots/leaderboard_card.png`
 - `plots/winner_vs_runnerup_delta.png`
 - `reports/summary.md`
+- `meta/artifact_manifest.json`
 - `meta/metadata.json`

@@ -18,7 +18,7 @@ from .local import (
 )
 from .live import run_case, list_cases
 from .datasets import list_datasets
-from .backends import list_backends, list_backend_families, route_backends
+from .backends import backend_capabilities, list_backends, list_backend_families, list_reviewed_backends, route_backends
 from .resources import package_overview
 from .version import __version__
 
@@ -45,6 +45,8 @@ def _tool_catalog() -> list[dict[str, Any]]:
         {"name": "demo_examples", "description": "Generate curated example runs and build the examples site."},
         {"name": "build_examples_site", "description": "Build the tutorial-style examples site from generated example runs."},
         {"name": "list_backends", "description": "List registered backends."},
+        {"name": "list_reviewed_backends", "description": "List the reviewed backend surface for the paper release."},
+        {"name": "backend_capabilities", "description": "Describe support tier, dependencies, and capabilities for one backend."},
         {"name": "route_backends", "description": "Return candidate backends and routing rationale."},
     ]
 
@@ -94,6 +96,10 @@ def dispatch_tool_call(name: str, args: dict[str, Any]) -> dict[str, Any]:
             return _ok(build_examples_site(**args))
         if name == "list_backends":
             return _ok(list_backends(**args))
+        if name == "list_reviewed_backends":
+            return _ok(list_reviewed_backends())
+        if name == "backend_capabilities":
+            return _ok(backend_capabilities(args["backend_id"]))
         if name == "route_backends":
             return _ok(route_backends(**args))
         if name == "list_cases":

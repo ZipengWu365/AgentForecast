@@ -1,0 +1,41 @@
+name: Bug report
+description: Report a bug in the reviewed or experimental package surface
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Describe the observed failure and what you expected to happen.
+    validations:
+      required: true
+  - type: input
+    id: install_mode
+    attributes:
+      label: Install mode
+      description: Source install, local wheel install, or release artifact install
+    validations:
+      required: true
+  - type: input
+    id: backend
+    attributes:
+      label: Backend
+      description: Which backend or strategy was involved
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Provide minimal steps or a code snippet
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Python version, package version, and any optional extras
+    validations:
+      required: true

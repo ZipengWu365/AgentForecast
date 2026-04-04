@@ -1,0 +1,22 @@
+name: optional-adapters
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        extra: [stats, ml, stream]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install .[dev,${{ matrix.extra }}]
+      - run: python -m pytest tests/test_backends_optional.py -m optional

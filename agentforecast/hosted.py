@@ -7,7 +7,7 @@ import html
 import json
 import shutil
 
-from .backends import list_backends
+from .backends import list_backends, list_reviewed_backends
 from .benchmark_hub import list_external_benchmarks
 from .utils import ensure_dir, read_json
 
@@ -938,7 +938,7 @@ def _page(title: str, body: str) -> str:
 """
 
 
-def _topbar(anchor_links: list[tuple[str, str]]) -> str:
+def _topbar(anchor_links: list[tuple[str, str]], *, cta_href: str = "#packs", cta_label: str = "Browse packs") -> str:
     links = "".join(f"<a class='nav-link' href='{_escape(href)}'>{_escape(label)}</a>" for label, href in anchor_links)
     return (
         "<header class='topbar'><div class='shell topbar-inner'>"
@@ -946,7 +946,7 @@ def _topbar(anchor_links: list[tuple[str, str]]) -> str:
         "<span class='brand-mark'>AF</span>"
         "<span class='brand-copy'><strong>agentforecast</strong><small>sunny scientific open source</small></span>"
         "</a>"
-        f"<nav class='nav-links'>{links}<a class='button button-primary' href='#packs'>Browse packs</a></nav>"
+        f"<nav class='nav-links'>{links}<a class='button button-primary' href='{_escape(cta_href)}'>{_escape(cta_label)}</a></nav>"
         "</div></header>"
     )
 
@@ -1194,6 +1194,226 @@ def _routing_snippet(entry: dict[str, Any]) -> str:
     return "<div class='code-block'>" + _escape(json.dumps(snippet, ensure_ascii=False, indent=2)) + "</div>"
 
 
+def _doc_section(title: str, copy: str, body: str) -> str:
+    return (
+        "<section class='section'>"
+        f"<div class='section-head'><div><div class='eyebrow'>Docs</div><h2>{_escape(title)}</h2></div>"
+        f"<p>{_escape(copy)}</p></div>"
+        f"{body}"
+        "</section>"
+    )
+
+
+def _doc_page(title: str, eyebrow: str, headline: str, intro: str, sections: list[str], *, base_prefix: str = "../") -> str:
+    nav = [
+        ("Install", f"{base_prefix}install/"),
+        ("Why", f"{base_prefix}why-agentforecast/"),
+        ("Backends", f"{base_prefix}backends/"),
+        ("Benchmarking", f"{base_prefix}benchmarking/"),
+        ("Support", f"{base_prefix}support-policy/"),
+        ("Gallery", f"{base_prefix}gallery/"),
+    ]
+    return (
+        _topbar(nav, cta_href=f"{base_prefix}gallery/", cta_label="Open gallery")
+        + "<main class='page'><div class='shell'>"
+        + "<section class='hero'>"
+        + "<div class='hero-copy'>"
+        + f"<div class='eyebrow'>{_escape(eyebrow)}</div>"
+        + f"<h1>{_escape(headline)}</h1>"
+        + f"<p>{_escape(intro)}</p>"
+        + _author_strip()
+        + "<div class='hero-meta'>"
+        + "<span class='pill pill-accent'>reviewed release</span>"
+        + "<span class='pill'>docs + gallery + paper entry</span>"
+        + "<span class='pill pill-blue'>agent-friendly provenance</span>"
+        + "</div></div>"
+        + "<aside class='hero-panel panel'>"
+        + "<div><strong>Public entrypoints</strong><p class='muted'>Use the Pages site as the single public docs and paper entrypoint, and keep GitHub README as a short navigator.</p></div>"
+        + "<div class='code-block'>/install\n/why-agentforecast\n/surfaces\n/backends\n/benchmarking\n/support-policy\n/gallery\n/papers/jmlr-mloss</div>"
+        + "</aside></section>"
+        + "".join(sections)
+        + "<div class='footer'><div class='footer-card'><div><h3 style='margin:0 0 8px;'>Reviewed release</h3><p class='muted' style='margin:0;'>This Pages site is the public documentation front door for the v1.8.0 reviewed release.</p></div></div></div>"
+        + "</div></main>"
+    )
+
+
+def _install_page() -> str:
+    sections = [
+        _doc_section(
+            "Install paths",
+            "Until a PyPI release is published through the reviewed release workflow, public install instructions stay grounded in source, local wheel, or GitHub release artifacts.",
+            "<div class='surface-grid'>"
+            "<article class='surface-card'><h3>Source install</h3><div class='code-block'>python -m pip install .\npython -m agentforecast.cli shoot sales --outdir demo</div></article>"
+            "<article class='surface-card'><h3>Local wheel install</h3><div class='code-block'>python -m pip wheel . -w dist --no-deps\npython -m pip install dist/agentforecast-1.8.0-py3-none-any.whl</div></article>"
+            "<article class='surface-card'><h3>Release artifact install</h3><div class='code-block'>python -m pip install &lt;downloaded-release-wheel&gt;.whl\npython scripts/smoke_test_wheel.py</div></article>"
+            "</div>",
+        )
+    ]
+    return _doc_page(
+        "Install",
+        "Install",
+        "Install from source, local wheel, or reviewed release artifacts.",
+        "The public docs no longer pretend that a PyPI install exists before the release workflow produces it.",
+        sections,
+        base_prefix="../",
+    )
+
+
+def _why_page() -> str:
+    sections = [
+        _doc_section(
+            "What AgentForecast is",
+            "It is a forecast-to-publish layer over heterogeneous backends.",
+            "<ul class='surface-list'>"
+            "<li>small pack API over multiple backend families</li>"
+            "<li>publishable artifact contract with plots, cards, markdown, CSV, JSON, and manifest</li>"
+            "<li>agent and MCP surface with stable payloads</li>"
+            "</ul>",
+        ),
+        _doc_section(
+            "What AgentForecast is not",
+            "The reviewed release avoids oversized framework claims.",
+            "<ul class='surface-list'>"
+            "<li>not a replacement for sktime, StatsForecast, MLForecast, or River</li>"
+            "<li>not a field-wide performance leaderboard</li>"
+            "<li>not a claim that all optional adapters are stable</li>"
+            "</ul>",
+        ),
+    ]
+    return _doc_page(
+        "Why AgentForecast",
+        "Positioning",
+        "A forecast-to-publish layer, not another giant forecasting framework.",
+        "Use AgentForecast when you want smaller public APIs, explicit artifacts, and benchmark-safe provenance on top of existing forecasting ecosystems.",
+        sections,
+        base_prefix="../",
+    )
+
+
+def _surfaces_page() -> str:
+    cards = (
+        "<div class='surface-grid'>"
+        "<article class='surface-card'><h3>Pack</h3><p class='muted'>Forecast local data, datasets, URLs, and directories, then emit publishable packs.</p></article>"
+        "<article class='surface-card'><h3>Research</h3><p class='muted'>Use OnlineForecaster with strict backend resolution and explicit provenance.</p></article>"
+        "<article class='surface-card'><h3>Artifacts</h3><p class='muted'>Every reviewed run exports metadata.json plus artifact_manifest.json.</p></article>"
+        "<article class='surface-card'><h3>Agent</h3><p class='muted'>Tool and MCP payloads expose stable backend and package summaries.</p></article>"
+        "</div>"
+    )
+    return _doc_page(
+        "Surfaces",
+        "Surface map",
+        "Four public surfaces, one reviewed release boundary.",
+        "The reviewed release is organized by surface instead of by an ever-growing list of backends.",
+        [_doc_section("Surface map", "These are the public surfaces users and reviewers should reason about.", cards)],
+        base_prefix="../",
+    )
+
+
+def _backends_page() -> str:
+    rows = "".join(
+        "<tr>"
+        f"<td>{_escape(item['backend_id'])}</td>"
+        f"<td>{_escape(item['family'])}</td>"
+        f"<td>{_escape(item['tier'])}</td>"
+        f"<td>{_escape('yes' if item['tested'] else 'no')}</td>"
+        f"<td>{_escape('yes' if item['strict_benchmark_eligible'] else 'no')}</td>"
+        f"<td>{_escape('yes' if item['supports_exogenous'] else 'no')}</td>"
+        f"<td>{_escape('yes' if item['supports_online_update'] else 'no')}</td>"
+        "</tr>"
+        for item in list_backends(include_unavailable=True)
+    )
+    reviewed = ", ".join(item["backend_id"] for item in list_reviewed_backends())
+    return _doc_page(
+        "Backends",
+        "Backend registry",
+        "Support tiers and capabilities come from the backend registry, not ad hoc documentation.",
+        "The backend page is generated from code-level metadata so the public docs stay aligned with the package.",
+        [
+            _doc_section(
+                "Reviewed backends",
+                "These are the backends that belong to the reviewed release claim.",
+                f"<div class='code-block'>{_escape(reviewed)}</div>",
+            ),
+            _doc_section(
+                "Capability matrix",
+                "Tier, test status, and strict benchmark eligibility are visible on one page.",
+                "<div class='table-wrap'><table class='table'><thead><tr><th>Backend</th><th>Family</th><th>Tier</th><th>Tested</th><th>Strict benchmark</th><th>Exogenous</th><th>Online update</th></tr></thead>"
+                f"<tbody>{rows}</tbody></table></div>",
+            ),
+        ],
+        base_prefix="../",
+    )
+
+
+def _benchmarking_page() -> str:
+    return _doc_page(
+        "Benchmarking",
+        "Benchmark-safe semantics",
+        "Strict research mode fails loudly; convenience mode stays explicit about routing.",
+        "The reviewed release separates benchmark-safe research calls from convenience forecasting so paper claims do not depend on silent backend substitution.",
+        [
+            _doc_section(
+                "Strict mode",
+                "Use OnlineForecaster or compare APIs with strict backend resolution.",
+                "<ul class='surface-list'><li>requested backend must be available</li><li>missing backends raise an error</li><li>resolution provenance is recorded in metadata and artifact manifests</li></ul>",
+            ),
+            _doc_section(
+                "Convenience mode",
+                "Use high-level pack APIs for demo and operational publishing.",
+                "<ul class='surface-list'><li>backend='auto' may choose among installed candidates</li><li>explicit fallback only happens when allow_backend_substitution=True</li><li>routing and fallback details stay visible in provenance metadata</li></ul>",
+            ),
+        ],
+        base_prefix="../",
+    )
+
+
+def _support_policy_page() -> str:
+    rows = [
+        ("reviewed", "part of tests, docs, and reviewed release claim"),
+        ("experimental", "public but not part of the reviewed claim"),
+        ("planned", "roadmap or placeholders, not current reviewed functionality"),
+    ]
+    row_html = "".join(f"<tr><td>{_escape(name)}</td><td>{_escape(copy)}</td></tr>" for name, copy in rows)
+    return _doc_page(
+        "Support Policy",
+        "Support tiers",
+        "Reviewed, experimental, and planned are first-class public labels.",
+        "The support policy is visible in code, README, docs, and the paper entrypoint.",
+        [
+            _doc_section(
+                "Tier table",
+                "Every public backend and surface belongs to one of these tiers.",
+                "<div class='table-wrap'><table class='table'><thead><tr><th>Tier</th><th>Meaning</th></tr></thead>"
+                f"<tbody>{row_html}</tbody></table></div>",
+            ),
+        ],
+        base_prefix="../",
+    )
+
+
+def _paper_page() -> str:
+    return _doc_page(
+        "JMLR entry",
+        "Paper entry",
+        "One page for reviewers to reach the reviewed release, reproduction notes, and support boundary.",
+        "Use this page as the single public entry for the JMLR MLOSS submission rather than sending reviewers through the whole repo tree.",
+        [
+            _doc_section(
+                "Reviewer links",
+                "These links should stay stable for the reviewed release.",
+                "<ul class='surface-list'>"
+                "<li><a href='../../'>Docs and landing page</a></li>"
+                "<li><a href='../../gallery/'>Public gallery</a></li>"
+                "<li><a href='https://github.com/ZipengWu365/AgentForecast/blob/main/submission/JMLR_SCOPE.md'>Scope document</a></li>"
+                "<li><a href='https://github.com/ZipengWu365/AgentForecast/blob/main/submission/REPRODUCTION.md'>Reproduction guide</a></li>"
+                "<li><a href='https://github.com/ZipengWu365/AgentForecast/blob/main/submission/RELATED_SOFTWARE_TABLE.md'>Related software table</a></li>"
+                "</ul>",
+            ),
+        ],
+        base_prefix="../../",
+    )
+
+
 def build_hosted_site(runs_root: str | Path, site_dir: str | Path, *, gallery_title: str = "agentforecast public gallery") -> dict[str, Any]:
     runs_root = Path(runs_root)
     site_dir = Path(site_dir)
@@ -1201,6 +1421,14 @@ def build_hosted_site(runs_root: str | Path, site_dir: str | Path, *, gallery_ti
         shutil.rmtree(site_dir)
     site_dir = ensure_dir(site_dir)
     ensure_dir(site_dir / "cases")
+    ensure_dir(site_dir / "gallery")
+    ensure_dir(site_dir / "install")
+    ensure_dir(site_dir / "why-agentforecast")
+    ensure_dir(site_dir / "surfaces")
+    ensure_dir(site_dir / "backends")
+    ensure_dir(site_dir / "benchmarking")
+    ensure_dir(site_dir / "support-policy")
+    ensure_dir(site_dir / "papers" / "jmlr-mloss")
     entries = collect_gallery_entries(runs_root)
 
     public_entries = []
@@ -1213,26 +1441,38 @@ def build_hosted_site(runs_root: str | Path, site_dir: str | Path, *, gallery_ti
         public_entries.append({**entry.to_dict(), "public_artifacts": copied})
 
     benchmark_items = list_external_benchmarks()
-    topbar = _topbar([("Models", "#models"), ("Workflow", "#workflow"), ("Packs", "#packs"), ("Benchmarks", "#benchmarks"), ("Feed", "feed.json")])
+    topbar = _topbar(
+        [
+            ("Install", "install/"),
+            ("Why", "why-agentforecast/"),
+            ("Backends", "backends/"),
+            ("Benchmarking", "benchmarking/"),
+            ("Support", "support-policy/"),
+            ("Gallery", "gallery/"),
+            ("JMLR", "papers/jmlr-mloss/"),
+        ],
+        cta_href="gallery/",
+        cta_label="Open gallery",
+    )
     hero = (
         "<section class='hero'>"
         + "<div class='hero-copy'>"
         + "<div class='eyebrow'>Unified forecasting layer</div>"
         + f"<h1>{_escape(gallery_title)}</h1>"
-        + "<p>A bright, productized surface for scientific forecasting. Compare backends, publish clean artifacts, and expose stable JSON and gallery outputs for humans and agents.</p>"
+        + "<p>AgentForecast is a reviewed forecast-to-publish layer over heterogeneous forecasting backends. It is not a replacement for sktime, StatsForecast, MLForecast, or River; it is the layer that keeps routing, artifacts, and agent-facing payloads consistent.</p>"
         + _author_strip()
         + "<div class='hero-actions'>"
-        + "<a class='button button-primary' href='#packs'>Explore public packs</a>"
-        + "<a class='button button-secondary' href='feed.json'>Open JSON feed</a>"
+        + "<a class='button button-primary' href='gallery/'>Explore public packs</a>"
+        + "<a class='button button-secondary' href='install/'>Install paths</a>"
         + "</div>"
         + "<div class='hero-meta'>"
         + "<span class='pill pill-accent'>white-background-first</span>"
-        + "<span class='pill'>scientific clarity</span>"
+        + "<span class='pill'>what it is and what it is not</span>"
         + "<span class='pill pill-blue'>agent-friendly outputs</span>"
         + "</div>"
         + "</div>"
         + "<aside class='hero-panel panel'>"
-        + "<div><strong>Product promise</strong><p class='muted'>One Python call or one command routes a series, scores visible backends, and exports cards, charts, markdown, CSV, and JSON.</p></div>"
+        + "<div><strong>Product promise</strong><p class='muted'>One Python call or one command routes a series, keeps backend provenance visible, and exports cards, charts, markdown, CSV, JSON, and an artifact manifest.</p></div>"
         + _summary_cards(public_entries, len(benchmark_items))
         + "<div class='code-block'>import pandas as pd\nfrom agentforecast import forecast_dataframe\n\ndf = pd.read_csv(\"https://raw.githubusercontent.com/jbrownlee/Datasets/master/monthly-car-sales.csv\")\nresult = forecast_dataframe(df, name=\"monthly_car_sales\", horizon=12, strategy=\"fast\", outdir=\"demo\")</div>"
         + "</aside></section>"
@@ -1305,6 +1545,20 @@ def build_hosted_site(runs_root: str | Path, site_dir: str | Path, *, gallery_ti
         + "</div></main>"
     )
     (site_dir / "index.html").write_text(_page(gallery_title, index_body), encoding="utf-8")
+    (site_dir / "gallery" / "index.html").write_text(
+        _page(
+            "agentforecast gallery",
+            "<main class='page'><div class='shell'><section class='section'><div class='section-head'><div><div class='eyebrow'>Gallery</div><h2>Gallery moved to the landing page</h2></div><p>The public gallery is the pack section on the root landing page.</p></div><div class='hero-actions'><a class='button button-primary' href='../index.html#packs'>Open pack gallery</a></div></section></div></main>",
+        ),
+        encoding="utf-8",
+    )
+    (site_dir / "install" / "index.html").write_text(_page("Install", _install_page()), encoding="utf-8")
+    (site_dir / "why-agentforecast" / "index.html").write_text(_page("Why AgentForecast", _why_page()), encoding="utf-8")
+    (site_dir / "surfaces" / "index.html").write_text(_page("Surfaces", _surfaces_page()), encoding="utf-8")
+    (site_dir / "backends" / "index.html").write_text(_page("Backends", _backends_page()), encoding="utf-8")
+    (site_dir / "benchmarking" / "index.html").write_text(_page("Benchmarking", _benchmarking_page()), encoding="utf-8")
+    (site_dir / "support-policy" / "index.html").write_text(_page("Support Policy", _support_policy_page()), encoding="utf-8")
+    (site_dir / "papers" / "jmlr-mloss" / "index.html").write_text(_page("JMLR entry", _paper_page()), encoding="utf-8")
 
     for entry in public_entries:
         public_artifacts = entry["public_artifacts"]

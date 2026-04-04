@@ -1,13 +1,12 @@
 # Project URLs before public release
 
-This source snapshot does **not** hardcode fake public URLs into package metadata.
-
-Before publishing to GitHub or PyPI, fill the real values in `HOSTED_PROFILE.template.toml` and copy them into your public release metadata.
+The reviewed `v1.8.0` release uses GitHub Pages as the single public docs entrypoint.
 
 Required public surfaces:
 
-- repository URL
-- documentation URL
-- hosted gallery URL
-- issue tracker URL
-- changelog URL
+- repository URL: `https://github.com/ZipengWu365/AgentForecast`
+- documentation URL: `https://zipengwu365.github.io/AgentForecast/`
+- hosted gallery URL: `https://zipengwu365.github.io/AgentForecast/gallery/`
+- paper entry URL: `https://zipengwu365.github.io/AgentForecast/papers/jmlr-mloss/`
+- issue tracker URL: `https://github.com/ZipengWu365/AgentForecast/issues`
+- changelog URL: `https://github.com/ZipengWu365/AgentForecast/blob/main/CHANGELOG.md`
