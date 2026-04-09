@@ -1,0 +1,164 @@
+{
+  "kind": "agentforecast.streaming_eval_manifest",
+  "schema_version": "1.0.0",
+  "schema_ref": "package://agentforecast/package_data/schemas/streaming_eval_result.schema.json",
+  "tool_version": "1.9.0",
+  "inputs": {
+    "datasets": [
+      "daily-min-temperatures",
+      "river-flood-risk"
+    ],
+    "requested_backends": [
+      "stream_ewm",
+      "river_linear",
+      "river_snarimax"
+    ],
+    "evaluated_backends": [
+      "stream_ewm",
+      "river_linear",
+      "river_snarimax"
+    ],
+    "warmup": 36,
+    "max_eval_steps": 96,
+    "strict_backend": true
+  },
+  "summary": {
+    "headline": "Streaming pilot completed on one public real series plus one synthetic drift companion.",
+    "dataset_count": 2,
+    "backend_count": 3,
+    "metric_rows": 576
+  },
+  "metrics": [
+    {
+      "dataset_id": "daily-min-temperatures",
+      "backend_id": "river_linear",
+      "support_tier": "reviewed",
+      "n_steps": 96,
+      "prequential_mae": 1.919314,
+      "prequential_rmse": 2.578288,
+      "rolling_window_error_before_drift": 2.060382,
+      "rolling_window_error_after_drift": 1.778246,
+      "mean_update_latency_ms": 711.266373,
+      "total_runtime_s": 68.330583,
+      "peak_memory_bytes": 28486752,
+      "provenance_class": "public_example"
+    },
+    {
+      "dataset_id": "daily-min-temperatures",
+      "backend_id": "river_snarimax",
+      "support_tier": "reviewed",
+      "n_steps": 96,
+      "prequential_mae": 2.070826,
+      "prequential_rmse": 2.656847,
+      "rolling_window_error_before_drift": 2.369297,
+      "rolling_window_error_after_drift": 1.772354,
+      "mean_update_latency_ms": 258.69573,
+      "total_runtime_s": 24.881698,
+      "peak_memory_bytes": 740855,
+      "provenance_class": "public_example"
+    },
+    {
+      "dataset_id": "daily-min-temperatures",
+      "backend_id": "stream_ewm",
+      "support_tier": "reviewed",
+      "n_steps": 96,
+      "prequential_mae": 2.123913,
+      "prequential_rmse": 2.758406,
+      "rolling_window_error_before_drift": 2.333549,
+      "rolling_window_error_after_drift": 1.914277,
+      "mean_update_latency_ms": 16.360781,
+      "total_runtime_s": 1.610831,
+      "peak_memory_bytes": 356797,
+      "provenance_class": "public_example"
+    },
+    {
+      "dataset_id": "river-flood-risk",
+      "backend_id": "river_linear",
+      "support_tier": "reviewed",
+      "n_steps": 96,
+      "prequential_mae": 5.052505,
+      "prequential_rmse": 5.865216,
+      "rolling_window_error_before_drift": 6.241998,
+      "rolling_window_error_after_drift": 4.338809,
+      "mean_update_latency_ms": 88.175557,
+      "total_runtime_s": 8.509972,
+      "peak_memory_bytes": 285377,
+      "provenance_class": "bundled_demo"
+    },
+    {
+      "dataset_id": "river-flood-risk",
+      "backend_id": "river_snarimax",
+      "support_tier": "reviewed",
+      "n_steps": 96,
+      "prequential_mae": 0.800021,
+      "prequential_rmse": 1.01268,
+      "rolling_window_error_before_drift": 0.833632,
+      "rolling_window_error_after_drift": 0.779854,
+      "mean_update_latency_ms": 41.981114,
+      "total_runtime_s": 4.074527,
+      "peak_memory_bytes": 280140,
+      "provenance_class": "bundled_demo"
+    },
+    {
+      "dataset_id": "river-flood-risk",
+      "backend_id": "stream_ewm",
+      "support_tier": "reviewed",
+      "n_steps": 96,
+      "prequential_mae": 1.030277,
+      "prequential_rmse": 1.24781,
+      "rolling_window_error_before_drift": 1.098227,
+      "rolling_window_error_after_drift": 0.989507,
+      "mean_update_latency_ms": 5.327422,
+      "total_runtime_s": 0.546813,
+      "peak_memory_bytes": 168151,
+      "provenance_class": "bundled_demo"
+    }
+  ],
+  "diagnostics": {
+    "datasets": [
+      {
+        "dataset_id": "daily-min-temperatures",
+        "provenance_class": "public_example"
+      },
+      {
+        "dataset_id": "river-flood-risk",
+        "provenance_class": "bundled_demo"
+      }
+    ],
+    "schema_ref": "package://agentforecast/package_data/schemas/streaming_eval_result.schema.json",
+    "package_version": "1.9.0"
+  },
+  "artifacts": [
+    {
+      "kind": "prequential_metrics_csv",
+      "path": "metrics/prequential_metrics.csv",
+      "media_type": "text/csv",
+      "description": "Per-step streaming errors and latencies."
+    },
+    {
+      "kind": "system_metrics_json",
+      "path": "metrics/system_metrics.json",
+      "media_type": "application/json",
+      "description": "Aggregated streaming pilot metrics by dataset and backend."
+    },
+    {
+      "kind": "prequential_error_png",
+      "path": "plots/prequential_error.png",
+      "media_type": "image/png",
+      "description": "Rolling absolute error plot for the streaming pilot."
+    },
+    {
+      "kind": "summary_markdown",
+      "path": "reports/summary.md",
+      "media_type": "text/markdown",
+      "description": "Human-readable streaming pilot summary."
+    },
+    {
+      "kind": "streaming_eval_manifest_json",
+      "path": "meta/streaming_eval_manifest.json",
+      "media_type": "application/json",
+      "description": "Streaming pilot manifest and schema-bound metadata."
+    }
+  ],
+  "warnings": []
+}

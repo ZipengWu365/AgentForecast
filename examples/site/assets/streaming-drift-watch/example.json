@@ -1,4 +1,4 @@
-{
+﻿{
   "example_id": "streaming-drift-watch",
   "category": "Streaming Operations",
   "title": "Streaming forecast with drift monitoring",
@@ -18,7 +18,7 @@
   "script_path": "examples/scripts/streaming_drift_watch.py",
   "pack_dir": "run",
   "python_api": "import pandas as pd\nfrom agentforecast import forecast_stream_dataframe\n\ndf = pd.read_csv(\"https://raw.githubusercontent.com/jbrownlee/Datasets/master/daily-min-temperatures.csv\")\nresult = forecast_stream_dataframe(\n    df,\n    name=\"daily_min_temperatures\",\n    backend=\"river_snarimax\",\n    horizon=14,\n    outdir=\"demo\",\n)\n\nprint(result.diagnostics[\"streaming\"][\"drift_ratio\"])",
-  "cli_command": "python -m agentforecast.cli forecast-stream C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv --backend river_snarimax --horizon 14 --outdir examples/generated/streaming-drift-watch",
+  "cli_command": "python -m agentforecast.cli forecast-stream C:/Users/wzp07/OneDrive/鏂囨。/data library/AgentTSForcasting/agentforecast_v1_8/agentforecast/package_data/public_examples/daily_min_temperatures.csv --backend river_snarimax --horizon 14 --outdir examples/generated/streaming-drift-watch",
   "runtime_notes": [
     "Source data: Daily minimum temperatures.",
     "This run used the River streaming forecaster path."

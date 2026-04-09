@@ -1,41 +1,29 @@
 # Reproduction
 
-## Install from source
+## Environment
+
+- Python `3.11+`
+- source tree rooted at `agentforecast_v1_8`
+- install path: source, local wheel, or GitHub release artifact
+
+## Core commands
 
 ```bash
-python -m pip install .
-python -m pytest
-```
-
-## Build and install the local wheel
-
-```bash
-python -m pip wheel . -w dist --no-deps
-python -m pip install dist/agentforecast-1.8.0-py3-none-any.whl
+python -m pip install .[dev,ml,stream]
+python -m pytest -q
+python -m build --wheel
 python scripts/smoke_test_wheel.py
-```
-
-## Minimal quickstart
-
-```bash
-python -m agentforecast.cli shoot sales --outdir demo
-```
-
-## Build docs and gallery
-
-```bash
+python scripts/build_benchmarks.py
 python scripts/build_demo_gallery.py
+python scripts/build_gallery_preview.py
+python scripts/validate_v1_9.py
+python -m agentforecast.cli doctor
+python -m agentforecast.cli stream-eval --outdir outputs
 ```
 
-## Strict benchmark reproduction
+## Reproduced public evidence
 
-```python
-import pandas as pd
-
-from agentforecast import OnlineForecaster
-
-df = pd.read_csv("agentforecast/package_data/public_examples/airline-passengers.csv")
-forecaster = OnlineForecaster(backend="stats_ets", strict_backend=True)
-result = forecaster.backtest(df, horizon=12)
-print(result["resolution"])
-```
+- package and schema validation
+- demo gallery build
+- submission document consistency
+- streaming annex artifacts

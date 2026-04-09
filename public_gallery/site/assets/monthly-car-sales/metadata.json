@@ -53,7 +53,7 @@
     "mode": "convenience",
     "strict_backend": false,
     "allow_backend_substitution": false,
-    "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/monthly_car_sales.csv",
+    "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_8/agentforecast/package_data/public_examples/monthly_car_sales.csv",
     "date_col": "ds",
     "value_col": "y",
     "series_kind": "price",
@@ -81,7 +81,7 @@
       "recommended_extras": [],
       "reason": "default_fast_path"
     },
-    "csv_path": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/monthly_car_sales.csv"
+    "csv_path": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_8/agentforecast/package_data/public_examples/monthly_car_sales.csv"
   },
   "summary": {
     "headline": "monthly_car_sales: stats_ets won the backend comparison and produced a publishable pack.",
@@ -585,8 +585,8 @@
   "warnings": [],
   "used_live_data": false,
   "kind": "agentforecast.run_result",
-  "schema_version": "1.1.0",
+  "schema_version": "1.2.0",
   "schema_ref": "package://agentforecast/package_data/schemas/run_result.schema.json",
   "artifact_schema_version": "1.0.0",
-  "tool_version": "1.8.0"
+  "tool_version": "1.9.0"
 }

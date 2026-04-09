@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from .types import TOOL_ERROR_DETAIL_SCHEMA_REF, TOOL_ERROR_DETAIL_SCHEMA_VERSION
+
 
 @dataclass
 class AgentForecastError(Exception):
@@ -18,8 +20,8 @@ class AgentForecastError(Exception):
     def to_dict(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
             "kind": "agentforecast.error",
-            "schema_version": "1.1.0",
-            "schema_ref": "package://agentforecast/package_data/schemas/error.schema.json",
+            "schema_version": TOOL_ERROR_DETAIL_SCHEMA_VERSION,
+            "schema_ref": TOOL_ERROR_DETAIL_SCHEMA_REF,
             "code": self.code,
             "message": self.message,
             "retryable": self.retryable,

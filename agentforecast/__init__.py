@@ -3,6 +3,8 @@
 from .conformal import ConformalSpec
 from .benchmark import OnlineForecaster
 from .features import FeatureSpec
+from .doctor import doctor
+from .streaming_eval import stream_eval
 from .version import __version__
 from .local import (
     shoot,
@@ -37,6 +39,8 @@ __all__ = [
     "ConformalSpec",
     "OnlineForecaster",
     "FeatureSpec",
+    "doctor",
+    "stream_eval",
     "shoot",
     "snap",
     "vibe",

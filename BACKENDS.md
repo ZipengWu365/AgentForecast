@@ -1,8 +1,8 @@
-# Backends
+# Backend Registry
 
-AgentForecast groups backends by family and exposes support metadata in code through `list_backends()`, `list_reviewed_backends()`, and `backend_capabilities()`.
+The backend registry is the code-level source of truth for support tier, test status, dependency requirements, exogenous support, online-update support, and strict benchmark eligibility.
 
-## Reviewed
+## Reviewed in v1.9.0
 
 - `naive`
 - `seasonal_naive`
@@ -11,7 +11,12 @@ AgentForecast groups backends by family and exposes support metadata in code thr
 - `stats_arima`
 - `stats_ets`
 - `ml_ridge`
+- `mlforecast_linear`
 - `stream_ewm`
+- `river_linear`
+- `river_snarimax`
+
+These are the only backends covered simultaneously by code metadata, tests, docs, Pages, and the reviewed release claim.
 
 ## Experimental
 
@@ -21,27 +26,26 @@ AgentForecast groups backends by family and exposes support metadata in code thr
 - `ml_xgboost`
 - `ml_lightgbm`
 - `ml_catboost`
-- `mlforecast_linear`
 - `mlforecast_xgboost`
 - `stream_sgd`
-- `river_linear`
-- `river_snarimax`
 - `river_holtwinters`
 - `tabpfn_regression`
+
+Experimental means public and discoverable, but not part of the reviewed software claim.
 
 ## Planned
 
 - `neural_nhits`
 - `automl_autogluon`
 
-## Capability fields
+Planned means documented as roadmap or placeholders only.
 
-Each backend capability record includes:
+## Promotion rule
 
-- `tier`
-- `tested`
-- `strict_benchmark_eligible`
-- `dependencies`
-- `dependency_state`
-- `supports_exogenous`
-- `supports_online_update`
+A backend only moves into `reviewed` when it satisfies all of the following in the same release:
+
+- end-to-end pack generation succeeds
+- strict backend identity is preserved
+- `metadata.json` and `artifact_manifest.json` record the right provenance
+- tool and MCP surfaces can discover the backend
+- docs, Pages, submission files, and validation truth tables all match

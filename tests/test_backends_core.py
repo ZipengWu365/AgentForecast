@@ -13,6 +13,9 @@ def test_list_backends_exposes_support_metadata() -> None:
 def test_list_reviewed_backends_matches_claim() -> None:
     reviewed_ids = {item["backend_id"] for item in list_reviewed_backends()}
     assert "stats_arima" in reviewed_ids
+    assert "mlforecast_linear" in reviewed_ids
+    assert "river_linear" in reviewed_ids
+    assert "river_snarimax" in reviewed_ids
     assert "neural_nhits" not in reviewed_ids
 
 

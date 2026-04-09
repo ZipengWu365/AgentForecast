@@ -1,155 +1,85 @@
-# Validation — agentforecast v1.7.0
+# Validation - agentforecast v1.9.0
 
-This file records the validations actually run for `agentforecast v1.7.0` inside the build container.
+This file records the validations actually run for the `v1.9.0` software-first reviewed release response pass.
 
-## What changed in this validation pass
+## Environment
 
-This iteration specifically re-checked the failure that showed up in the v1.6 audit:
+| Field | Value |
+|---|---|
+| Python | `3.11.9` |
+| OS | `Windows-10-10.0.26200-SP0` |
+| Shell | `powershell` |
+| Package baseline | `agentforecast 1.9.0` |
 
-- **fresh wheel install -> copy-paste quickstart -> real output**
+## Truth table: reviewed / experimental / planned backends
 
-The v1.7 fix removes the hidden runtime dependence on `tabulate` by rendering markdown tables in-package.
+| Tier | Backends |
+|---|---|
+| reviewed | `naive`, `seasonal_naive`, `moving_average`, `drift`, `stats_arima`, `stats_ets`, `ml_ridge`, `mlforecast_linear`, `stream_ewm`, `river_linear`, `river_snarimax` |
+| experimental | `statsforecast_autoarima`, `statsforecast_autoets`, `ml_histgb`, `ml_xgboost`, `ml_lightgbm`, `ml_catboost`, `mlforecast_xgboost`, `stream_sgd`, `river_holtwinters`, `tabpfn_regression` |
+| planned | `neural_nhits`, `automl_autogluon` |
+
+## Truth table: surface validation boundary
+
+| Surface | Status | Evidence |
+|---|---|---|
+| pack APIs | validated | end-to-end pytest plus wheel smoke |
+| strict research API | validated | `OnlineForecaster` strict resolution tests |
+| operations surface | validated | `doctor`, hosted site build, benchmark build, `stream-eval` |
+| artifact contract | validated | `metadata.json`, `artifact_manifest.json`, schema checks |
+| tool surface | validated | stable success/error envelope tests |
+| MCP surface | validated | JSON-RPC tool/resource/error tests |
+| optional adapters outside reviewed claim | smoke-only unless promoted | explicit `optional` test suite |
+| cross-domain starter flows | demo-only | not used as domain-science evidence |
+
+## Truth table: public release paths
+
+| Path | Status | Evidence |
+|---|---|---|
+| source install | supported | `python -m pip install .[dev,stats,ml,stream]` |
+| local wheel install | supported | `python -m build --wheel` and `scripts/smoke_test_wheel.py` |
+| GitHub release artifact | supported once wheel exists | same smoke path against the built wheel |
+| GitHub Pages docs/gallery | supported | `scripts/build_demo_gallery.py`, `scripts/build_gallery_preview.py`, `scripts/validate_v1_9.py` |
+| PyPI install | not claimed | not used as the primary public install path in this release |
 
 ## Commands actually run
 
-### 1) Editable install
+| Command | Result | Notes |
+|---|---|---|
+| `python -m pip install .[dev,stats,ml,stream]` | PASS | installed reviewed MLForecast and River candidates plus classical extras |
+| `python -m pytest -q` | PASS | `38 passed`, coverage `80.44%` |
+| `python -m build --wheel` | PASS | built `dist/agentforecast-1.9.0-py3-none-any.whl` |
+| `python scripts/smoke_test_wheel.py` | PASS | fresh-wheel smoke path succeeded |
+| `python scripts/build_benchmarks.py` | PASS | regenerated canonical internal benchmark artifacts |
+| `python scripts/build_demo_gallery.py` | PASS | rebuilt demo runs and Pages site content |
+| `python scripts/build_gallery_preview.py` | PASS | refreshed preview assets |
+| `python -m agentforecast.cli stream-eval --outdir benchmarks --output json` | PASS | generated canonical streaming annex artifacts under `benchmarks/streaming-eval` |
+| `python scripts/validate_v1_9.py` | PASS | docs, Pages, submission links, and reviewed-boundary consistency checks succeeded |
 
-```bash
-python -m pip install -e . --no-build-isolation
-```
+## Streaming annex output
 
-Result: **PASS**
+The canonical streaming annex command generated:
 
-### 2) Wheel build
+- `benchmarks/streaming-eval/metrics/prequential_metrics.csv`
+- `benchmarks/streaming-eval/metrics/system_metrics.json`
+- `benchmarks/streaming-eval/plots/prequential_error.png`
+- `benchmarks/streaming-eval/reports/summary.md`
+- `benchmarks/streaming-eval/meta/streaming_eval_manifest.json`
 
-```bash
-python -m pip wheel . -w dist --no-deps --no-build-isolation
-```
+## Known limits
 
-Result: **PASS**
-
-Produced artifact:
-- `dist/agentforecast-1.7.0-py3-none-any.whl`
-
-### 3) Unit tests
-
-```bash
-python -m unittest discover -s tests -v
-```
-
-Result: **PASS**
-
-Summary:
-- `10/10` tests passed
-
-Validated areas:
-- forecast pack generation on bundled datasets
-- backend comparison on bundled datasets
-- routing logic for streaming strategy
-- built-in streaming backends
-- tool-server structured errors
-- MCP resource surface
-- hosted gallery build
-- markdown summary generation without `tabulate`
-- new dataset provenance entries
-
-### 4) Internal benchmark regeneration
-
-```bash
-python scripts/build_benchmarks.py
-```
-
-Result: **PASS**
-
-Notes:
-- `statsmodels` emitted start-parameter warnings on some ARIMA fits, but the benchmark completed successfully.
-- Generated files were refreshed under `benchmarks/generated/`.
-
-### 5) Demo gallery regeneration
-
-```bash
-python scripts/build_demo_gallery.py
-python scripts/build_gallery_preview.py
-```
-
-Result: **PASS**
-
-Generated files include:
-- `public_gallery/site/index.html`
-- `public_gallery/site/feed.json`
-- per-case HTML pages under `public_gallery/site/cases/`
-- `assets/hosted_gallery_preview.png`
-
-### 6) Asset validation script
-
-```bash
-python scripts/validate_v1_7.py
-```
-
-Result: **PASS**
-
-### 7) Fresh wheel smoke test
-
-```bash
-python scripts/smoke_test_wheel.py
-```
-
-Result: **PASS**
-
-What this script does:
-- creates a fresh venv
-- installs `dist/agentforecast-1.7.0-py3-none-any.whl`
-- runs `python -m agentforecast.cli shoot sales --outdir demo`
-- checks that `summary.md` exists
-
-This directly validates the first-run path that previously broke in v1.6.
-
-### 8) Additional CLI checks
-
-Commands run:
-
-```bash
-python -m agentforecast.cli run-case river-flood-risk-watch --outdir tmp_case
-python -m agentforecast.cli serve-tools --once '{"tool":"describe_package","args":{"language":"en"}}'
-python -m agentforecast.cli serve-mcp --once '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
-python -m agentforecast.cli benchmark-hub
-```
-
-Result: **PASS**
-
-## Known boundaries of this validation
-
-The following paths are wired in code but were **not** end-to-end validated in this container:
-
-- optional `river_*` adapters using the external River package
-- optional `statsforecast_*` adapters
-- optional `mlforecast_*` adapters
-- optional `neural_*` adapters
-- optional `automl_*` / AutoGluon adapters
-- optional `tabpfn_*` adapters
-- real hosted deployment to GitHub Pages or another public static host
-- real public repo/docs/gallery URLs in package metadata
-
-## Trust and packaging notes
-
-v1.7 now includes the standard OSS root files that were missing in v1.6:
-
-- `LICENSE`
-- `CONTRIBUTING.md`
-- `CODE_OF_CONDUCT.md`
-- `SECURITY.md`
-- `CITATION.cff`
-
-`pyproject.toml` now also includes truthful `project.urls` entries for benchmark-hub style public references, while still keeping real repo/docs/gallery URLs as release-time values to avoid publishing fake metadata.
+- the streaming pilot is annex evidence, not a main release claim
+- optional adapters remain outside the reviewed claim unless explicitly promoted
+- public adoption is still limited and should stay disclosed as a residual risk
+- cross-domain starter flows remain demos rather than domain-validation studies
 
 ## Overall verdict
 
-`agentforecast v1.7.0` is validated in this environment as:
+`agentforecast v1.9.0` is validated in this environment as:
 
-- a working lightweight base package,
-- a multi-backend forecast-to-publish layer,
-- a working streaming-capable package with built-in online backends,
-- a working hosted gallery generator,
-- and a working agent/tool/MCP-style integration surface.
-
-Most importantly, the **fresh wheel quickstart path now works** for the base package in a new virtual environment.
+- a working software-first forecast-to-publish package
+- a reviewed strict-backend research surface through `OnlineForecaster`
+- a reviewed operations surface through `doctor`
+- a stable artifact-producing workflow
+- a tested tool and MCP contract with explicit schemas
+- a reproducible Pages and gallery build

@@ -1,23 +1,22 @@
-# Community
+# Community Routing
 
-## Where to ask what
+Current public routing:
 
-- Bugs: GitHub Issues
-- Feature requests: GitHub Issues
-- Usage questions, showcase posts, and workflow discussion: GitHub Discussions once enabled
+- bug reports: GitHub Issues
+- feature requests: GitHub Issues
+- usage questions: GitHub Discussions after the repo setting is enabled
+- showcase examples: GitHub Discussions after the repo setting is enabled
 
-## Triage expectations
+## Manual repo task
 
-- reviewed-surface bugs have first priority
-- experimental adapter issues may be redirected to support-policy clarification or optional smoke coverage
-- planned adapters are roadmap items, not stability commitments
+GitHub Discussions still needs to be enabled on the repository.
 
-## Public signals
+Seed these three pinned threads once enabled:
 
-For the reviewed release, community-facing evidence should stay consistent across:
+- usage questions
+- backend requests
+- showcase
 
-- README
-- GitHub Pages
-- issue templates
-- PR template
-- submission evidence documents
+## Honesty rule
+
+Community adoption is still limited. Release notes and cover-letter evidence should keep that fact explicit instead of inferring maturity from unavailable signals.

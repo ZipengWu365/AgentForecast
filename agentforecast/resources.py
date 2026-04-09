@@ -6,6 +6,7 @@ from .backends import backend_capabilities, list_backends, list_backend_families
 from .benchmark_hub import list_external_benchmarks
 from .cases import _CASES
 from .datasets import list_datasets
+from .doctor import doctor
 from .version import __version__
 
 
@@ -23,7 +24,7 @@ def describe_package(language: str = "en") -> dict[str, Any]:
             "python -m pip install .",
             "python -m agentforecast.cli shoot sales --outdir demo",
             "python -m pip wheel . -w dist --no-deps",
-            "python -m pip install dist/agentforecast-1.8.0-py3-none-any.whl",
+            "python -m pip install dist/agentforecast-1.9.0-py3-none-any.whl",
             "python -m agentforecast.cli demo-gallery --outdir public_gallery/demo_runs --site-dir public_gallery/site",
         ]
     else:
@@ -32,7 +33,7 @@ def describe_package(language: str = "en") -> dict[str, Any]:
             "python -m pip install .",
             "python -m agentforecast.cli shoot sales --outdir demo",
             "python -m pip wheel . -w dist --no-deps",
-            "python -m pip install dist/agentforecast-1.8.0-py3-none-any.whl",
+            "python -m pip install dist/agentforecast-1.9.0-py3-none-any.whl",
             "python -m agentforecast.cli demo-gallery --outdir public_gallery/demo_runs --site-dir public_gallery/site",
         ]
     return {
@@ -61,6 +62,8 @@ def describe_package(language: str = "en") -> dict[str, Any]:
             "forecast_dir",
             "compare_backends",
             "forecast_stream_csv",
+            "stream_eval",
+            "doctor",
             "run_case",
             "build_hosted_site",
             "OnlineForecaster",
@@ -79,12 +82,14 @@ def api_catalog() -> list[dict[str, Any]]:
         {"name": "forecast_dir", "purpose": "Forecast multiple local CSV files in a folder."},
         {"name": "compare_backends_csv", "purpose": "Compare multiple backends on one local series and export leaderboard artifacts."},
         {"name": "forecast_stream_csv", "purpose": "Run a streaming backend and export drift diagnostics."},
+        {"name": "stream_eval", "purpose": "Run the streaming pilot annex and export prequential metrics, system metrics, plots, and a manifest."},
         {"name": "OnlineForecaster", "purpose": "Research-oriented strict backend wrapper for benchmark-safe forecasting and backtests."},
         {"name": "run_case", "purpose": "Run a built-in cross-disciplinary or traffic-oriented case."},
         {"name": "build_hosted_site", "purpose": "Turn run directories into a static gallery site with HTML and feed.json."},
         {"name": "list_examples", "purpose": "List curated tutorial-grade runnable examples."},
         {"name": "demo_examples", "purpose": "Generate curated example runs and build a static examples site with real artifacts."},
         {"name": "build_examples_site", "purpose": "Build the tutorial-style examples site from previously generated example runs."},
+        {"name": "doctor", "purpose": "Inspect installed extras, reviewed workflows, promoted backend availability, and the safest next command."},
     ]
 
 
@@ -107,11 +112,18 @@ def package_overview(language: str = "en") -> dict[str, Any]:
         "datasets": list_dataset_catalog(language),
         "cases": list_case_catalog(language),
         "external_benchmark_hub": list_external_benchmarks(),
+        "doctor": doctor(),
         "hosted_gallery": {
             "description": "Static gallery builder for GitHub Pages or other simple hosting.",
             "commands": [
                 "python -m agentforecast.cli demo-gallery --outdir demo_gallery_runs --site-dir public_gallery/site",
                 "python -m agentforecast.cli build-gallery --runs-root demo_gallery_runs --site-dir public_gallery/site",
+            ],
+        },
+        "streaming_pilot": {
+            "description": "Research annex for prequential streaming evaluation; not part of the reviewed core claim.",
+            "commands": [
+                "python -m agentforecast.cli stream-eval --outdir outputs",
             ],
         },
         "examples_hub": {

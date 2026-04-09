@@ -48,14 +48,14 @@
     "mode": "streaming",
     "strict_backend": false,
     "allow_backend_substitution": false,
-    "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv",
+    "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_8/agentforecast/package_data/public_examples/daily_min_temperatures.csv",
     "date_col": "ds",
     "value_col": "y",
     "series_kind": "price",
     "candidate_backends": [
       "river_snarimax"
     ],
-    "csv_path": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv"
+    "csv_path": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_8/agentforecast/package_data/public_examples/daily_min_temperatures.csv"
   },
   "summary": {
     "headline": "daily_min_temperatures: river_snarimax won the backend comparison and produced a publishable pack.",
@@ -163,7 +163,7 @@
       "mode": "streaming",
       "strict_backend": false,
       "allow_backend_substitution": false,
-      "support_tier": "experimental",
+      "support_tier": "reviewed",
       "dependency_state": {
         "river": true
       },
@@ -222,7 +222,7 @@
     "mode": "streaming",
     "strict_backend": false,
     "allow_backend_substitution": false,
-    "support_tier": "experimental",
+    "support_tier": "reviewed",
     "dependency_state": {
       "river": true
     },
@@ -310,8 +310,8 @@
   "warnings": [],
   "used_live_data": false,
   "kind": "agentforecast.run_result",
-  "schema_version": "1.1.0",
+  "schema_version": "1.2.0",
   "schema_ref": "package://agentforecast/package_data/schemas/run_result.schema.json",
   "artifact_schema_version": "1.0.0",
-  "tool_version": "1.8.0"
+  "tool_version": "1.9.0"
 }

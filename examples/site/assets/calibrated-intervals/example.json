@@ -1,4 +1,4 @@
-{
+﻿{
   "example_id": "calibrated-intervals",
   "category": "Uncertainty",
   "title": "Calibrated prediction intervals",
@@ -18,7 +18,7 @@
   "script_path": "examples/scripts/calibrated_intervals.py",
   "pack_dir": "run",
   "python_api": "import pandas as pd\nfrom agentforecast import ConformalSpec, forecast_dataframe\n\ndf = pd.read_csv(\"https://raw.githubusercontent.com/jbrownlee/Datasets/master/airline-passengers.csv\")\nconformal = ConformalSpec(\n    enabled=True,\n    method=\"auto\",\n    levels=(80, 90, 95),\n    calibration_window=60,\n    warmup_min=10,\n)\nresult = forecast_dataframe(\n    df,\n    name=\"airline_passengers\",\n    backend=\"river_linear\",\n    horizon=12,\n    conformal=conformal,\n    outdir=\"demo\",\n)\n\nprint(result.diagnostics[\"conformal\"][\"coverage_backtest\"])",
-  "cli_command": "python -m agentforecast.cli forecast-csv C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/airline_passengers.csv --backend river_linear --conformal --conformal-method auto --levels 80,90,95 --calibration-window 60 --warmup-min 10 --horizon 12 --outdir examples/generated/calibrated-intervals",
+  "cli_command": "python -m agentforecast.cli forecast-csv C:/Users/wzp07/OneDrive/鏂囨。/data library/AgentTSForcasting/agentforecast_v1_8/agentforecast/package_data/public_examples/airline_passengers.csv --backend river_linear --conformal --conformal-method auto --levels 80,90,95 --calibration-window 60 --warmup-min 10 --horizon 12 --outdir examples/generated/calibrated-intervals",
   "runtime_notes": [
     "Source data: Airline passengers.",
     "This run used River jackknife intervals through `river_linear`."

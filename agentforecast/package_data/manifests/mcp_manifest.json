@@ -1,12 +1,27 @@
 {
   "name": "agentforecast-mcp",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "transport": "stdio-jsonrpc",
+  "tool_result_schema_ref": "package://agentforecast/package_data/schemas/tool_success.schema.json",
+  "tool_error_schema_ref": "package://agentforecast/package_data/schemas/tool_error.schema.json",
+  "mcp_error_schema_ref": "package://agentforecast/package_data/schemas/mcp_error.schema.json",
+  "compatibility_policy": "The MCP surface preserves JSON-RPC 2.0 envelope semantics. Protocol errors use JSON-RPC error objects with structured data fields.",
   "methods": [
     "initialize",
     "tools/list",
     "tools/call",
     "resources/list",
     "resources/read"
+  ],
+  "resources": [
+    "package://agentforecast/overview",
+    "package://agentforecast/backends",
+    "package://agentforecast/reviewed_backends",
+    "package://agentforecast/backend_families",
+    "package://agentforecast/datasets",
+    "package://agentforecast/cases",
+    "package://agentforecast/benchmark_hub",
+    "package://agentforecast/doctor",
+    "package://agentforecast/backend_capabilities/naive"
   ]
 }

@@ -1,0 +1,129 @@
+{
+  "kind": "agentforecast.artifact_manifest",
+  "schema_version": "1.0.0",
+  "schema_ref": "package://agentforecast/package_data/schemas/artifact_manifest.schema.json",
+  "tool_version": "1.9.0",
+  "package_version": "1.9.0",
+  "run_type": "compare_backends",
+  "backend_selected": "ml_ridge",
+  "artifact_count": 11,
+  "inputs": {
+    "name": "icu_bed_stress",
+    "horizon": 14,
+    "strategy": "fast",
+    "mode": "benchmark",
+    "strict_backend": true,
+    "allow_backend_substitution": false,
+    "source": "package_data/datasets/icu_bed_stress.csv",
+    "date_col": "ds",
+    "value_col": "y",
+    "series_kind": "price",
+    "candidate_backends": [
+      "naive",
+      "seasonal_naive",
+      "moving_average",
+      "stream_ewm",
+      "ml_ridge",
+      "stats_arima",
+      "stats_ets"
+    ]
+  },
+  "resolution": {
+    "requested_backend": "arena",
+    "resolved_backend": "ml_ridge",
+    "mode": "benchmark",
+    "strict_backend": true,
+    "allow_backend_substitution": false,
+    "support_tier": "reviewed",
+    "dependency_state": {
+      "naive": true,
+      "seasonal_naive": true,
+      "moving_average": true,
+      "stream_ewm": true,
+      "ml_ridge": true,
+      "stats_arima": true,
+      "stats_ets": true
+    },
+    "candidate_backends": [
+      "ml_ridge",
+      "moving_average",
+      "seasonal_naive",
+      "stats_arima",
+      "naive",
+      "stats_ets",
+      "stream_ewm"
+    ],
+    "routing_reason": "explicit_backends_provided",
+    "fallback_reason": null,
+    "warnings": []
+  },
+  "warnings": [],
+  "artifacts": [
+    {
+      "kind": "history_csv",
+      "path": "data/history.csv",
+      "media_type": "text/csv",
+      "description": "Normalized history"
+    },
+    {
+      "kind": "forecast_csv",
+      "path": "data/forecast.csv",
+      "media_type": "text/csv",
+      "description": "Winner backend forecast"
+    },
+    {
+      "kind": "leaderboard_csv",
+      "path": "data/leaderboard.csv",
+      "media_type": "text/csv",
+      "description": "Backend comparison leaderboard"
+    },
+    {
+      "kind": "forecast_png",
+      "path": "plots/forecast.png",
+      "media_type": "image/png",
+      "description": "Forecast chart"
+    },
+    {
+      "kind": "forecast_card_png",
+      "path": "plots/forecast_card.png",
+      "media_type": "image/png",
+      "description": "Shareable forecast card"
+    },
+    {
+      "kind": "comparison_png",
+      "path": "plots/backend_comparison.png",
+      "media_type": "image/png",
+      "description": "Backend comparison chart"
+    },
+    {
+      "kind": "leaderboard_card_png",
+      "path": "plots/leaderboard_card.png",
+      "media_type": "image/png",
+      "description": "Leaderboard card"
+    },
+    {
+      "kind": "delta_card_png",
+      "path": "plots/winner_vs_runnerup_delta.png",
+      "media_type": "image/png",
+      "description": "Winner vs runner-up delta card"
+    },
+    {
+      "kind": "summary_markdown",
+      "path": "reports/summary.md",
+      "media_type": "text/markdown",
+      "description": "Human-readable report"
+    },
+    {
+      "kind": "artifact_manifest_json",
+      "path": "meta/artifact_manifest.json",
+      "media_type": "application/json",
+      "description": "Artifact contract and provenance manifest"
+    },
+    {
+      "kind": "metadata_json",
+      "path": "meta/metadata.json",
+      "media_type": "application/json",
+      "description": "Structured compare result"
+    }
+  ]
+}

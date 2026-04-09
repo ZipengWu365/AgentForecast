@@ -1,40 +1,35 @@
-# Hosted gallery guide
+# Hosted Gallery Guide
 
-`agentforecast` can now turn run directories into a static gallery.
+GitHub Pages is the single public entrypoint for landing, docs, gallery, and paper-entry pages.
 
-## Fast path
+## Generated structure
 
-```bash
-python -m agentforecast.cli demo-gallery --outdir demo_gallery_runs --site-dir public_gallery/site
-```
+- `/`
+- `/install`
+- `/why-agentforecast`
+- `/surfaces`
+- `/backends`
+- `/benchmarking`
+- `/support-policy`
+- `/gallery`
+- `/papers/jmlr-mloss`
 
-## Build from your own runs
+## What the site must say truthfully
 
-```bash
-python -m agentforecast.cli build-gallery --runs-root outputs --site-dir public_gallery/site
-```
+- this is a software-first forecast-to-publish layer
+- it is not a new forecasting method
+- it does not replace `sktime`, `StatsForecast`, `MLForecast`, or `River`
+- reviewed backend and support-tier boundaries come from the registry
+- the streaming pilot is an annex, not a homepage hero claim
 
-## What you get
+## Reviewer entry
 
-- `index.html`
-- `feed.json`
-- per-case HTML pages
-- copied cards, charts, markdown, JSON, and CSV artifacts
+The paper-entry page must link directly to:
 
-This is meant for GitHub Pages or any basic static hosting.
-
-## GitHub Pages deployment
-
-The repository includes `.github/workflows/publish_gallery.yml` with the official Pages deployment chain:
-
-- `actions/configure-pages`
-- `actions/upload-pages-artifact`
-- `actions/deploy-pages`
-
-To make it live in GitHub:
-
-1. Open repository `Settings -> Pages`
-2. Set `Source` to `GitHub Actions`
-3. Run the `publish-gallery` workflow once from the Actions tab
-
-After that, scheduled runs can rebuild and redeploy the hosted gallery automatically.
+- scope
+- reproduction
+- related software
+- reviewer response map
+- streaming appendix
+- benchmark boundary
+- validation evidence

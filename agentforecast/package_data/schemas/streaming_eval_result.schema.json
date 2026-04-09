@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "agentforecast StreamingEvalResult",
+  "type": "object",
+  "required": [
+    "kind",
+    "schema_version",
+    "schema_ref",
+    "tool_version",
+    "inputs",
+    "summary",
+    "metrics",
+    "diagnostics",
+    "artifacts",
+    "warnings"
+  ],
+  "properties": {
+    "kind": {
+      "const": "agentforecast.streaming_eval_result"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "schema_ref": {
+      "type": "string"
+    },
+    "tool_version": {
+      "type": "string"
+    },
+    "inputs": {
+      "type": "object"
+    },
+    "summary": {
+      "type": "object"
+    },
+    "metrics": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "diagnostics": {
+      "type": "object"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

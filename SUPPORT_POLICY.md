@@ -1,17 +1,24 @@
 # Support Policy
 
-AgentForecast exposes three public support tiers.
+`agentforecast` uses three public support tiers.
 
-## Reviewed
+## Tiers
 
-Reviewed surfaces are part of the `v1.8.0` reviewed release claim. They must have:
+- `reviewed`: in tests, in docs, in Pages, in submission evidence, and in the release claim
+- `experimental`: public and discoverable, but outside the reviewed claim
+- `planned`: roadmap or registry placeholders, not current release functionality
 
-- direct tests in `tests/`
-- documentation on GitHub and Pages
-- stable artifact outputs
-- explicit support metadata in the backend registry
+## Reviewed boundary for v1.9.0
 
-Reviewed backends in this release:
+Reviewed surfaces:
+
+- reviewed pack API
+- strict research API through `OnlineForecaster`
+- stable publishable artifact contract
+- stable tool and MCP consumption surface
+- reviewed operations surface via `doctor`
+
+Reviewed backends:
 
 - `naive`
 - `seasonal_naive`
@@ -20,30 +27,26 @@ Reviewed backends in this release:
 - `stats_arima`
 - `stats_ets`
 - `ml_ridge`
+- `mlforecast_linear`
 - `stream_ewm`
+- `river_linear`
+- `river_snarimax`
 
-Reviewed surfaces:
+## Explicit non-promotion in v1.9.0
 
-- pack APIs: `forecast_dataframe`, `forecast_csv`, `forecast_url`, `forecast_dataset`, `shoot`
-- research API: `OnlineForecaster`
-- artifact outputs: `metadata.json`, `artifact_manifest.json`, CSV, plots, cards, markdown
-- agent surface: `dispatch_tool_call`, `dispatch_jsonrpc`, `package_overview`, `list_reviewed_backends`, `backend_capabilities`
+Still experimental:
 
-## Experimental
+- all `StatsForecast` adapters
+- `mlforecast_xgboost`
+- `stream_sgd`
+- `river_holtwinters`
+- `tabpfn_regression`
 
-Experimental surfaces are visible and usable, but are not part of the reviewed paper claim.
-
-- optional adapters such as `StatsForecast`, `MLForecast`, `River`, `TabPFN`
-- non-reviewed backends such as `ml_xgboost`, `ml_histgb`, `stream_sgd`
-- convenience workflows that depend on optional extras or looser runtime assumptions
-
-These surfaces may have smoke coverage, but they are not promised as part of the reviewed release boundary.
-
-## Planned
-
-Planned surfaces are documented as roadmap or registry placeholders.
+Still planned:
 
 - `neural_nhits`
 - `automl_autogluon`
 
-They should not be described as stable current functionality in the README, paper, or release notes.
+## Streaming note
+
+The new streaming pilot is a research annex. It is not part of the reviewed core claim and should not be interpreted as a general superiority statement for streaming models.

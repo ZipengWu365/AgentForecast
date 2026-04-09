@@ -16,9 +16,14 @@ jobs:
         with:
           python-version: "3.11"
       - run: python -m pip install --upgrade pip build twine
+      - run: python -m pip install .[dev,stats,ml,stream]
+      - run: python -m pytest -q
       - run: python -m build
-      - run: python -m pip install .[dev]
       - run: python scripts/smoke_test_wheel.py
+      - run: python scripts/build_benchmarks.py
+      - run: python scripts/build_demo_gallery.py
+      - run: python scripts/build_gallery_preview.py
+      - run: python scripts/validate_v1_9.py
       - uses: actions/upload-artifact@v4
         with:
           name: dist

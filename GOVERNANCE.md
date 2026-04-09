@@ -1,19 +1,25 @@
 # Governance
 
-## Maintainer
+The release claim is governed by explicit reviewed boundaries, not by informal README language.
 
-Current maintainer of the reviewed release:
+## Each release must disclose
 
-- Zipeng Wu
+- reviewed boundary changes
+- experimental changes
+- validation commands actually run
+- known limits that remain
 
-## Change policy
+## Boundary authority
 
-- changes to the reviewed surface must update tests, docs, and submission materials together
-- experimental adapters may evolve faster, but must remain clearly labeled
-- planned adapters must not be promoted into reviewed claims without direct validation evidence
+When docs conflict, the following order wins:
 
-## Release policy
+1. backend registry metadata
+2. tests and validation evidence
+3. support policy and reviewed surface docs
+4. README and Pages copy
 
-- reviewed releases are tag-based and reproducible
-- release notes must state the reviewed surface and known limitations
-- metadata, README, docs, and GitHub Pages must agree before a reviewed tag is published
+## Manual tasks outside the codebase
+
+- enable GitHub Discussions
+- maintain release-note discipline on each public tag
+- keep submission and Pages links in sync with the main branch

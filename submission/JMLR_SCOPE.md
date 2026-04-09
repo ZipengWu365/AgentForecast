@@ -1,15 +1,36 @@
-# JMLR Scope
+# Scope
 
-The reviewed paper claim for `agentforecast v1.8.0` is limited to a forecast-to-publish layer with:
+This release is scoped as a software-first scientific software submission.
 
-- a reviewed pack API
-- a strict research API through `OnlineForecaster`
-- stable publishable artifacts
-- a stable tool/MCP consumption surface
+## Primary claims
 
-The paper should not claim:
+- reviewed pack API for turning one series into a publishable pack
+- strict research API through `OnlineForecaster`
+- stable publishable artifact contract
+- stable tool and MCP consumption surface
 
-- to replace specialized forecasting frameworks
-- field-wide performance superiority
-- stable support for all optional adapters
-- reviewed support for planned adapters
+## Explicit non-claims
+
+- not a new forecasting method
+- not a field-wide SOTA paper
+- not a replacement for `sktime`, `StatsForecast`, `MLForecast`, or `River`
+- not a claim that all optional adapters are reviewed
+- not a claim that internal benchmark outputs are external evidence
+
+## Reviewed backends in scope
+
+- `naive`
+- `seasonal_naive`
+- `moving_average`
+- `drift`
+- `stats_arima`
+- `stats_ets`
+- `ml_ridge`
+- `mlforecast_linear`
+- `stream_ewm`
+- `river_linear`
+- `river_snarimax`
+
+## Annex
+
+The streaming pilot appendix is included as a research annex. It is not part of the reviewed core claim.

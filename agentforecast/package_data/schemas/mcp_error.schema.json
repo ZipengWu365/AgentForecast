@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "agentforecast MCPErrorPayload",
+  "type": "object",
+  "required": [
+    "jsonrpc",
+    "id",
+    "error"
+  ],
+  "properties": {
+    "jsonrpc": {
+      "const": "2.0"
+    },
+    "id": {},
+    "error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message",
+        "data"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object",
+          "required": [
+            "kind",
+            "schema_version",
+            "schema_ref",
+            "tool_version",
+            "code",
+            "retryable"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string"
+            },
+            "schema_version": {
+              "type": "string"
+            },
+            "schema_ref": {
+              "type": "string"
+            },
+            "tool_version": {
+              "type": "string"
+            },
+            "code": {
+              "type": "string"
+            },
+            "retryable": {
+              "type": "boolean"
+            },
+            "details": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    }
+  }
+}

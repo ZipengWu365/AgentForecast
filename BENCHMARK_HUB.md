@@ -1,29 +1,36 @@
+# Benchmark Hub
 
-# Benchmark hub
+This file defines the evidence boundary for benchmark language.
 
-`agentforecast` ships two different evidence layers on purpose:
+## Internal benchmark evidence
 
-1. **Internal demo benchmark**: a transparent, reproducible holdout comparison on bundled datasets. It is useful for smoke-testing backend routing, artifact generation, and product UX.
-2. **External benchmark hub**: links to broader time-series benchmark repositories, competitions, and leaderboards. Use these for field-wide evidence, not the internal demo table.
+Internal benchmark outputs in this repository are for:
 
-## Internal benchmark files
+- routing smoke tests
+- artifact contract checks
+- gallery and report generation checks
+- product UX inspection
 
-- `benchmarks/generated/transparent_public_benchmark.csv`
-- `benchmarks/generated/backend_rank_summary.csv`
-- `benchmarks/generated/transparent_public_benchmark.png`
+They are not external leaderboard evidence and should not be cited as universal performance claims.
 
-These files summarize performance on the bundled demo datasets only.
+## External benchmark context
 
-## External benchmark hub
+External benchmark links exist to orient readers toward broader forecasting ecosystems and public evaluation resources. They are context, not a substitute for the reviewed software boundary.
 
-See `benchmarks/generated/external_benchmark_links.csv` or run:
+## Strict research semantics
 
-```bash
-python -m agentforecast.cli benchmark-hub
-```
+For benchmark-safe research calls:
 
-The hub includes ForecastingData / Monash, M4, M5, OpenTS-Bench / TFB, GIFT-Eval, and ForecastBench.
+- requested backend identity must remain explicit
+- missing requested backends fail in strict mode
+- fallback only happens with explicit opt-in outside strict mode
+- provenance is written into `metadata.json` and `artifact_manifest.json`
 
-## Honest reading rule
+## Streaming pilot annex
 
-Do not present the internal benchmark as a community-wide leaderboard. Use it as product evidence and use the external hub when you need broader benchmark context.
+`stream-eval` is a research annex for prequential streaming evaluation on:
+
+- `daily-min-temperatures` as the real external-lite series
+- `river-flood-risk` as the synthetic drift companion
+
+It is useful for error trajectories, update latency, runtime, and memory proxies. It is not a claim that streaming models dominate batch models in general.

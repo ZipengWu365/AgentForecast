@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "agentforecast ToolSuccessEnvelope",
+  "type": "object",
+  "required": [
+    "kind",
+    "ok",
+    "schema_version",
+    "schema_ref",
+    "tool_version",
+    "warnings",
+    "resolution",
+    "artifacts",
+    "result"
+  ],
+  "properties": {
+    "kind": {
+      "type": "string"
+    },
+    "ok": {
+      "const": true
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "schema_ref": {
+      "type": "string"
+    },
+    "tool_version": {
+      "type": "string"
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "resolution": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {}
+    },
+    "result": {}
+  }
+}

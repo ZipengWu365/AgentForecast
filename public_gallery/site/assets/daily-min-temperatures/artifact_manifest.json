@@ -2,8 +2,8 @@
   "kind": "agentforecast.artifact_manifest",
   "schema_version": "1.0.0",
   "schema_ref": "package://agentforecast/package_data/schemas/artifact_manifest.schema.json",
-  "tool_version": "1.8.0",
-  "package_version": "1.8.0",
+  "tool_version": "1.9.0",
+  "package_version": "1.9.0",
   "run_type": "forecast_dataframe",
   "backend_selected": "river_snarimax",
   "artifact_count": 11,
@@ -14,7 +14,7 @@
     "mode": "streaming",
     "strict_backend": false,
     "allow_backend_substitution": false,
-    "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv",
+    "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_8/agentforecast/package_data/public_examples/daily_min_temperatures.csv",
     "date_col": "ds",
     "value_col": "y",
     "series_kind": "price",
@@ -28,7 +28,7 @@
     "mode": "streaming",
     "strict_backend": false,
     "allow_backend_substitution": false,
-    "support_tier": "experimental",
+    "support_tier": "reviewed",
     "dependency_state": {
       "river": true
     },

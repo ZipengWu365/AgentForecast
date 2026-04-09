@@ -1,16 +1,25 @@
-# Reviewed Surface
+# Reviewed Surface - v1.9.0
 
-This file defines the exact surface covered by the `agentforecast v1.8.0` reviewed release.
+This file states the reviewed release boundary in release-claim terms.
 
-## Core APIs
+## Reviewed APIs
 
 - `forecast_dataframe`
 - `forecast_csv`
 - `forecast_url`
 - `forecast_dataset`
+- `forecast_dir`
+- `compare_backends_frame`
+- `compare_backends_csv`
+- `compare_backends_dataset`
+- `forecast_stream_dataframe`
+- `forecast_stream_csv`
 - `shoot`
-- `build_hosted_site`
 - `OnlineForecaster`
+- `doctor`
+- `build_hosted_site`
+- `serve-tools`
+- `serve-mcp`
 
 ## Reviewed backends
 
@@ -21,30 +30,23 @@ This file defines the exact surface covered by the `agentforecast v1.8.0` review
 - `stats_arima`
 - `stats_ets`
 - `ml_ridge`
+- `mlforecast_linear`
 - `stream_ewm`
+- `river_linear`
+- `river_snarimax`
 
-## Reviewed artifact outputs
+## Stable contracts
 
-- `data/history.csv`
-- `data/forecast.csv`
-- `data/leaderboard.csv`
-- `plots/forecast.png`
-- `plots/forecast_card.png`
-- `plots/backend_comparison.png`
-- `plots/leaderboard_card.png`
-- `plots/winner_vs_runnerup_delta.png`
-- `reports/summary.md`
 - `meta/metadata.json`
 - `meta/artifact_manifest.json`
-
-## Reviewed agent surface
-
-- tool server error contract
-- MCP `resources/list`, `resources/read`, `tools/list`, `tools/call`
-- resource payloads for package overview and backend capabilities
+- tool success envelope
+- tool error envelope
+- MCP structured error payload
+- `doctor` report fields
 
 ## Outside the reviewed claim
 
-- optional adapters that require extra dependencies and only smoke coverage
-- planned adapters without shipped runtime implementations
-- any statement that compares AgentForecast as a superior general-purpose framework against specialized forecasting libraries
+- optional high-end adapters
+- field-wide performance claims
+- generalized streaming superiority claims
+- cross-domain scientific conclusions

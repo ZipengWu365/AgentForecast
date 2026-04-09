@@ -80,13 +80,13 @@ _REGISTRY: dict[str, BackendSpec] = {
     "ml_xgboost": BackendSpec("ml_xgboost", "tabular", "XGBoost", "Lag features with XGBoost.", "ml", ["accurate", "tabular"], "experimental", False, False, ["xgboost"], supports_exogenous=True),
     "ml_lightgbm": BackendSpec("ml_lightgbm", "tabular", "LightGBM", "Lag features with LightGBM.", "ml", ["accurate", "tabular"], "experimental", False, False, ["lightgbm"], supports_exogenous=True),
     "ml_catboost": BackendSpec("ml_catboost", "tabular", "CatBoost", "Lag features with CatBoost.", "ml", ["accurate", "tabular"], "experimental", False, False, ["catboost"], supports_exogenous=True),
-    "mlforecast_linear": BackendSpec("mlforecast_linear", "tabular", "MLForecast", "MLForecast with linear regression and lag/exogenous features.", "ml", ["accurate", "tabular", "exogenous"], "experimental", False, False, ["mlforecast", "sklearn"], supports_exogenous=True, runtime="adapter", notes="Optional adapter."),
+    "mlforecast_linear": BackendSpec("mlforecast_linear", "tabular", "MLForecast", "MLForecast with linear regression and lag/exogenous features.", "ml", ["accurate", "tabular", "exogenous"], "reviewed", True, True, ["mlforecast", "sklearn"], supports_exogenous=True, runtime="adapter", notes="Reviewed adapter in v1.9.0."),
     "mlforecast_xgboost": BackendSpec("mlforecast_xgboost", "tabular", "MLForecast", "MLForecast with XGBoost and lag/exogenous features.", "ml", ["accurate", "tabular", "exogenous"], "experimental", False, False, ["mlforecast", "xgboost"], supports_exogenous=True, runtime="adapter", notes="Optional adapter."),
     # streaming / online learning
     "stream_ewm": BackendSpec("stream_ewm", "streaming", "agentforecast", "Lightweight online exponential smoothing forecaster.", "base", ["streaming", "fast", "low_data"], "reviewed", True, True, [], supports_online_update=True, runtime="built-in"),
     "stream_sgd": BackendSpec("stream_sgd", "streaming", "scikit-learn", "Online SGD regression with lag features.", "ml", ["streaming", "accurate", "tabular"], "experimental", False, False, ["sklearn"], supports_exogenous=True, supports_online_update=True),
-    "river_linear": BackendSpec("river_linear", "streaming", "River", "Online linear regression with lag features in River.", "stream", ["streaming", "fast", "supports_conformal_native"], "experimental", False, False, ["river"], supports_exogenous=True, supports_online_update=True, runtime="adapter"),
-    "river_snarimax": BackendSpec("river_snarimax", "streaming", "River", "Online SNARIMAX forecaster in River.", "stream", ["streaming", "accurate", "supports_conformal_residual", "supports_conformal_horizon"], "experimental", False, False, ["river"], supports_exogenous=True, supports_online_update=True, runtime="adapter"),
+    "river_linear": BackendSpec("river_linear", "streaming", "River", "Online linear regression with lag features in River.", "stream", ["streaming", "fast", "supports_conformal_native"], "reviewed", True, True, ["river"], supports_exogenous=True, supports_online_update=True, runtime="adapter", notes="Reviewed adapter in v1.9.0."),
+    "river_snarimax": BackendSpec("river_snarimax", "streaming", "River", "Online SNARIMAX forecaster in River.", "stream", ["streaming", "accurate", "supports_conformal_residual", "supports_conformal_horizon"], "reviewed", True, True, ["river"], supports_exogenous=True, supports_online_update=True, runtime="adapter", notes="Reviewed adapter in v1.9.0."),
     "river_holtwinters": BackendSpec("river_holtwinters", "streaming", "River", "Online Holt-Winters forecaster in River.", "stream", ["streaming", "long_horizon", "supports_conformal_residual", "supports_conformal_horizon"], "experimental", False, False, ["river"], supports_online_update=True, runtime="adapter"),
     # high-end optional adapters
     "neural_nhits": BackendSpec("neural_nhits", "deep", "NeuralForecast", "NHITS adapter for long-horizon deep forecasting.", "deep", ["deep", "long_horizon"], "planned", False, False, ["neuralforecast"], runtime="adapter", notes="Planned adapter; not in the reviewed surface."),
@@ -273,8 +273,8 @@ def is_backend_available(backend_id: str) -> bool:
 def candidate_backends(strategy: str = "fast") -> list[str]:
     strategy_map = {
         "fast": ["naive", "seasonal_naive", "moving_average", "stream_ewm", "ml_ridge", "stats_ets"],
-        "accurate": ["naive", "seasonal_naive", "stats_arima", "stats_ets", "ml_ridge", "ml_xgboost", "stream_sgd", "river_snarimax", "statsforecast_autoarima", "mlforecast_linear"],
-        "streaming": ["stream_ewm", "stream_sgd", "river_linear", "river_snarimax", "river_holtwinters"],
+        "accurate": ["naive", "seasonal_naive", "stats_arima", "stats_ets", "ml_ridge", "mlforecast_linear", "river_snarimax", "ml_xgboost", "stream_sgd", "statsforecast_autoarima"],
+        "streaming": ["stream_ewm", "river_linear", "river_snarimax", "stream_sgd", "river_holtwinters"],
         "long_horizon": ["seasonal_naive", "stats_ets", "ml_ridge", "stream_ewm", "river_holtwinters", "neural_nhits"],
         "low_data": ["naive", "drift", "stats_arima", "stats_ets", "ml_ridge", "stream_ewm"],
     }
@@ -302,9 +302,9 @@ def route_backends(
         reason_bits.append("streaming_profile_requested")
     preferred = []
     if strategy == "streaming":
-        preferred.extend(["stream_ewm", "stream_sgd", "river_snarimax", "river_linear"])
+        preferred.extend(["stream_ewm", "river_linear", "river_snarimax", "stream_sgd", "river_holtwinters"])
     elif strategy == "accurate":
-        preferred.extend(["stats_arima", "stats_ets", "ml_ridge", "ml_xgboost", "stream_sgd", "statsforecast_autoarima"])
+        preferred.extend(["stats_arima", "stats_ets", "ml_ridge", "mlforecast_linear", "river_snarimax", "ml_xgboost", "stream_sgd", "statsforecast_autoarima"])
     elif strategy == "long_horizon":
         preferred.extend(["seasonal_naive", "stats_ets", "stream_ewm", "ml_ridge", "neural_nhits"])
     elif strategy == "low_data":
@@ -313,9 +313,9 @@ def route_backends(
         preferred.extend(["naive", "seasonal_naive", "moving_average", "stream_ewm", "ml_ridge", "stats_ets"])
 
     if exogenous_cols:
-        preferred.extend(['ml_ridge'])
+        preferred.extend(['ml_ridge', 'mlforecast_linear'])
         if strategy != 'fast':
-            preferred.extend(['ml_xgboost', 'mlforecast_linear', 'mlforecast_xgboost'])
+            preferred.extend(['ml_xgboost', 'mlforecast_xgboost'])
 
     deduped = []
     for backend_id in preferred:

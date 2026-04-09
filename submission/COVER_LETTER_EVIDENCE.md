@@ -1,27 +1,21 @@
-# Cover Letter Evidence
+# Cover-Letter Evidence
 
-Use this file to collect evidence for the software-track cover letter.
+## What is evidenced directly in the repository
 
-## Release evidence
+- reviewed backend registry and support tiers
+- strict backend semantics
+- artifact manifest contract
+- tool and MCP schema contract
+- GitHub Pages build
+- wheel smoke path
+- submission and reviewer documents
 
-- reviewed tag: `v1.8.0`
-- source repository: `https://github.com/ZipengWu365/AgentForecast`
-- docs entry: `https://zipengwu365.github.io/AgentForecast/`
-- reviewed paper entry: `https://zipengwu365.github.io/AgentForecast/papers/jmlr-mloss/`
+## What is evidenced as an annex
 
-## Engineering evidence
+- streaming pilot with prequential metrics, latency, runtime, and memory proxy
 
-- matrix CI for core package
-- docs/pages workflow
-- release workflow
-- coverage report
-- artifact contract tests
+## Residual risks to disclose honestly
 
-## Adoption evidence
-
-Fill with concrete downstream or lab usage references before submission:
-
-- internal lab usage
-- course or teaching use
-- issue and discussion activity
-- release downloads or fork/watch activity
+- limited public community adoption signal
+- optional adapters remain outside the reviewed claim unless explicitly promoted
+- cross-domain demos are not domain-validation studies

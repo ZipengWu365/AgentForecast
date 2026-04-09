@@ -1,4 +1,4 @@
-{
+﻿{
   "example_id": "first-forecast-pack",
   "category": "Getting Started",
   "title": "First forecast pack in one command",
@@ -18,7 +18,7 @@
   "script_path": "examples/scripts/first_forecast_pack.py",
   "pack_dir": "run",
   "python_api": "import pandas as pd\nfrom agentforecast import forecast_dataframe\n\ndf = pd.read_csv(\"https://raw.githubusercontent.com/jbrownlee/Datasets/master/monthly-car-sales.csv\")\nresult = forecast_dataframe(\n    df,\n    name=\"monthly_car_sales\",\n    horizon=12,\n    strategy=\"fast\",\n    outdir=\"demo\",\n)\n\nprint(result.summary[\"headline\"])",
-  "cli_command": "python -m agentforecast.cli forecast-csv C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/monthly_car_sales.csv --horizon 12 --outdir examples/generated/first-forecast-pack",
+  "cli_command": "python -m agentforecast.cli forecast-csv C:/Users/wzp07/OneDrive/鏂囨。/data library/AgentTSForcasting/agentforecast_v1_8/agentforecast/package_data/public_examples/monthly_car_sales.csv --horizon 12 --outdir examples/generated/first-forecast-pack",
   "runtime_notes": [
     "Source data: Monthly car sales."
   ],

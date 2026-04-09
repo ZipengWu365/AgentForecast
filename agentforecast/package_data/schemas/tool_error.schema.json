@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "agentforecast ToolErrorEnvelope",
+  "type": "object",
+  "required": [
+    "kind",
+    "ok",
+    "schema_version",
+    "schema_ref",
+    "tool_version",
+    "warnings",
+    "resolution",
+    "artifacts",
+    "error"
+  ],
+  "properties": {
+    "kind": {
+      "type": "string"
+    },
+    "ok": {
+      "const": false
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "schema_ref": {
+      "type": "string"
+    },
+    "tool_version": {
+      "type": "string"
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "resolution": {
+      "type": "null"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {}
+    },
+    "error": {
+      "type": "object",
+      "required": [
+        "kind",
+        "schema_version",
+        "schema_ref",
+        "tool_version",
+        "code",
+        "message",
+        "retryable"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "schema_version": {
+          "type": "string"
+        },
+        "schema_ref": {
+          "type": "string"
+        },
+        "tool_version": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "help": {
+          "type": "string"
+        },
+        "details": {
+          "type": "object"
+        },
+        "retryable": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

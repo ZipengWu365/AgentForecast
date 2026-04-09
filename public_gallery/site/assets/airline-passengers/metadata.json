@@ -53,7 +53,7 @@
     "mode": "benchmark",
     "strict_backend": true,
     "allow_backend_substitution": false,
-    "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/airline_passengers.csv",
+    "source": "C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_8/agentforecast/package_data/public_examples/airline_passengers.csv",
     "date_col": "ds",
     "value_col": "y",
     "series_kind": "price",
@@ -670,8 +670,8 @@
   "warnings": [],
   "used_live_data": false,
   "kind": "agentforecast.compare_result",
-  "schema_version": "1.1.0",
+  "schema_version": "1.2.0",
   "schema_ref": "package://agentforecast/package_data/schemas/compare_result.schema.json",
   "artifact_schema_version": "1.0.0",
-  "tool_version": "1.8.0"
+  "tool_version": "1.9.0"
 }

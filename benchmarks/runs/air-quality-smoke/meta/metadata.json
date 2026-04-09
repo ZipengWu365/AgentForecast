@@ -21,19 +21,30 @@
       21,
       28
     ],
+    "lag_points": [],
+    "lag_step": null,
+    "lag_count": null,
     "rolling_windows": [
       3,
       7,
       14
     ],
+    "include_calendar": true,
     "calendar_features": [
       "dayofweek",
       "month",
       "day",
       "dayofyear",
       "is_month_start",
-      "is_month_end"
+      "is_month_end",
+      "ordinal",
+      "sin_dayofyear",
+      "cos_dayofyear"
     ],
+    "include_tsfresh": false,
+    "tsfresh_window": 30,
+    "tsfresh_features": [],
+    "include_exogenous": true,
     "exogenous_cols": [
       "smoke_index",
       "wind_speed"
@@ -43,6 +54,9 @@
     "name": "air_quality_smoke",
     "horizon": 7,
     "strategy": "fast",
+    "mode": "benchmark",
+    "strict_backend": true,
+    "allow_backend_substitution": false,
     "source": "package_data/datasets/air_quality_smoke.csv",
     "date_col": "ds",
     "value_col": "y",
@@ -78,8 +92,9 @@
     "headline": "air_quality_smoke: moving_average won the backend comparison and produced a publishable pack.",
     "latest_observed": 32.08,
     "projected_end": 40.56999999999999,
-    "artifact_count": 10,
+    "artifact_count": 11,
     "narrative": "Compared 7 backend(s) and routed the series to 'moving_average'. Exported CSV, chart, card, markdown, and JSON artifacts.",
+    "conformal_method": "residual_heuristic",
     "routing_reason": "explicit_backends_provided"
   },
   "diagnostics": {
@@ -90,6 +105,12 @@
         "rmse": 8.000713,
         "mape": 16.142522,
         "smape": 16.112236,
+        "coverage_80": 1.0,
+        "avg_width_80": 59.193645,
+        "wnc_80": 0.685378,
+        "coverage_90": 1.0,
+        "avg_width_90": 75.973492,
+        "wnc_90": 0.534002,
         "backtest_horizon": 7
       },
       {
@@ -98,6 +119,12 @@
         "rmse": 8.20962,
         "mape": 19.049078,
         "smape": 17.601502,
+        "coverage_80": 1.0,
+        "avg_width_80": 58.341126,
+        "wnc_80": 0.695393,
+        "coverage_90": 1.0,
+        "avg_width_90": 74.879306,
+        "wnc_90": 0.541805,
         "backtest_horizon": 7
       },
       {
@@ -106,22 +133,40 @@
         "rmse": 15.265624,
         "mape": 34.73541,
         "smape": 34.925252,
+        "coverage_80": 1.0,
+        "avg_width_80": 85.906631,
+        "wnc_80": 0.472257,
+        "coverage_90": 1.0,
+        "avg_width_90": 110.258909,
+        "wnc_90": 0.367952,
         "backtest_horizon": 7
       },
       {
         "backend_id": "stats_arima",
         "mae": 13.982967,
         "rmse": 16.102596,
-        "mape": 39.623432,
+        "mape": 39.623431,
         "smape": 30.966841,
+        "coverage_80": 1.0,
+        "avg_width_80": 59.135121,
+        "wnc_80": 0.686056,
+        "coverage_90": 1.0,
+        "avg_width_90": 75.898378,
+        "wnc_90": 0.534531,
         "backtest_horizon": 7
       },
       {
         "backend_id": "stats_ets",
-        "mae": 14.056159,
-        "rmse": 16.687183,
-        "mape": 40.27736,
-        "smape": 30.999169,
+        "mae": 14.055048,
+        "rmse": 16.685448,
+        "mape": 40.273843,
+        "smape": 30.997388,
+        "coverage_80": 1.0,
+        "avg_width_80": 66.341175,
+        "wnc_80": 0.611536,
+        "coverage_90": 1.0,
+        "avg_width_90": 85.147158,
+        "wnc_90": 0.476469,
         "backtest_horizon": 7
       },
       {
@@ -130,6 +175,12 @@
         "rmse": 16.801124,
         "mape": 41.718721,
         "smape": 32.422256,
+        "coverage_80": 1.0,
+        "avg_width_80": 59.193645,
+        "wnc_80": 0.685378,
+        "coverage_90": 1.0,
+        "avg_width_90": 75.973492,
+        "wnc_90": 0.534002,
         "backtest_horizon": 7
       },
       {
@@ -138,9 +189,318 @@
         "rmse": 20.872733,
         "mape": 50.341287,
         "smape": 36.617896,
+        "coverage_80": 1.0,
+        "avg_width_80": 58.408708,
+        "wnc_80": 0.694588,
+        "coverage_90": 1.0,
+        "avg_width_90": 74.966046,
+        "wnc_90": 0.541178,
         "backtest_horizon": 7
       }
     ],
+    "conformal": {
+      "enabled": false,
+      "requested_method": "auto",
+      "method": "residual_heuristic",
+      "levels": [
+        80,
+        90
+      ],
+      "calibration_window": 200,
+      "warmup_min": 40,
+      "symmetric": true,
+      "horizon_aware": true,
+      "effective_horizon_aware": false,
+      "calibration_size": 7,
+      "native_levels": [],
+      "fallback_reason": null,
+      "backend_id": "moving_average",
+      "coverage_backtest": {
+        "80": 1.0,
+        "90": 1.0
+      },
+      "mean_interval_width": {
+        "80": 59.193645,
+        "90": 75.973492
+      },
+      "width_normalized_coverage": {
+        "80": 0.685378,
+        "90": 0.534002
+      },
+      "backend_tags": [
+        "fast"
+      ]
+    },
+    "conformal_by_backend": {
+      "naive": {
+        "enabled": false,
+        "requested_method": "auto",
+        "method": "residual_heuristic",
+        "levels": [
+          80,
+          90
+        ],
+        "calibration_window": 200,
+        "warmup_min": 40,
+        "symmetric": true,
+        "horizon_aware": true,
+        "effective_horizon_aware": false,
+        "calibration_size": 7,
+        "native_levels": [],
+        "fallback_reason": null,
+        "backend_id": "naive",
+        "coverage_backtest": {
+          "80": 1.0,
+          "90": 1.0
+        },
+        "mean_interval_width": {
+          "80": 59.193645,
+          "90": 75.973492
+        },
+        "width_normalized_coverage": {
+          "80": 0.685378,
+          "90": 0.534002
+        },
+        "backend_tags": [
+          "fast",
+          "low_data"
+        ]
+      },
+      "seasonal_naive": {
+        "enabled": false,
+        "requested_method": "auto",
+        "method": "residual_heuristic",
+        "levels": [
+          80,
+          90
+        ],
+        "calibration_window": 200,
+        "warmup_min": 40,
+        "symmetric": true,
+        "horizon_aware": true,
+        "effective_horizon_aware": false,
+        "calibration_size": 7,
+        "native_levels": [],
+        "fallback_reason": null,
+        "backend_id": "seasonal_naive",
+        "coverage_backtest": {
+          "80": 1.0,
+          "90": 1.0
+        },
+        "mean_interval_width": {
+          "80": 85.906631,
+          "90": 110.258909
+        },
+        "width_normalized_coverage": {
+          "80": 0.472257,
+          "90": 0.367952
+        },
+        "backend_tags": [
+          "fast",
+          "long_horizon"
+        ]
+      },
+      "moving_average": {
+        "enabled": false,
+        "requested_method": "auto",
+        "method": "residual_heuristic",
+        "levels": [
+          80,
+          90
+        ],
+        "calibration_window": 200,
+        "warmup_min": 40,
+        "symmetric": true,
+        "horizon_aware": true,
+        "effective_horizon_aware": false,
+        "calibration_size": 7,
+        "native_levels": [],
+        "fallback_reason": null,
+        "backend_id": "moving_average",
+        "coverage_backtest": {
+          "80": 1.0,
+          "90": 1.0
+        },
+        "mean_interval_width": {
+          "80": 59.193645,
+          "90": 75.973492
+        },
+        "width_normalized_coverage": {
+          "80": 0.685378,
+          "90": 0.534002
+        },
+        "backend_tags": [
+          "fast"
+        ]
+      },
+      "stream_ewm": {
+        "enabled": false,
+        "requested_method": "auto",
+        "method": "residual_heuristic",
+        "levels": [
+          80,
+          90
+        ],
+        "calibration_window": 200,
+        "warmup_min": 40,
+        "symmetric": true,
+        "horizon_aware": true,
+        "effective_horizon_aware": false,
+        "calibration_size": 7,
+        "native_levels": [],
+        "fallback_reason": null,
+        "backend_id": "stream_ewm",
+        "coverage_backtest": {
+          "80": 1.0,
+          "90": 1.0
+        },
+        "mean_interval_width": {
+          "80": 58.341126,
+          "90": 74.879306
+        },
+        "width_normalized_coverage": {
+          "80": 0.695393,
+          "90": 0.541805
+        },
+        "backend_tags": [
+          "streaming",
+          "fast",
+          "low_data"
+        ]
+      },
+      "ml_ridge": {
+        "enabled": false,
+        "requested_method": "auto",
+        "method": "residual_heuristic",
+        "levels": [
+          80,
+          90
+        ],
+        "calibration_window": 200,
+        "warmup_min": 40,
+        "symmetric": true,
+        "horizon_aware": true,
+        "effective_horizon_aware": false,
+        "calibration_size": 7,
+        "native_levels": [],
+        "fallback_reason": null,
+        "backend_id": "ml_ridge",
+        "coverage_backtest": {
+          "80": 1.0,
+          "90": 1.0
+        },
+        "mean_interval_width": {
+          "80": 58.408708,
+          "90": 74.966046
+        },
+        "width_normalized_coverage": {
+          "80": 0.694588,
+          "90": 0.541178
+        },
+        "backend_tags": [
+          "fast",
+          "low_data",
+          "tabular"
+        ]
+      },
+      "stats_arima": {
+        "enabled": false,
+        "requested_method": "auto",
+        "method": "residual_heuristic",
+        "levels": [
+          80,
+          90
+        ],
+        "calibration_window": 200,
+        "warmup_min": 40,
+        "symmetric": true,
+        "horizon_aware": true,
+        "effective_horizon_aware": false,
+        "calibration_size": 7,
+        "native_levels": [],
+        "fallback_reason": null,
+        "backend_id": "stats_arima",
+        "coverage_backtest": {
+          "80": 1.0,
+          "90": 1.0
+        },
+        "mean_interval_width": {
+          "80": 59.135121,
+          "90": 75.898378
+        },
+        "width_normalized_coverage": {
+          "80": 0.686056,
+          "90": 0.534531
+        },
+        "backend_tags": [
+          "accurate",
+          "low_data"
+        ]
+      },
+      "stats_ets": {
+        "enabled": false,
+        "requested_method": "auto",
+        "method": "residual_heuristic",
+        "levels": [
+          80,
+          90
+        ],
+        "calibration_window": 200,
+        "warmup_min": 40,
+        "symmetric": true,
+        "horizon_aware": true,
+        "effective_horizon_aware": false,
+        "calibration_size": 7,
+        "native_levels": [],
+        "fallback_reason": null,
+        "backend_id": "stats_ets",
+        "coverage_backtest": {
+          "80": 1.0,
+          "90": 1.0
+        },
+        "mean_interval_width": {
+          "80": 66.341175,
+          "90": 85.147158
+        },
+        "width_normalized_coverage": {
+          "80": 0.611536,
+          "90": 0.476469
+        },
+        "backend_tags": [
+          "accurate",
+          "long_horizon"
+        ]
+      }
+    },
+    "resolution": {
+      "requested_backend": "arena",
+      "resolved_backend": "moving_average",
+      "mode": "benchmark",
+      "strict_backend": true,
+      "allow_backend_substitution": false,
+      "support_tier": "reviewed",
+      "dependency_state": {
+        "naive": true,
+        "seasonal_naive": true,
+        "moving_average": true,
+        "stream_ewm": true,
+        "ml_ridge": true,
+        "stats_arima": true,
+        "stats_ets": true
+      },
+      "candidate_backends": [
+        "moving_average",
+        "stream_ewm",
+        "seasonal_naive",
+        "stats_arima",
+        "stats_ets",
+        "naive",
+        "ml_ridge"
+      ],
+      "routing_reason": "explicit_backends_provided",
+      "fallback_reason": null,
+      "warnings": []
+    },
     "cleanup": {
       "cleanup_applied": false,
       "missing_points_filled": 0,
@@ -177,6 +537,12 @@
     "rmse": 8.000713,
     "mape": 16.142522,
     "smape": 16.112236,
+    "coverage_80": 1.0,
+    "avg_width_80": 59.193645,
+    "wnc_80": 0.685378,
+    "coverage_90": 1.0,
+    "avg_width_90": 75.973492,
+    "wnc_90": 0.534002,
     "backtest_horizon": 7.0
   },
   "leaderboard": [
@@ -186,6 +552,12 @@
       "rmse": 8.000713,
       "mape": 16.142522,
       "smape": 16.112236,
+      "coverage_80": 1.0,
+      "avg_width_80": 59.193645,
+      "wnc_80": 0.685378,
+      "coverage_90": 1.0,
+      "avg_width_90": 75.973492,
+      "wnc_90": 0.534002,
       "backtest_horizon": 7
     },
     {
@@ -194,6 +566,12 @@
       "rmse": 8.20962,
       "mape": 19.049078,
       "smape": 17.601502,
+      "coverage_80": 1.0,
+      "avg_width_80": 58.341126,
+      "wnc_80": 0.695393,
+      "coverage_90": 1.0,
+      "avg_width_90": 74.879306,
+      "wnc_90": 0.541805,
       "backtest_horizon": 7
     },
     {
@@ -202,22 +580,40 @@
       "rmse": 15.265624,
       "mape": 34.73541,
       "smape": 34.925252,
+      "coverage_80": 1.0,
+      "avg_width_80": 85.906631,
+      "wnc_80": 0.472257,
+      "coverage_90": 1.0,
+      "avg_width_90": 110.258909,
+      "wnc_90": 0.367952,
       "backtest_horizon": 7
     },
     {
       "backend_id": "stats_arima",
       "mae": 13.982967,
       "rmse": 16.102596,
-      "mape": 39.623432,
+      "mape": 39.623431,
       "smape": 30.966841,
+      "coverage_80": 1.0,
+      "avg_width_80": 59.135121,
+      "wnc_80": 0.686056,
+      "coverage_90": 1.0,
+      "avg_width_90": 75.898378,
+      "wnc_90": 0.534531,
       "backtest_horizon": 7
     },
     {
       "backend_id": "stats_ets",
-      "mae": 14.056159,
-      "rmse": 16.687183,
-      "mape": 40.27736,
-      "smape": 30.999169,
+      "mae": 14.055048,
+      "rmse": 16.685448,
+      "mape": 40.273843,
+      "smape": 30.997388,
+      "coverage_80": 1.0,
+      "avg_width_80": 66.341175,
+      "wnc_80": 0.611536,
+      "coverage_90": 1.0,
+      "avg_width_90": 85.147158,
+      "wnc_90": 0.476469,
       "backtest_horizon": 7
     },
     {
@@ -226,6 +622,12 @@
       "rmse": 16.801124,
       "mape": 41.718721,
       "smape": 32.422256,
+      "coverage_80": 1.0,
+      "avg_width_80": 59.193645,
+      "wnc_80": 0.685378,
+      "coverage_90": 1.0,
+      "avg_width_90": 75.973492,
+      "wnc_90": 0.534002,
       "backtest_horizon": 7
     },
     {
@@ -234,9 +636,44 @@
       "rmse": 20.872733,
       "mape": 50.341287,
       "smape": 36.617896,
+      "coverage_80": 1.0,
+      "avg_width_80": 58.408708,
+      "wnc_80": 0.694588,
+      "coverage_90": 1.0,
+      "avg_width_90": 74.966046,
+      "wnc_90": 0.541178,
       "backtest_horizon": 7
     }
   ],
+  "resolution": {
+    "requested_backend": "arena",
+    "resolved_backend": "moving_average",
+    "mode": "benchmark",
+    "strict_backend": true,
+    "allow_backend_substitution": false,
+    "support_tier": "reviewed",
+    "dependency_state": {
+      "naive": true,
+      "seasonal_naive": true,
+      "moving_average": true,
+      "stream_ewm": true,
+      "ml_ridge": true,
+      "stats_arima": true,
+      "stats_ets": true
+    },
+    "candidate_backends": [
+      "moving_average",
+      "stream_ewm",
+      "seasonal_naive",
+      "stats_arima",
+      "stats_ets",
+      "naive",
+      "ml_ridge"
+    ],
+    "routing_reason": "explicit_backends_provided",
+    "fallback_reason": null,
+    "warnings": []
+  },
   "artifacts": [
     {
       "kind": "history_csv",
@@ -293,6 +730,12 @@
       "description": "Human-readable report"
     },
     {
+      "kind": "artifact_manifest_json",
+      "path": "meta/artifact_manifest.json",
+      "media_type": "application/json",
+      "description": "Artifact contract and provenance manifest"
+    },
+    {
       "kind": "metadata_json",
       "path": "meta/metadata.json",
       "media_type": "application/json",
@@ -302,7 +745,8 @@
   "warnings": [],
   "used_live_data": false,
   "kind": "agentforecast.compare_result",
-  "schema_version": "1.0.0",
+  "schema_version": "1.2.0",
   "schema_ref": "package://agentforecast/package_data/schemas/compare_result.schema.json",
-  "tool_version": "1.7.0"
+  "artifact_schema_version": "1.0.0",
+  "tool_version": "1.9.0"
 }

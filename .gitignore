@@ -16,6 +16,7 @@ dist/
 *.egg-info/
 
 tmp_case/
+tmp_eval_*/
 demo/
 arena/
 stream_demo/

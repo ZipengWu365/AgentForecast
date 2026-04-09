@@ -1,11 +1,10 @@
-# Related Software Table
+# Related Software
 
-| Project | Primary goal | Unified surface | Artifact pack | Static gallery | Agent/tool surface | Strict backend semantics |
-|---|---|---|---|---|---|---|
-| sktime | broad time-series ML framework | yes | limited | no | limited | project-specific |
-| StatsForecast | high-throughput statistical forecasting | yes | limited | no | no | project-specific |
-| MLForecast | lag-feature forecasting at scale | yes | limited | no | no | project-specific |
-| River | online learning and streaming models | yes | limited | no | no | project-specific |
-| AgentForecast | forecast-to-publish layer across heterogeneous backends | yes | yes | yes | yes | yes |
+| Project | Primary role | What AgentForecast does differently | Non-claim boundary |
+|---|---|---|---|
+| `sktime` | broad unified time-series ML framework | smaller forecast-to-publish surface with explicit artifact contract | does not replace `sktime` |
+| `StatsForecast` | large-scale statistical forecasting | reviewed software layer on top of a narrower public surface | does not replace `StatsForecast`; adapters remain experimental here |
+| `MLForecast` | scalable ML forecasting | uses one reviewed `MLForecast` adapter inside a larger publishable-pack system | does not replace `MLForecast` |
+| `River` | online and streaming ML | uses reviewed River adapters inside a reproducible artifact-producing layer | does not replace `River` |
 
-This comparison is about software surface and workflow coverage, not universal predictive superiority.
+The paper should frame these projects as neighboring ecosystems, not as defeated baselines.

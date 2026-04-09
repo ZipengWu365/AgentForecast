@@ -1232,7 +1232,7 @@ def _doc_page(title: str, eyebrow: str, headline: str, intro: str, sections: lis
         + "<div class='code-block'>/install\n/why-agentforecast\n/surfaces\n/backends\n/benchmarking\n/support-policy\n/gallery\n/papers/jmlr-mloss</div>"
         + "</aside></section>"
         + "".join(sections)
-        + "<div class='footer'><div class='footer-card'><div><h3 style='margin:0 0 8px;'>Reviewed release</h3><p class='muted' style='margin:0;'>This Pages site is the public documentation front door for the v1.8.0 reviewed release.</p></div></div></div>"
+        + "<div class='footer'><div class='footer-card'><div><h3 style='margin:0 0 8px;'>Reviewed release</h3><p class='muted' style='margin:0;'>This Pages site is the public documentation front door for the v1.9.0 software-first reviewed release.</p></div></div></div>"
         + "</div></main>"
     )
 
@@ -1244,8 +1244,9 @@ def _install_page() -> str:
             "Until a PyPI release is published through the reviewed release workflow, public install instructions stay grounded in source, local wheel, or GitHub release artifacts.",
             "<div class='surface-grid'>"
             "<article class='surface-card'><h3>Source install</h3><div class='code-block'>python -m pip install .\npython -m agentforecast.cli shoot sales --outdir demo</div></article>"
-            "<article class='surface-card'><h3>Local wheel install</h3><div class='code-block'>python -m pip wheel . -w dist --no-deps\npython -m pip install dist/agentforecast-1.8.0-py3-none-any.whl</div></article>"
+            "<article class='surface-card'><h3>Local wheel install</h3><div class='code-block'>python -m pip wheel . -w dist --no-deps\npython -m pip install dist/agentforecast-1.9.0-py3-none-any.whl</div></article>"
             "<article class='surface-card'><h3>Release artifact install</h3><div class='code-block'>python -m pip install &lt;downloaded-release-wheel&gt;.whl\npython scripts/smoke_test_wheel.py</div></article>"
+            "<article class='surface-card'><h3>Doctor</h3><div class='code-block'>python -m agentforecast.cli doctor\npython -m agentforecast.cli stream-eval --outdir outputs</div></article>"
             "</div>",
         )
     ]
@@ -1274,6 +1275,7 @@ def _why_page() -> str:
             "What AgentForecast is not",
             "The reviewed release avoids oversized framework claims.",
             "<ul class='surface-list'>"
+            "<li>not a new forecasting method</li>"
             "<li>not a replacement for sktime, StatsForecast, MLForecast, or River</li>"
             "<li>not a field-wide performance leaderboard</li>"
             "<li>not a claim that all optional adapters are stable</li>"
@@ -1295,8 +1297,8 @@ def _surfaces_page() -> str:
         "<div class='surface-grid'>"
         "<article class='surface-card'><h3>Pack</h3><p class='muted'>Forecast local data, datasets, URLs, and directories, then emit publishable packs.</p></article>"
         "<article class='surface-card'><h3>Research</h3><p class='muted'>Use OnlineForecaster with strict backend resolution and explicit provenance.</p></article>"
-        "<article class='surface-card'><h3>Artifacts</h3><p class='muted'>Every reviewed run exports metadata.json plus artifact_manifest.json.</p></article>"
-        "<article class='surface-card'><h3>Agent</h3><p class='muted'>Tool and MCP payloads expose stable backend and package summaries.</p></article>"
+        "<article class='surface-card'><h3>Operations</h3><p class='muted'>Use doctor, hosted-site builders, and the streaming annex command to validate release health.</p></article>"
+        "<article class='surface-card'><h3>Agent</h3><p class='muted'>Tool and MCP payloads expose stable backend and package summaries plus doctor discovery.</p></article>"
         "</div>"
     )
     return _doc_page(
@@ -1362,6 +1364,11 @@ def _benchmarking_page() -> str:
                 "Use high-level pack APIs for demo and operational publishing.",
                 "<ul class='surface-list'><li>backend='auto' may choose among installed candidates</li><li>explicit fallback only happens when allow_backend_substitution=True</li><li>routing and fallback details stay visible in provenance metadata</li></ul>",
             ),
+            _doc_section(
+                "Evidence boundary",
+                "Internal benchmark outputs are software evidence. External benchmark links are where broader performance context belongs.",
+                "<ul class='surface-list'><li><a href='https://github.com/ZipengWu365/AgentForecast/blob/main/BENCHMARK_HUB.md'>Benchmark hub note</a></li><li><a href='https://github.com/ZipengWu365/AgentForecast/blob/main/submission/OUTLET_FIT.md'>Outlet-fit memo</a></li><li>streaming pilot is a research annex, not a homepage performance claim</li></ul>",
+            ),
         ],
         base_prefix="../",
     )
@@ -1374,6 +1381,7 @@ def _support_policy_page() -> str:
         ("planned", "roadmap or placeholders, not current reviewed functionality"),
     ]
     row_html = "".join(f"<tr><td>{_escape(name)}</td><td>{_escape(copy)}</td></tr>" for name, copy in rows)
+    reviewed = ", ".join(item["backend_id"] for item in list_reviewed_backends())
     return _doc_page(
         "Support Policy",
         "Support tiers",
@@ -1385,6 +1393,16 @@ def _support_policy_page() -> str:
                 "Every public backend and surface belongs to one of these tiers.",
                 "<div class='table-wrap'><table class='table'><thead><tr><th>Tier</th><th>Meaning</th></tr></thead>"
                 f"<tbody>{row_html}</tbody></table></div>",
+            ),
+            _doc_section(
+                "Reviewed backends",
+                "These are the backend ids currently inside the reviewed claim.",
+                f"<div class='code-block'>{_escape(reviewed)}</div>",
+            ),
+            _doc_section(
+                "Reviewed additions in v1.9.0",
+                "This release expands the reviewed backend boundary without changing the software-first claim.",
+                "<ul class='surface-list'><li>promoted: mlforecast_linear</li><li>promoted: river_linear</li><li>promoted: river_snarimax</li><li>streaming pilot stays annex-only</li></ul>",
             ),
         ],
         base_prefix="../",
@@ -1405,8 +1423,24 @@ def _paper_page() -> str:
                 "<li><a href='../../'>Docs and landing page</a></li>"
                 "<li><a href='../../gallery/'>Public gallery</a></li>"
                 "<li><a href='https://github.com/ZipengWu365/AgentForecast/blob/main/submission/JMLR_SCOPE.md'>Scope document</a></li>"
+                "<li><a href='https://github.com/ZipengWu365/AgentForecast/blob/main/submission/OUTLET_FIT.md'>Outlet-fit memo</a></li>"
+                "<li><a href='https://github.com/ZipengWu365/AgentForecast/blob/main/submission/SCIENTIFIC_SOFTWARE_CONTRIBUTION.md'>Scientific software memo</a></li>"
+                "<li><a href='https://github.com/ZipengWu365/AgentForecast/blob/main/submission/REVIEWER_RESPONSE_MAP.md'>Reviewer response map</a></li>"
                 "<li><a href='https://github.com/ZipengWu365/AgentForecast/blob/main/submission/REPRODUCTION.md'>Reproduction guide</a></li>"
                 "<li><a href='https://github.com/ZipengWu365/AgentForecast/blob/main/submission/RELATED_SOFTWARE_TABLE.md'>Related software table</a></li>"
+                "<li><a href='https://github.com/ZipengWu365/AgentForecast/blob/main/submission/STREAMING_PILOT_APPENDIX.md'>Streaming pilot appendix</a></li>"
+                "<li><a href='https://github.com/ZipengWu365/AgentForecast/blob/main/BENCHMARK_HUB.md'>Benchmark hub</a></li>"
+                "<li><a href='https://github.com/ZipengWu365/AgentForecast/blob/main/VALIDATION.md'>Validation evidence</a></li>"
+                "</ul>",
+            ),
+            _doc_section(
+                "Submission posture",
+                "This page is for a software-first scientific software submission, not for a new-machine-intelligence-method claim.",
+                "<ul class='surface-list'>"
+                "<li>not a Nature Machine Intelligence Article claim</li>"
+                "<li>not a reusability-report claim about previously published external code</li>"
+                "<li>software boundary, artifact contract, and reproducibility are the primary review targets</li>"
+                "<li>streaming annex is supplemental evidence, not a main release claim</li>"
                 "</ul>",
             ),
         ],
@@ -1459,20 +1493,21 @@ def build_hosted_site(runs_root: str | Path, site_dir: str | Path, *, gallery_ti
         + "<div class='hero-copy'>"
         + "<div class='eyebrow'>Unified forecasting layer</div>"
         + f"<h1>{_escape(gallery_title)}</h1>"
-        + "<p>AgentForecast is a reviewed forecast-to-publish layer over heterogeneous forecasting backends. It is not a replacement for sktime, StatsForecast, MLForecast, or River; it is the layer that keeps routing, artifacts, and agent-facing payloads consistent.</p>"
+        + "<p>AgentForecast is a reviewed forecast-to-publish layer over heterogeneous forecasting backends. It is not a new forecasting method and not a replacement for sktime, StatsForecast, MLForecast, or River; it is the layer that keeps routing, artifacts, and agent-facing payloads consistent.</p>"
         + _author_strip()
         + "<div class='hero-actions'>"
         + "<a class='button button-primary' href='gallery/'>Explore public packs</a>"
         + "<a class='button button-secondary' href='install/'>Install paths</a>"
         + "</div>"
         + "<div class='hero-meta'>"
-        + "<span class='pill pill-accent'>white-background-first</span>"
+        + "<span class='pill pill-accent'>software-first submission</span>"
         + "<span class='pill'>what it is and what it is not</span>"
         + "<span class='pill pill-blue'>agent-friendly outputs</span>"
+        + "<span class='pill'>streaming annex</span>"
         + "</div>"
         + "</div>"
         + "<aside class='hero-panel panel'>"
-        + "<div><strong>Product promise</strong><p class='muted'>One Python call or one command routes a series, keeps backend provenance visible, and exports cards, charts, markdown, CSV, JSON, and an artifact manifest.</p></div>"
+        + "<div><strong>Product promise</strong><p class='muted'>One Python call or one command routes a series, keeps backend provenance visible, and exports cards, charts, markdown, CSV, JSON, and an artifact manifest. The reviewed release also ships a doctor command and a separate streaming annex.</p></div>"
         + _summary_cards(public_entries, len(benchmark_items))
         + "<div class='code-block'>import pandas as pd\nfrom agentforecast import forecast_dataframe\n\ndf = pd.read_csv(\"https://raw.githubusercontent.com/jbrownlee/Datasets/master/monthly-car-sales.csv\")\nresult = forecast_dataframe(df, name=\"monthly_car_sales\", horizon=12, strategy=\"fast\", outdir=\"demo\")</div>"
         + "</aside></section>"

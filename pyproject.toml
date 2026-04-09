@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agentforecast"
-version = "1.8.0"
+version = "1.9.0"
 description = "A reviewed forecast-to-publish layer for time-series forecasting across heterogeneous backends."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -116,7 +116,7 @@ notes = "Fill real repo/docs/gallery URLs before public release instead of publi
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra --strict-markers --cov=agentforecast --cov-report=term-missing --cov-report=xml --cov-report=html --cov-fail-under=60"
+addopts = "-ra --strict-markers --cov=agentforecast --cov-report=term-missing --cov-report=xml --cov-report=html --cov-fail-under=70"
 markers = [
   "optional: tests for optional adapters and extras",
   "slow: slower integration or site-generation tests"

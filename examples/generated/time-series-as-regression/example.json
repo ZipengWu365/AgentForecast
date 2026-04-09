@@ -1,4 +1,4 @@
-{
+﻿{
   "example_id": "time-series-as-regression",
   "category": "Time Series As Regression",
   "title": "Time series to regression with custom lags",
@@ -18,7 +18,7 @@
   "script_path": "examples/scripts/time_series_as_regression.py",
   "pack_dir": "run",
   "python_api": "import pandas as pd\nfrom agentforecast import FeatureSpec, forecast_dataframe\n\ndf = pd.read_csv(\"https://raw.githubusercontent.com/jbrownlee/Datasets/master/daily-min-temperatures.csv\")\nfeature_spec = FeatureSpec(\n    lag_points=(1, 2, 3, 7, 14, 28),\n    lag_step=7,\n    lag_count=4,\n    rolling_windows=(3, 7, 14, 28),\n    include_tsfresh=True,\n    tsfresh_window=28,\n)\nresult = forecast_dataframe(\n    df,\n    name=\"daily_min_temperatures\",\n    backend=\"ml_ridge\",\n    horizon=30,\n    feature_spec=feature_spec,\n    outdir=\"demo\",\n)\n\nprint(result.feature_spec[\"lags\"])",
-  "cli_command": "python -m agentforecast.cli forecast-csv C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/daily_min_temperatures.csv --backend ml_ridge --lag-points 1,2,3,7,14,28 --lag-step 7 --lag-count 4 --rolling-windows 3,7,14,28 --outdir examples/generated/time-series-as-regression --tsfresh --tsfresh-window 28",
+  "cli_command": "python -m agentforecast.cli forecast-csv C:/Users/wzp07/OneDrive/鏂囨。/data library/AgentTSForcasting/agentforecast_v1_8/agentforecast/package_data/public_examples/daily_min_temperatures.csv --backend ml_ridge --lag-points 1,2,3,7,14,28 --lag-step 7 --lag-count 4 --rolling-windows 3,7,14,28 --outdir examples/generated/time-series-as-regression --tsfresh --tsfresh-window 28",
   "runtime_notes": [
     "Source data: Daily minimum temperatures.",
     "`tsfresh` was installed in this environment, so compact tsfresh descriptors were included."

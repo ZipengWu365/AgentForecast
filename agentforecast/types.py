@@ -5,9 +5,19 @@ from typing import Any
 from .version import __version__
 
 
-RESULT_SCHEMA_VERSION = "1.1.0"
+RESULT_SCHEMA_VERSION = "1.2.0"
 ARTIFACT_SCHEMA_VERSION = "1.0.0"
 ARTIFACT_MANIFEST_SCHEMA_REF = "package://agentforecast/package_data/schemas/artifact_manifest.schema.json"
+TOOL_SUCCESS_SCHEMA_VERSION = "1.0.0"
+TOOL_SUCCESS_SCHEMA_REF = "package://agentforecast/package_data/schemas/tool_success.schema.json"
+TOOL_ERROR_RESPONSE_SCHEMA_VERSION = "1.0.0"
+TOOL_ERROR_RESPONSE_SCHEMA_REF = "package://agentforecast/package_data/schemas/tool_error.schema.json"
+TOOL_ERROR_DETAIL_SCHEMA_VERSION = "1.1.0"
+TOOL_ERROR_DETAIL_SCHEMA_REF = "package://agentforecast/package_data/schemas/error.schema.json"
+MCP_ERROR_SCHEMA_VERSION = "1.0.0"
+MCP_ERROR_SCHEMA_REF = "package://agentforecast/package_data/schemas/mcp_error.schema.json"
+STREAMING_EVAL_SCHEMA_VERSION = "1.0.0"
+STREAMING_EVAL_SCHEMA_REF = "package://agentforecast/package_data/schemas/streaming_eval_result.schema.json"
 
 
 @dataclass
@@ -114,5 +124,33 @@ class DirectoryRunResult:
             "tool_version": self.tool_version,
             "inputs": self.inputs,
             "runs": [run.to_dict() for run in self.runs],
+            "warnings": self.warnings,
+        }
+
+
+@dataclass
+class StreamingEvalResult:
+    inputs: dict[str, Any]
+    summary: dict[str, Any]
+    metrics: list[dict[str, Any]]
+    diagnostics: dict[str, Any]
+    artifacts: list[ArtifactRef] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    kind: str = "agentforecast.streaming_eval_result"
+    schema_version: str = STREAMING_EVAL_SCHEMA_VERSION
+    schema_ref: str = STREAMING_EVAL_SCHEMA_REF
+    tool_version: str = __version__
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "kind": self.kind,
+            "schema_version": self.schema_version,
+            "schema_ref": self.schema_ref,
+            "tool_version": self.tool_version,
+            "inputs": self.inputs,
+            "summary": self.summary,
+            "metrics": self.metrics,
+            "diagnostics": self.diagnostics,
+            "artifacts": [artifact.to_dict() for artifact in self.artifacts],
             "warnings": self.warnings,
         }

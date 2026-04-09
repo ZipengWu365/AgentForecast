@@ -31,6 +31,8 @@ from .benchmark_hub import list_external_benchmarks
 from .examples_hub import build_examples_site, demo_examples, list_examples
 from .hosted import build_hosted_site
 from .public_examples import public_example_path
+from .doctor import doctor
+from .streaming_eval import stream_eval
 
 
 def _print(payload, output: str = "json") -> None:
@@ -349,6 +351,15 @@ def build_parser() -> argparse.ArgumentParser:
     p_api = sub.add_parser("api-tour", help="Show the compact API catalog.")
     p_api.add_argument("--output", choices=["json", "text"], default="json")
 
+    p_doctor = sub.add_parser("doctor", help="Inspect installed extras, reviewed workflows, and next-step guidance.")
+    p_doctor.add_argument("--output", choices=["json", "text"], default="json")
+
+    p_stream_eval = sub.add_parser("stream-eval", help="Run the streaming evaluation pilot and export the annex artifacts.")
+    p_stream_eval.add_argument("--outdir", default="outputs")
+    p_stream_eval.add_argument("--backends", default="stream_ewm,river_linear,river_snarimax")
+    p_stream_eval.add_argument("--warmup", type=int, default=36)
+    p_stream_eval.add_argument("--output", choices=["json", "text"], default="json")
+
     p_gallery = sub.add_parser("build-gallery", help="Build a static gallery site from run directories.")
     p_gallery.add_argument("--runs-root", required=True)
     p_gallery.add_argument("--site-dir", required=True)
@@ -441,6 +452,25 @@ def main(argv: list[str] | None = None) -> int:
             _print(list_external_benchmarks(), args.output)
         elif args.command == "api-tour":
             _print(api_catalog(), args.output)
+        elif args.command == "doctor":
+            payload = doctor()
+            if args.output == "json":
+                _print(payload, args.output)
+            else:
+                lines = [
+                    "agentforecast doctor",
+                    f"reviewed_backends: {', '.join(payload['reviewed_backends'])}",
+                    f"missing_promoted_backends: {', '.join(payload['missing_promoted_backends']) or 'none'}",
+                    f"recommended_next_command: {payload['recommended_next_command']}",
+                ]
+                _print("\n".join(lines), args.output)
+        elif args.command == "stream-eval":
+            payload = stream_eval(
+                outdir=args.outdir,
+                backends=[item.strip() for item in args.backends.split(",") if item.strip()],
+                warmup=args.warmup,
+            )
+            _print(payload.to_dict() if args.output == "json" else payload.summary["headline"], args.output)
         elif args.command == "build-gallery":
             payload = build_hosted_site(args.runs_root, args.site_dir)
             _print(payload, args.output)

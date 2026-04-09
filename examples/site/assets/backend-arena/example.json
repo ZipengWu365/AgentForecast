@@ -1,4 +1,4 @@
-{
+﻿{
   "example_id": "backend-arena",
   "category": "Model Selection",
   "title": "Backend arena on airline passengers",
@@ -18,7 +18,7 @@
   "script_path": "examples/scripts/backend_arena.py",
   "pack_dir": "run",
   "python_api": "import pandas as pd\nfrom agentforecast import compare_backends_frame\n\ndf = pd.read_csv(\"https://raw.githubusercontent.com/jbrownlee/Datasets/master/airline-passengers.csv\")\nresult = compare_backends_frame(\n    df,\n    name=\"airline_passengers\",\n    backends=['naive', 'moving_average', 'stats_arima', 'stats_ets', 'ml_ridge', 'stream_ewm'],\n    horizon=12,\n    outdir=\"demo\",\n)\n\nprint(result.backend_selected)\nprint(result.leaderboard[0])",
-  "cli_command": "python -m agentforecast.cli compare-csv C:/Users/wzp07/OneDrive/文档/data library/AgentTSForcasting/agentforecast_v1_7/agentforecast/package_data/public_examples/airline_passengers.csv --backends naive,moving_average,stats_arima,stats_ets,ml_ridge,stream_ewm --horizon 12 --outdir examples/generated/backend-arena",
+  "cli_command": "python -m agentforecast.cli compare-csv C:/Users/wzp07/OneDrive/鏂囨。/data library/AgentTSForcasting/agentforecast_v1_8/agentforecast/package_data/public_examples/airline_passengers.csv --backends naive,moving_average,stats_arima,stats_ets,ml_ridge,stream_ewm --horizon 12 --outdir examples/generated/backend-arena",
   "runtime_notes": [
     "Source data: Airline passengers."
   ],

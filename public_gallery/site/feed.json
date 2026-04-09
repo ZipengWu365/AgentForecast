@@ -548,7 +548,7 @@
           "mode": "streaming",
           "strict_backend": false,
           "allow_backend_substitution": false,
-          "support_tier": "experimental",
+          "support_tier": "reviewed",
           "dependency_state": {
             "river": true
           },

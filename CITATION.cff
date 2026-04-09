@@ -7,7 +7,7 @@ authors:
     given-names: Zipeng
     affiliation: The University of Birmingham
     email: zxw365@student.bham.ac.uk
-version: 1.8.0
+version: 1.9.0
 license: MIT
 repository-code: https://github.com/ZipengWu365/AgentForecast
 url: https://zipengwu365.github.io/AgentForecast/

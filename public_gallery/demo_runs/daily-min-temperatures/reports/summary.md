@@ -5,7 +5,7 @@
 - artifact_count: `11`
 - requested_backend: `river_snarimax`
 - resolved_backend: `river_snarimax`
-- support_tier: `experimental`
+- support_tier: `reviewed`
 - latest_observed: `13.0000`
 - projected_end: `13.2914`
 

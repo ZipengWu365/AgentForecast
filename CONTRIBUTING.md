@@ -13,8 +13,8 @@ Thanks for considering a contribution.
 ## Development loop
 
 ```bash
-python -m pip install -e .
-python -m unittest discover -s tests -v
+python -m pip install -e .[dev]
+python -m pytest -q
 python scripts/build_benchmarks.py
 python scripts/build_demo_gallery.py
 ```
