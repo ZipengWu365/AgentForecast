@@ -9,9 +9,18 @@
 <p align="center">
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-1f2937?style=flat-square"></a>
   <img alt="Python" src="https://img.shields.io/badge/python-3.10%2B-2F6BFF?style=flat-square">
-  <img alt="GitHub Pages" src="https://img.shields.io/badge/gallery-GitHub%20Pages-FFC83D?style=flat-square&logo=github">
+  <a href="https://zipengwu365.github.io/AgentForecast/"><img alt="GitHub Pages" src="https://img.shields.io/badge/gallery-GitHub%20Pages-FFC83D?style=flat-square&logo=github"></a>
+  <a href="https://github.com/ZipengWu365/AgentForecast/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/ZipengWu365/AgentForecast?style=flat-square&label=release&color=10b981"></a>
   <img alt="Author" src="https://img.shields.io/badge/author-Zipeng%20Wu-1F2937?style=flat-square">
   <img alt="Affiliation" src="https://img.shields.io/badge/The%20University%20of%20Birmingham-research-9C1C40?style=flat-square">
+</p>
+
+<p align="center">
+  <a href="https://zipengwu365.github.io/AgentForecast/">Hosted gallery</a> |
+  <a href="HOSTED_GALLERY_GUIDE.md">Gallery guide</a> |
+  <a href="BACKENDS.md">Backends</a> |
+  <a href="BENCHMARK_HUB.md">Benchmark hub</a> |
+  <a href="https://github.com/ZipengWu365/AgentForecast/releases/latest">Release notes</a>
 </p>
 
 <p align="center">
@@ -81,9 +90,11 @@ python -m pip install .
 python -m agentforecast.cli forecast-url https://raw.githubusercontent.com/jbrownlee/Datasets/master/monthly-car-sales.csv --horizon 12 --outdir demo
 ```
 
-Local wheel path:
+Build a local wheel when you need an installable artifact:
 
 ```bash
+python -m pip install build
+python -m build --wheel
 python -m pip install dist/agentforecast-1.7.0-py3-none-any.whl
 ```
 
@@ -267,24 +278,24 @@ python -m pip install .
 Optional extras after installation:
 
 ```bash
-pip install "agentforecast[stats]"
-pip install "agentforecast[ml]"
-pip install "agentforecast[stream]"
-pip install "agentforecast[features]"
-pip install "agentforecast[deep]"
-pip install "agentforecast[automl]"
-pip install "agentforecast[tabpfn]"
-pip install "agentforecast[stats,ml,stream,features]"
+python -m pip install ".[stats]"
+python -m pip install ".[ml]"
+python -m pip install ".[stream]"
+python -m pip install ".[features]"
+python -m pip install ".[deep]"
+python -m pip install ".[automl]"
+python -m pip install ".[tabpfn]"
+python -m pip install ".[stats,ml,stream,features]"
 ```
 
 Recommended install matrix:
 
 | Persona | Command | Best for |
 | --- | --- | --- |
-| beginner / pack user | `pip install agentforecast` | one-shot forecast packs and backend auto-routing |
-| research / benchmark | `pip install "agentforecast[stats,ml]"` | strict benchmark runs, comparison work, `OnlineForecaster` |
-| streaming / operations | `pip install "agentforecast[stream]"` | River backends and streaming watch flows |
-| full optional stack | `pip install "agentforecast[all]"` | widest adapter coverage |
+| beginner / pack user | `python -m pip install .` | one-shot forecast packs and backend auto-routing |
+| research / benchmark | `python -m pip install ".[stats,ml]"` | strict benchmark runs, comparison work, `OnlineForecaster` |
+| streaming / operations | `python -m pip install ".[stream]"` | River backends and streaming watch flows |
+| full optional stack | `python -m pip install ".[all]"` | widest adapter coverage |
 
 Environment check:
 
